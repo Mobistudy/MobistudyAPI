@@ -16,7 +16,7 @@ import getApp from './app.mjs'
   const numCPUs = os.cpus().length
   const app = await getApp()
 
-  var config = getConfig()
+  const config = getConfig()
 
   // pass parameters down the application
   app.set('port', config.web.port)
@@ -33,14 +33,14 @@ import getApp from './app.mjs'
       console.log(`worker ${worker.process.pid} died`)
     })
   } else {
-    var server
+    let server
 
     if (config.cert) {
       // HTTPS case
 
       // Private Key and Public Certificate
-      var privateKey = fs.readFileSync(config.cert.key, 'utf8')
-      var certificate = fs.readFileSync(config.cert.file, 'utf8')
+      const privateKey = fs.readFileSync(config.cert.key, 'utf8')
+      const certificate = fs.readFileSync(config.cert.file, 'utf8')
 
       server = https.createServer({ key: privateKey, cert: certificate }, app)
     } else {
@@ -64,7 +64,7 @@ import getApp from './app.mjs'
       throw error
     }
 
-    var bind = typeof config.web.port === 'string' ? 'Pipe ' + config.web.port : 'Port ' + config.web.port
+    const bind = typeof config.web.port === 'string' ? 'Pipe ' + config.web.port : 'Port ' + config.web.port
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
@@ -83,8 +83,8 @@ import getApp from './app.mjs'
   * Event listener for HTTP server "listening" event.
   */
   function onListening () {
-    var addr = server.address()
-    var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
+    const addr = server.address()
+    const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
     console.log('Listening on ' + bind)
   }
 })()
