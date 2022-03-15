@@ -286,6 +286,7 @@ export default async function () {
           await DAO.deleteFingerTappingsByStudy(studykey)
           await DAO.deleteTugtByStudy(studykey)
           await DAO.deleteHoldPhoneByStudy(studykey)
+          await DAO.deleteVocalizationByStudy(studykey)
           await deleteAttachmentsByStudy(studykey)
 
           // Deleting the study
