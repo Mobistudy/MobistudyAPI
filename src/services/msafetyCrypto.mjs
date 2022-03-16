@@ -372,7 +372,7 @@ class HandshakeState {
             }
             break
           default:
-            console.log('Unknown premessage type:', preMessage)
+            throw new Error('Unknown premessage type: ' + preMessage)
         }
       }
     }
@@ -429,7 +429,7 @@ class HandshakeState {
 
           break
         default:
-          console.log('unknown pattern', pattern)
+          throw new Error('Unknown pattern' + pattern)
       }
     }
 
@@ -457,8 +457,6 @@ class HandshakeState {
      * are no more message tokens to process.
      */
   ReadMessage (message) {
-    console.log('ReadMessage MESSAGE', message)
-    
     const messagePatterns = this.messagePatterns.shift()
     let ciphertext = Buffer.concat([Buffer.alloc(0), message])
 
@@ -512,7 +510,7 @@ class HandshakeState {
 
           break
         default:
-          console.log('unknown pattern', pattern)
+          throw new Error('unknown pattern' + pattern)
       }
     }
 
@@ -626,13 +624,8 @@ function DECRYPT (k, n, ad, ciphertext) {
   const nonce = nonceToIv(n)
   const cipher = crypto.createDecipheriv(algorithm, k, nonce)
 
-  try {
-    const tag = ciphertext.slice(ciphertext.length - TAG_LENGTH)
-    cipher.setAuthTag(tag)
-  } catch (error) {
-    console.log('Could not extract tag from encoded message', error)
-    throw new Error(`The encrypted message must be at least ${TAG_LENGTH} bytes long.`)
-  }
+  const tag = ciphertext.slice(ciphertext.length - TAG_LENGTH)
+  cipher.setAuthTag(tag)
 
   const toDecrypt = ciphertext.slice(0, ciphertext.length - TAG_LENGTH)
 
@@ -646,16 +639,11 @@ function DECRYPT (k, n, ad, ciphertext) {
 
   cipher.setAAD(additionalData)
 
-  try {
-    const first = cipher.update(toDecrypt)
-    const second = cipher.final()
-    const decoded = Buffer.concat([first, second])
+  const first = cipher.update(toDecrypt)
+  const second = cipher.final()
+  const decoded = Buffer.concat([first, second])
 
-    return decoded
-  } catch (error) {
-    console.error('Could not decode message. This could be due to invalid key, nonce or ad', error)
-    throw new Error('Decryption failed')
-  }
+  return decoded
 }
 
 /**

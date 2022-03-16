@@ -29,7 +29,7 @@ const sessionsStore = {}
  * @param {CipherState} rx a CipherState used for incoming messages.
  * @param {CipherState} tx a CipherState used for outgoing messages.
  */
-async function storeSession(deviceId, rx, tx) {
+async function storeSession (deviceId, rx, tx) {
   const key = 'state_' + deviceId
   let session = sessionsStore[key]
 
@@ -63,7 +63,7 @@ async function storeSession(deviceId, rx, tx) {
  * @param {string} deviceId the device id.
  * @returns {Object} if a session exists. null otherwise.
  */
-async function loadSession(deviceId) {
+async function loadSession (deviceId) {
   const key = 'state_' + deviceId
   return sessionsStore[key]
 }
@@ -73,7 +73,7 @@ async function loadSession(deviceId) {
  * @param {string} deviceId the device id.
  * @param {Object} session the session object.
  */
-async function updateSession(deviceId, session) {
+async function updateSession (deviceId, session) {
   const key = 'state_' + deviceId
   sessionsStore[key] = session
 }
@@ -85,7 +85,7 @@ async function updateSession(deviceId, session) {
  * @param {String} deviceId the id of the device.
  * @return {object} an object containing the message as base64 encoded string.
  */
-function keyexchange(ciphertext, deviceId) {
+function keyexchange (ciphertext, deviceId) {
   console.log('CIPHERTEXT', ciphertext)
   console.log('DEVICEID', deviceId)
 
@@ -105,7 +105,7 @@ function keyexchange(ciphertext, deviceId) {
  * @param {String} ciphertext a base64 encoded string from the initiator.
  * @return an array containing a message and the two cipher states.
  */
-function handshake(ciphertext) {
+function handshake (ciphertext) {
   const handshakeState = new HandshakeState()
   handshakeState.Initialize('NK', false, Buffer.alloc(0), KEYPAIR, null, null, null)
 
@@ -127,7 +127,7 @@ function handshake(ciphertext) {
  * @param {String} deviceId the device id.
  * @returns an object containing the plaintext (as a base64 encoded string) and the nonce (as a string) used. If anything fails, null is returned.
  */
-async function encrypt(plaintext, deviceId) {
+async function encrypt (plaintext, deviceId) {
   const session = await loadSession(deviceId)
 
   if (!session) {
@@ -158,7 +158,7 @@ async function encrypt(plaintext, deviceId) {
  * @param {BitInt} nonce the nonce used when encrypting the ciphertext.
  * @param {*} deviceId the device id.
  */
-async function decrypt(ciphertext, nonce, deviceId) {
+async function decrypt (ciphertext, nonce, deviceId) {
   const session = await loadSession(deviceId)
 
   if (!session) {
@@ -204,8 +204,7 @@ export default async function () {
     if (req.headers.authkey === config.mSafety.webhookAuthKey) {
       if (req.body && req.body.pubDataItems) {
         for (const pubdata of req.body.pubDataItems) {
-          console.log('DATA EVENT', pubdata)
-          if (pubdata.type === 'device' && pubdata.event === 'sensors') {
+          if (pubdata.type === 'device' && (pubdata.event === 'sensors' || pubdata.event === 'encrypted-data/sensors')) {
             const deviceId = pubdata.deviceId
 
             // create the device-specific subfolder
@@ -218,16 +217,54 @@ export default async function () {
 
             if (deviceId) {
               const filename = 'sensor_' + ts + '.json'
+              let sensordata = pubdata.jsonData
+
+              if (pubdata.event === 'encrypted-data/sensors') {
+                const ciphertext = sensordata.data
+                const nonce = sensordata.nonce
+
+                if (!ciphertext) {
+                  applogger.warn({ pubdata: pubdata }, 'encrypted data was not passed in the message')
+                  res.sendS(400).send('encrypted data was not passed in the message')
+                  return
+                }
+                if (!nonce) {
+                  console.warn('missing or univalid nonce')
+                  res.status(400).send('nonce was not passed in the message')
+                  return
+                }
+
+                const plaintext = await decrypt(
+                  ciphertext,
+                  BigInt(nonce),
+                  deviceId
+                )
+
+                if (plaintext) {
+                  console.log('Data decrypted', plaintext)
+                  sensordata = plaintext
+                } else {
+                  console.warn({ ciphertext, nonce }, 'could not decrypt data')
+                  res.status(400).send('could not decrypt data')
+                  return
+                }
+              }
               try {
                 filehandle = await fsOpen(deviceDir + filename, 'w')
-                const text = JSON.stringify(pubdata.jsonData)
+                const text = JSON.stringify(sensordata)
                 await filehandle.writeFile(text)
                 applogger.debug({ filename: filename }, 'mSafety file with data saved')
               } catch (err) {
                 applogger.error({ error: err }, 'cannot save sensors data mSafety file: ' + filename)
+                res.sendStatus(500)
+                return
               } finally {
                 if (filehandle) await filehandle.close()
               }
+            } else {
+              applogger.warn({ pubdata: pubdata }, 'discarding sensor data with absent deviceid')
+              res.status(400).send('no deviceid passed')
+              return
             }
           } else {
             applogger.trace({ pubdata: pubdata }, 'discarding non sensors data from mSafety')
@@ -284,84 +321,6 @@ export default async function () {
     } catch (err) {
       applogger.error({ error: err }, 'cannot generate mSafety key exchange')
       res.sendStatus(500)
-    }
-  })
-
-  // Handles an encrypt request
-  router.post('/msafety/encrypt/', async function (req, res) {
-    const body = req.body
-
-    if (!body || !body.data) {
-      res.status(400).send('data was not passed in the post body')
-      return
-    }
-
-    const plaintext = body.data
-    const deviceId = req.query.deviceId
-
-    if (!deviceId) {
-      res.status(400).send('deviceId is a required parameter.')
-      return
-    }
-
-    const result = await encrypt(plaintext, deviceId)
-
-    if (result) {
-      res.send(result)
-    } else {
-      res.status(500).send('Could not encrypt')
-    }
-  })
-
-  // handles decrypt requests
-  router.post('/msafety/decrypt/', async function (req, res) {
-    const body = req.body
-
-    if (!body || !body.data) {
-      res.status(400).send('data was not passed in the post body.')
-      return
-    }
-
-    const ciphertext = body.data
-    const nonce = body.nonce
-    const deviceId = req.query.deviceId
-
-    if (!nonce) {
-      res.status(400).send('nonce was not passed in the post body.')
-      return
-    }
-
-    if (!deviceId) {
-      res.status(400).send('deviceId is a required parameter.')
-      return
-    }
-
-    const plaintext = await decrypt(ciphertext, BigInt(nonce), deviceId)
-
-    if (plaintext) {
-      res.send(plaintext.toString('base64'))
-    } else {
-      res.status(500).send('could not decrypt', ciphertext, 'with nonce', nonce)
-    }
-  })
-
-  // Handles a data request
-  router.post('/msafety/data/', async function (req, res) {
-    const body = req.body
-    const ciphertext = body.data
-    const nonce = BigInt(body.nonce)
-    const deviceId = req.query.deviceId
-
-    const plaintext = await decrypt(ciphertext, nonce, deviceId)
-
-    const plaintextBuffer = Buffer.from(plaintext, 'utf8').toString('base64')
-
-    const encryptData = await encrypt(plaintextBuffer, deviceId)
-
-    if (encryptData) {
-      res.send(encryptData)
-    } else {
-      res.status(500).send('Could not decrypt or encrypt the data.')
     }
   })
 
