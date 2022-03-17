@@ -19,6 +19,11 @@ const KEYPAIR = new KeyPair(Buffer.from(config.mSafety.publicKey, 'base64'), Buf
 // simple mem storage for device sessions. For high volume it should be implemented on database instead.
 let sessionsStore = {}
 const SESSIONSTORE_FILE = './tmp/msafetySessionStorage.json'
+// allow BigInt to be serialised when creating JSON
+// eslint-disable-next-line no-extend-native
+BigInt.prototype.toJSON = function () {
+  return this.toString()
+}
 
 /**
  * Stores the content of the CipherStates to the data store.
