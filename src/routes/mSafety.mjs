@@ -239,7 +239,8 @@ export default async function () {
 
             if (deviceId) {
               const filename = 'sensor_' + ts + '.json'
-              let sensordata = pubdata.jsonData
+              const sensordata = pubdata.jsonData
+              let text = JSON.stringify(sensordata)
 
               if (pubdata.event === 'encrypted-data/sensors') {
                 const ciphertext = sensordata.data
@@ -264,7 +265,7 @@ export default async function () {
 
                 if (plaintext) {
                   applogger.trace('Data decrypted for device ' + deviceId)
-                  sensordata = plaintext
+                  text = plaintext
                 } else {
                   applogger.warn({ ciphertext, nonce }, 'could not decrypt data for device ' + deviceId)
                   // reply with a 200 or msafety will keep re-sending the message
@@ -274,7 +275,6 @@ export default async function () {
               }
               try {
                 filehandle = await fsOpen(deviceDir + filename, 'w')
-                const text = JSON.stringify(sensordata)
                 await filehandle.writeFile(text)
                 applogger.trace({ filename: filename }, 'mSafety file with data saved for device ' + deviceId)
               } catch (err) {
