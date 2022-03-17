@@ -1,4 +1,3 @@
-'use strict'
 /**
 * This provides the API endpoints for the Sony mSafety integration.
 */
@@ -17,8 +16,8 @@ const msafetyDir = UPLOADSDIR + '/' + MSAFETYSUBDIR + '/'
 const config = getConfig()
 const KEYPAIR = new KeyPair(Buffer.from(config.mSafety.publicKey, 'base64'), Buffer.from(config.mSafety.privateKey, 'base64'))
 
-// mem storage for device sessions. For high volume it should be implemented on database instead.
-const sessionsStore = {}
+// simple mem storage for device sessions. For high volume it should be implemented on database instead.
+let sessionsStore = {}
 
 /**
  * Stores the content of the CipherStates to the data store.
@@ -55,6 +54,16 @@ async function storeSession (deviceId, rx, tx) {
     }
   }
   sessionsStore[key] = session
+
+  // save the sessionStore on file
+  try {
+    const filehandle = await fsOpen('msafetySessionStorage.json', 'w')
+    const text = JSON.stringify(sessionsStore)
+    await filehandle.writeFile(text)
+    applogger.trace('mSafety session storage saved')
+  } catch (err) {
+    applogger.error(err, 'Cannot store session storage on file')
+  }
 }
 
 /**
@@ -64,6 +73,14 @@ async function storeSession (deviceId, rx, tx) {
  * @returns {Object} if a session exists. null otherwise.
  */
 async function loadSession (deviceId) {
+  try {
+    const filehandle = await fsOpen('msafetySessionStorage.json', 'r')
+    const txt = await filehandle.readFile()
+    sessionsStore = JSON.parse(txt)
+    applogger.trace('mSafety session storage read')
+  } catch (err) {
+    applogger.error(err, 'Cannot read session storage on file')
+  }
   const key = 'state_' + deviceId
   return sessionsStore[key]
 }
@@ -76,6 +93,16 @@ async function loadSession (deviceId) {
 async function updateSession (deviceId, session) {
   const key = 'state_' + deviceId
   sessionsStore[key] = session
+
+  // save the sessionStore on file
+  try {
+    const filehandle = await fsOpen('msafetySessionStorage.json', 'w')
+    const text = JSON.stringify(sessionsStore)
+    await filehandle.writeFile(text)
+    applogger.trace('mSafety session storage saved')
+  } catch (err) {
+    applogger.error(err, 'Cannot store session storage on file')
+  }
 }
 
 /**
@@ -86,16 +113,8 @@ async function updateSession (deviceId, session) {
  * @return {object} an object containing the message as base64 encoded string.
  */
 function keyexchange (ciphertext, deviceId) {
-  console.log('CIPHERTEXT', ciphertext)
-  console.log('DEVICEID', deviceId)
-
   const [message, rx, tx] = handshake(ciphertext)
-  console.log('handshake message', message)
-  console.log('handshake rx', rx)
-  console.log('handshake tx', tx)
-
   storeSession(deviceId, rx, tx)
-
   return { data: message.toString('base64') }
 }
 
@@ -109,12 +128,8 @@ function handshake (ciphertext) {
   const handshakeState = new HandshakeState()
   handshakeState.Initialize('NK', false, Buffer.alloc(0), KEYPAIR, null, null, null)
 
-  console.log('handshake HANDSHAKETEST', handshakeState)
-
   handshakeState.ReadMessage(Buffer.from(ciphertext, 'base64'))
   const response = handshakeState.WriteMessage(Buffer.alloc(0))
-
-  console.log('handshake RESPONSE FROM HANDSHAKE', response)
 
   return response
 }
@@ -162,6 +177,7 @@ async function decrypt (ciphertext, nonce, deviceId) {
   const session = await loadSession(deviceId)
 
   if (!session) {
+    applogger.warn('Cannot get session for device ' + deviceId)
     return null
   }
 
@@ -224,12 +240,12 @@ export default async function () {
                 const nonce = sensordata.nonce
 
                 if (!ciphertext) {
-                  applogger.warn({ pubdata: pubdata }, 'encrypted data was not passed in the message')
-                  res.sendS(400).send('encrypted data was not passed in the message')
+                  applogger.warn({ pubdata: pubdata }, 'encrypted data was not passed in the message for device ' + deviceId)
+                  res.status(400).send('encrypted data was not passed in the message')
                   return
                 }
                 if (!nonce) {
-                  console.warn('missing or univalid nonce')
+                  applogger.warn({ pubdata: pubdata }, 'missing or univalid nonce for device ' + deviceId)
                   res.status(400).send('nonce was not passed in the message')
                   return
                 }
@@ -241,11 +257,12 @@ export default async function () {
                 )
 
                 if (plaintext) {
-                  console.log('Data decrypted', plaintext)
+                  applogger.trace('Data decrypted for device ' + deviceId)
                   sensordata = plaintext
                 } else {
-                  console.warn({ ciphertext, nonce }, 'could not decrypt data')
-                  res.status(400).send('could not decrypt data')
+                  applogger.warn({ ciphertext, nonce }, 'could not decrypt data for device ' + deviceId)
+                  // reply with a 200 or msafety will keep re-sending the message
+                  res.status(200).send('could not decrypt data')
                   return
                 }
               }
@@ -253,7 +270,7 @@ export default async function () {
                 filehandle = await fsOpen(deviceDir + filename, 'w')
                 const text = JSON.stringify(sensordata)
                 await filehandle.writeFile(text)
-                applogger.debug({ filename: filename }, 'mSafety file with data saved')
+                applogger.trace({ filename: filename }, 'mSafety file with data saved for device ' + deviceId)
               } catch (err) {
                 applogger.error({ error: err }, 'cannot save sensors data mSafety file: ' + filename)
                 res.sendStatus(500)
@@ -320,7 +337,7 @@ export default async function () {
       applogger.debug('mSafety key exchange completed for device ' + deviceId)
     } catch (err) {
       applogger.error({ error: err }, 'cannot generate mSafety key exchange')
-      res.sendStatus(500)
+      res.status(500).send('cannot generate mSafety key exchange')
     }
   })
 
