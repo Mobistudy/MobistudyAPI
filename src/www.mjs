@@ -21,6 +21,8 @@ import getApp from './app.mjs'
   // pass parameters down the application
   app.set('port', config.web.port)
 
+  let server
+
   if (config.web.cluster && cluster.isMaster) {
     console.log(`Master process ${process.pid} is running`)
 
@@ -33,8 +35,6 @@ import getApp from './app.mjs'
       console.log(`worker ${worker.process.pid} died`)
     })
   } else {
-    let server
-
     if (config.cert) {
       // HTTPS case
 
