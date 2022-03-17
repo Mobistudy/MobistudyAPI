@@ -62,13 +62,16 @@ async function storeSession (deviceId, rx, tx) {
   sessionsStore[key] = session
 
   // save the sessionStore on file
+  let filehandle
   try {
-    const filehandle = await fsOpen(SESSIONSTORE_FILE, 'w')
+    filehandle = await fsOpen(SESSIONSTORE_FILE, 'w')
     const text = JSON.stringify(sessionsStore)
     await filehandle.writeFile(text)
     applogger.trace('mSafety session storage saved')
   } catch (err) {
     applogger.error(err, 'Cannot store session storage on file')
+  } finally {
+    if (filehandle) await filehandle.close()
   }
 }
 
@@ -79,13 +82,16 @@ async function storeSession (deviceId, rx, tx) {
  * @returns {Object} if a session exists. null otherwise.
  */
 async function loadSession (deviceId) {
+  let filehandle
   try {
-    const filehandle = await fsOpen(SESSIONSTORE_FILE, 'r')
+    filehandle = await fsOpen(SESSIONSTORE_FILE, 'r')
     const txt = await filehandle.readFile()
     sessionsStore = JSON.parse(txt)
     applogger.trace('mSafety session storage read')
   } catch (err) {
     applogger.error(err, 'Cannot read session storage on file')
+  } finally {
+    if (filehandle) await filehandle.close()
   }
   const key = 'state_' + deviceId
   return sessionsStore[key]
@@ -101,13 +107,16 @@ async function updateSession (deviceId, session) {
   sessionsStore[key] = session
 
   // save the sessionStore on file
+  let filehandle
   try {
-    const filehandle = await fsOpen(SESSIONSTORE_FILE, 'w')
+    filehandle = await fsOpen(SESSIONSTORE_FILE, 'w')
     const text = JSON.stringify(sessionsStore)
     await filehandle.writeFile(text)
     applogger.trace('mSafety session storage saved')
   } catch (err) {
     applogger.error(err, 'Cannot store session storage on file')
+  } finally {
+    if (filehandle) await filehandle.close()
   }
 }
 
