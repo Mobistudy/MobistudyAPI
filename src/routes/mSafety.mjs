@@ -273,8 +273,14 @@ export default async function () {
                 )
 
                 if (plaintext) {
-                  applogger.trace('Data decrypted for device ' + deviceId)
+                  applogger.trace({ plaintext }, 'Data decrypted for device ' + deviceId)
                   text = plaintext
+                  try {
+                    const plainObj = JSON.parse(plaintext)
+                    applogger.trace(plainObj, 'can parse decrypted text')
+                  } catch (err) {
+                    applogger.trace({ plaintext }, 'cannot parse decrypted text')
+                  }
                 } else {
                   applogger.warn({ ciphertext, nonce }, 'could not decrypt data for device ' + deviceId)
                   // reply with a 200 or msafety will keep re-sending the message
