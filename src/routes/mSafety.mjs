@@ -18,6 +18,7 @@ const KEYPAIR = new KeyPair(Buffer.from(config.mSafety.publicKey, 'base64'), Buf
 
 // simple mem storage for device sessions. For high volume it should be implemented on database instead.
 let sessionsStore = {}
+const SESSIONSTORE_FILE = './tmp/msafetySessionStorage.json'
 
 /**
  * Stores the content of the CipherStates to the data store.
@@ -57,7 +58,7 @@ async function storeSession (deviceId, rx, tx) {
 
   // save the sessionStore on file
   try {
-    const filehandle = await fsOpen('msafetySessionStorage.json', 'w')
+    const filehandle = await fsOpen(SESSIONSTORE_FILE, 'w')
     const text = JSON.stringify(sessionsStore)
     await filehandle.writeFile(text)
     applogger.trace('mSafety session storage saved')
@@ -74,7 +75,7 @@ async function storeSession (deviceId, rx, tx) {
  */
 async function loadSession (deviceId) {
   try {
-    const filehandle = await fsOpen('msafetySessionStorage.json', 'r')
+    const filehandle = await fsOpen(SESSIONSTORE_FILE, 'r')
     const txt = await filehandle.readFile()
     sessionsStore = JSON.parse(txt)
     applogger.trace('mSafety session storage read')
@@ -96,7 +97,7 @@ async function updateSession (deviceId, session) {
 
   // save the sessionStore on file
   try {
-    const filehandle = await fsOpen('msafetySessionStorage.json', 'w')
+    const filehandle = await fsOpen(SESSIONSTORE_FILE, 'w')
     const text = JSON.stringify(sessionsStore)
     await filehandle.writeFile(text)
     applogger.trace('mSafety session storage saved')
