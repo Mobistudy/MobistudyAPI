@@ -161,23 +161,19 @@ async function encrypt (plaintext, deviceId) {
   const session = await loadSession(deviceId)
 
   if (!session) {
-    return null
+    throw new Error('Cannot get session for device ' + deviceId)
   }
 
   const cipherState = new CipherState()
   cipherState.InitializeKey(Buffer.from(session.tx.key, 'base64'))
   cipherState.SetNonce(session.tx.nonce)
 
-  try {
-    const ciphertext = cipherState.EncryptWithAd(Buffer.alloc(0), Buffer.from(plaintext, 'base64'))
+  const ciphertext = cipherState.EncryptWithAd(Buffer.alloc(0), Buffer.from(plaintext, 'base64'))
 
-    session.tx.nonce = cipherState.n
-    updateSession(deviceId, session)
+  session.tx.nonce = cipherState.n
+  updateSession(deviceId, session)
 
-    return { ciphertext: ciphertext.toString('base64'), nonce: (cipherState.n - BigInt(1)).toString() }
-  } catch (error) {
-    return null
-  }
+  return { ciphertext: ciphertext.toString('base64'), nonce: (cipherState.n - BigInt(1)).toString() }
 }
 
 /**
@@ -192,8 +188,7 @@ async function decrypt (ciphertext, nonce, deviceId) {
   const session = await loadSession(deviceId)
 
   if (!session) {
-    applogger.warn('Cannot get session for device ' + deviceId)
-    return null
+    throw new Error('Cannot get session for device ' + deviceId)
   }
 
   const cipherState = new CipherState()
@@ -206,7 +201,6 @@ async function decrypt (ciphertext, nonce, deviceId) {
 
     try {
       const plaintext = cipherState.DecryptWithAd(Buffer.alloc(0), Buffer.from(ciphertext, 'base64'))
-
       return plaintext.toString()
     } catch (error) {
       if (i === numberOfKeys - 1) {
