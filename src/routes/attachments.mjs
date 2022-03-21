@@ -30,8 +30,14 @@ export default async function () {
 
     // as file id let's use a timestamp
     const ts = new Date().getTime()
+    let filename = ts + '.json'
+    if (req.query && req.query.filename) {
+      // check if it's a valid filename (only alphanumeric, -, _ and . allowed)
+      const regex = /^[\w\-. ]+$/
+      if (regex.test(req.query.filename)) filename = req.query.filename
+    }
     // let's create a writer from the request
-    const writer = await saveAttachment(userKey, studyKey, taskId, ts + '.json')
+    const writer = await saveAttachment(userKey, studyKey, taskId, filename)
 
     // else dump it raw
     req.on('data', async (chunk) => {
@@ -39,7 +45,7 @@ export default async function () {
     })
     req.on('end', async () => {
       await writer.end()
-      res.sendStatus(200)
+      res.send(filename)
     })
   })
 
