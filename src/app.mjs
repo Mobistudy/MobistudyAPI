@@ -37,7 +37,6 @@ import mSafetyRouter from './routes/mSafety.mjs'
 import attachmentsRouter from './routes/attachments.mjs'
 import tugtsRouter from './routes/tugts.mjs'
 import HoldPhoneRouter from './routes/holdPhone.mjs'
-import holdPhone from "./routes/holdPhone.mjs";
 
 export default async function () {
   const app = express()
