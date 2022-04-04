@@ -39,6 +39,6 @@
     "jest": "^25.5.4",
     "jest-esnext": "0.0.4",
     "node-docker-api": "^1.1.22",
-    "nodemon": "^2.0.13"
+    "nodemon": "^2.0.15"
   }
 }
