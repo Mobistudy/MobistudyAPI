@@ -4,8 +4,8 @@
 */
 
 import rfs from 'rotating-file-stream'
-import expresspino from 'express-pino-logger'
 import pino from 'pino'
+import pinohttp from 'pino-http'
 import getConfig from './config.mjs'
 
 const config = getConfig()
@@ -31,7 +31,7 @@ httplogstream.on('warning', console.error)
 applogstream.on('error', console.error)
 applogstream.on('warning', console.error)
 
-const httppino = expresspino(httplogstream)
+const httppino = pinohttp(httplogstream)
 const applogger = pino(applogstream)
 
 httppino.level = config.logs.level
