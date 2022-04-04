@@ -259,9 +259,9 @@ export default async function () {
         await DAO.deleteAnswersByUser(userKey)
 
         // Remove Health Store Data
-        await DAO.deletHealthStoreDataByUser(userKey)
+        await DAO.deleteHealthStoreDataByUser(userKey)
 
-        // Remove Miband3 Data TODO: Refactor the above, answers and healthData as well
+        // Remove Miband3 Data
         await DAO.deleteMiband3DataByUser(userKey)
 
         // Remove QCST Data
@@ -273,7 +273,7 @@ export default async function () {
         // Remove PO60 Data
         await DAO.deletePO60DataByUser(userKey)
 
-        // Remove PeakFlow Data
+        // Remove Peakflow Data
         await DAO.deletePeakFlowDataByUser(userKey)
 
         // Remove Position Data
@@ -282,11 +282,14 @@ export default async function () {
         // Remove tapping Data
         await DAO.deleteFingerTappingsByUser(userKey)
 
-        // Remove tapping Data
+        // Remove TUGT Data
         await DAO.deleteTugtByUser(userKey)
 
-        // Remove tapping Data
+        // Remove holdPhone Data
         await DAO.deleteHoldPhoneByUser(userKey)
+
+        // Remove attachments
+        await deleteAttachmentsByUser(userKey)
 
         // Remove Audit logs
         await DAO.deleteLogsByUser(userKey)

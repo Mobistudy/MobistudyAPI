@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * Sets-up the loggers.
 * Returns two loggers, one for the http raw stuff and one for the application.
