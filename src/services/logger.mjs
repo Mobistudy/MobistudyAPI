@@ -10,16 +10,19 @@ import getConfig from './config.mjs'
 
 const config = getConfig()
 
-const httplogstream = rfs('../logs/http.log', {
+const HTTPLOG_FILENAME = 'http.log'
+const APPLOG_FILENAME = 'app.log'
+
+const httplogstream = rfs.createStream(HTTPLOG_FILENAME, {
   path: config.logs.folder,
   size: config.logs.rotationsize,
-  compress: true
+  compress: 'gzip'
 })
 
-const applogstream = rfs('../logs/app.log', {
+const applogstream = rfs.createStream(APPLOG_FILENAME, {
   path: config.logs.folder,
   size: config.logs.rotationsize,
-  compress: true
+  compress: 'gzip'
 })
 
 httplogstream.on('error', console.error)
