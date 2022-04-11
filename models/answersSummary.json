@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answerSummary.json",
+  "title": "Summary of answers",
+  "description": "Summary of the answers provided to forms ",
+  "type": "object",
+  "properties": {
+    "answered": {
+      "type": "integer"
+    },
+    "asked": {
+      "type": "integer"
+    }
+  }
+}

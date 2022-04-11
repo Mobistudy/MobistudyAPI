@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/taskResults.json",
+  "title": "Task results",
+  "description": "Results of a task",
+  "type": "object",
+  "properties": {
+    "userKey": {
+      "description": "Database key of the user that has produced the results",
+      "type": "string"
+    },
+    "participantKey": {
+      "description": "Database key of the participant profile that has produced the results",
+      "type": "string"
+    },
+    "studyKey": {
+      "description": "Database key of the study this task belongs to",
+      "type": "string"
+    },
+    "taskId": {
+      "description": "Id of the task, as specified in the study description",
+      "type": "integer"
+    },
+    "taskType": {
+      "description": "Type of task",
+      "type": "string",
+      "enum": [
+        "form"
+      ]
+    },
+    "createdTS": {
+      "description": "Timestamp of when the task was created, either on the app or on the database, as ISO date string",
+      "type": "string"
+    },
+    "summary": {
+      "description": "Summary object of the results, stored on the database",
+      "type": "object",
+      "properties": {
+        "startedTS": {
+          "description": "Timestamp of when the task was started, as ISO date string",
+          "type": "string"
+        },
+        "completedTS": {
+          "description": "Timestamp of when the task was completed, as ISO date string",
+          "type": "string"
+        },
+        "answersSummary": {
+          "description": "For the form task type",
+          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answersSummary.json"
+        }
+      },
+      "required": [
+        "startedTS",
+        "completedTS"
+      ]
+    },
+    "attachments": {
+      "description": "Attached data, can be either an object, in which case it contains all the data, or an array of filenames, sent separately",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "answers": {
+      "description": "Answers, valid for type of task: form",
+      "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answers.json"
+    }
+  },
+  "required": [
+    "userKey",
+    "studyKey",
+    "taskId",
+    "summary"
+  ]
+}
