@@ -34,18 +34,6 @@
     "heading": 122
   }
 ],
-  "steps": [
-  {
-    "startDate": 1616096275662,
-    "endDate": 1616096275668,
-    "numberOfSteps": 1
-  },
-  {
-    "startDate": 1616096275662,
-    "endDate": 1616096285975,
-    "numberOfSteps": 2
-  }
-],
   "summary": {
   "testDurationMs": 6000,
     "testStartTS": "2021-11-23...",
