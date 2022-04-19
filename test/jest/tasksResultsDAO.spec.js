@@ -91,4 +91,100 @@ describe("When arangodb is running", () => {
     })
   })
 
+  describe("When adding several tasks results", () => {
+    let tr1_key, tr2_key, tr3_key
+
+    beforeAll(async () => {
+      tr1_key = await addDataToCollection('tasksResults', {
+        userKey: '1234',
+        studyKey: 'abc',
+        data: [1, 2, 3]
+      })
+
+      tr2_key = await addDataToCollection('tasksResults', {
+        userKey: '1234',
+        studyKey: 'abc',
+        data: [2, 3, 4]
+      })
+
+      tr3_key = await addDataToCollection('tasksResults', {
+        userKey: '1234',
+        studyKey: 'abc',
+        data: [3, 4, 5]
+      })
+    }, 1000)
+
+    test('The results can be retrieved one by one by user', async () => {
+      let res = []
+      await TRDAO.getTasksResultsByUser('1234', (d) => {
+        res.push(d)
+      })
+
+      expect(res.length).toBe(3)
+    })
+
+    test('The results can be retrieved one by one by user and study', async () => {
+      let res = []
+      await TRDAO.getTasksResultsByUserAndStudy('1234', 'abc', (d) => {
+        res.push(d)
+      })
+
+      expect(res.length).toBe(3)
+    })
+
+
+    afterAll(async () => {
+      await removeFromCollection('tasksResults', tr1_key)
+      await removeFromCollection('tasksResults', tr2_key)
+      await removeFromCollection('tasksResults', tr3_key)
+    })
+  })
+
+
+  describe("When adding tasks results", () => {
+    let tr_key
+
+    beforeEach(async () => {
+      tr_key = await addDataToCollection('tasksResults', {
+        userKey: '1234',
+        studyKey: 'abc',
+        data: [1, 2, 3]
+      })
+    }, 1000)
+
+    test('The results can be removed by key', async () => {
+      TRDAO.deleteTasksResults(tr_key)
+
+      try {
+        await TRDAO.getOneTaskResult(tr_key)
+      } catch (e) {
+        expect(e.message).toEqual('document not found')
+      }
+    })
+
+    test('The results can be removed by study', async () => {
+      TRDAO.deleteTasksResultsByStudy(tr_key)
+
+      try {
+        await TRDAO.getOneTaskResult(tr_key)
+      } catch (e) {
+        expect(e.message).toEqual('document not found')
+      }
+    })
+
+    test('The results can be removed by user', async () => {
+      TRDAO.deleteTasksResultsByUser(tr_key)
+
+      try {
+        await TRDAO.getOneTaskResult(tr_key)
+      } catch (e) {
+        expect(e.message).toEqual('document not found')
+      }
+    })
+
+    afterAll(async () => {
+      await removeFromCollection('tasksResults', tr_key)
+    })
+  })
+
 })
