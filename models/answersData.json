@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answerSummary.json",
+  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answersData.json",
   "title": "Answers",
   "description": "Detailed answers give to a form",
   "type": "array",

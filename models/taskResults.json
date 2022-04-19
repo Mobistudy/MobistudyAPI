@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-04/schema",
   "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/taskResults.json",
   "title": "Task results",
   "description": "Results of a task",
@@ -25,12 +25,17 @@
       "description": "Type of task",
       "type": "string",
       "enum": [
-        "form"
+        "form",
+        "fingerTapping"
       ]
     },
     "createdTS": {
       "description": "Timestamp of when the task was created, either on the app or on the database, as ISO date string",
       "type": "string"
+    },
+    "phone": {
+      "description": "Data related to the phone used for this task",
+      "type": "object"
     },
     "summary": {
       "description": "Summary object of the results, stored on the database",
@@ -43,28 +48,42 @@
         "completedTS": {
           "description": "Timestamp of when the task was completed, as ISO date string",
           "type": "string"
-        },
-        "answersSummary": {
-          "description": "For the form task type",
-          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answersSummary.json"
         }
       },
       "required": [
         "startedTS",
         "completedTS"
+      ],
+      "oneOf": [
+        {
+          "description": "For the form task type",
+          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answersSummary.json"
+        },
+        {
+          "description": "For the finger tapping task type",
+          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/fingerTappingSummary.json"
+        }
       ]
     },
     "attachments": {
-      "description": "Attached data, can be either an object, in which case it contains all the data, or an array of filenames, sent separately",
+      "description": "Attached data, an array of filenames, sent separately",
       "type": "array",
       "items": {
         "type": "string"
       },
       "uniqueItems": true
     },
-    "answers": {
-      "description": "Answers, valid for type of task: form",
-      "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answers.json"
+    "data": {
+      "oneOf": [
+        {
+          "description": "Answers, collected by the form type of task",
+          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answersData.json"
+        },
+        {
+          "description": "Finger tapping data, result of finger tapping task",
+          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/fingerTappingData.json"
+        }
+      ]
     }
   },
   "required": [

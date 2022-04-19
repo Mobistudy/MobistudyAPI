@@ -11,5 +11,9 @@
     "asked": {
       "type": "integer"
     }
-  }
+  },
+  "required": [
+    "answered",
+    "asked"
+  ]
 }

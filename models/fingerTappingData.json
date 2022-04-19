@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/fingerTappingData.json",
+  "title": "Finger tapping data",
+  "description": "Detailed finger tapping data",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "msFromStart": {
+        "type": "integer"
+      },
+      "side": {
+        "type": "string"
+      },
+      "required": [
+        "msFromStart",
+        "side"
+      ]
+    }
+  }
+}

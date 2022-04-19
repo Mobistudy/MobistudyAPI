@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/fingerTappingSummary.json",
+  "title": "Finger tapping results summary",
+  "description": "Summary of the data collected in the finger tapping task",
+  "type": "object",
+  "properties": {
+    "tappingCount": {
+      "type": "integer"
+    }
+  }
+}
