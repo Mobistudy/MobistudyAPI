@@ -4,19 +4,23 @@
 import utils from './utils.mjs'
 import { applogger } from '../services/logger.mjs'
 
-const CollectionName = 'tasksResults'
+const COLLECTION_NAME = 'tasksResults'
 
 export default async function (db) {
-  const collection = await utils.getCollection(db, CollectionName)
+  const collection = await utils.getCollection(db, COLLECTION_NAME)
+  collection.ensureIndex({ type: 'persistent', fields: ['studyKey'] })
+  collection.ensureIndex({ type: 'persistent', fields: ['userKey'] })
+  collection.ensureIndex({ type: 'persistent', fields: ['taskId'] })
+  collection.ensureIndex({ type: 'persistent', fields: ['createdTS'] })
 
   return {
     tasksResultsTransaction () {
-      return CollectionName
+      return COLLECTION_NAME
     },
 
     async getAllTasksResults (dataCallback) {
       const filter = ''
-      const query = 'FOR data IN ' + CollectionName + ' ' + filter + ' RETURN data'
+      const query = 'FOR data IN ' + COLLECTION_NAME + ' ' + filter + ' RETURN data'
       applogger.trace('Querying "' + query + '"')
       const cursor = await db.query(query)
       if (dataCallback) {
@@ -28,7 +32,7 @@ export default async function (db) {
     },
 
     async getTasksResultsByUser (userKey, dataCallback) {
-      const query = 'FOR data IN ' + CollectionName + ' FILTER data.userKey == @userKey RETURN data'
+      const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey RETURN data'
       const bindings = { userKey: userKey }
       applogger.trace(bindings, 'Querying "' + query + '"')
       const cursor = await db.query(query, bindings)
@@ -41,7 +45,7 @@ export default async function (db) {
     },
 
     async getTasksResultsByUserAndStudy (userKey, studyKey, dataCallback) {
-      const query = 'FOR data IN ' + CollectionName + ' FILTER data.userKey == @userKey AND data.studyKey == @studyKey RETURN data'
+      const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey AND data.studyKey == @studyKey RETURN data'
       const bindings = { userKey: userKey, studyKey: studyKey }
       applogger.trace(bindings, 'Querying "' + query + '"')
       const cursor = await db.query(query, bindings)
@@ -54,7 +58,7 @@ export default async function (db) {
     },
 
     async getTasksResultsByStudy (studyKey, dataCallback) {
-      const query = 'FOR data IN ' + CollectionName + ' FILTER data.studyKey == @studyKey RETURN data'
+      const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.studyKey == @studyKey RETURN data'
       const bindings = { studyKey: studyKey }
       applogger.trace(bindings, 'Querying "' + query + '"')
       const cursor = await db.query(query, bindings)
@@ -115,7 +119,7 @@ export default async function (db) {
     // deletes all data based on study
     async deleteTasksResultsByStudy (studyKey, trx) {
       applogger.trace('Deleting all tasks results by study "' + studyKey + '"')
-      const query = 'FOR data IN ' + CollectionName + ' FILTER data.studyKey == @studyKey REMOVE data._key IN ' + CollectionName
+      const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.studyKey == @studyKey REMOVE data._key IN ' + COLLECTION_NAME
       const bindings = { studyKey: studyKey }
       applogger.trace(bindings, 'Querying "' + query + '"')
 
@@ -130,7 +134,7 @@ export default async function (db) {
     async deleteTasksResultsByUser (userKey, trx) {
       applogger.trace('Deleting all tasks results by user "' + userKey + '"')
 
-      const query = 'FOR data IN ' + CollectionName + ' FILTER data.userKey == @userKey REMOVE data._key IN ' + CollectionName
+      const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey REMOVE data._key IN ' + COLLECTION_NAME
       const bindings = { userKey: userKey }
       applogger.trace(bindings, 'Querying "' + query + '"')
 
