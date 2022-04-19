@@ -19,6 +19,8 @@ export const connectToDatabase = async function (dbname) {
 
   db.useDatabase(dbname)
   db.useBasicAuth('mobistudy', 'testpwd')
+
+  return db
 }
 
 export const dropDatabase = async function (dbname) {
