@@ -1,3 +1,4 @@
+import { open as fsOpen, stat as fsStat, rmdir as fsRmdir } from 'fs/promises'
 import {
   DB,
   connectToDatabase,
@@ -46,11 +47,11 @@ describe("When arangodb is running", () => {
     await connectToDatabase(DBNAME)
     DAO.db = DB
     await DAO.initAfterConnection()
-  }, 60000);
+  }, 60000)
 
   afterAll(async () => {
-    await dropDatabase(DBNAME);
-  });
+    await dropDatabase(DBNAME)
+  })
 
   describe("when a study exists with finger tapping task", () => {
     let study1Key, researcher1Key, team1Key, user1Key, participant1Key;
@@ -254,12 +255,46 @@ describe("When arangodb is running", () => {
       expect(mockRes.data.length).toBe(3)
     })
 
+    test("participant can send results with data", async () => {
+      await TRC.createNew({
+        user: {
+          _key: user1Key,
+          role: 'participant'
+        },
+        body: {
+          studyKey: study1Key,
+          taskId: 1,
+          startedTS: new Date().toISOString(),
+          data: {
+            test: 'some test data'
+          }
+        }
+      }, mockRes)
+
+      expect(mockRes.code).toBe(200)
+
+      let tr = await getFromCollection('tasksResults', mockRes.data._key)
+      expect(tr).toBeDefined()
+
+      let filePath = 'tasksuploads/' + study1Key + '/' + user1Key + '/1/' + tr._key + '.json'
+      await fsStat(filePath)
+      let file = await fsOpen(filePath)
+      let fileContent = await file.readFile('utf-8')
+
+      expect(fileContent).toBe('{"test":"some test data"}')
+      file.close()
+
+      await fsRmdir('tasksuploads/' + study1Key + '/', { recursive: true })
+      await removeFromCollection("tasksResults", tr._key)
+    })
 
     afterAll(async () => {
       await removeFromCollection("users", researcher1Key)
       await removeFromCollection("teams", team1Key)
       await removeFromCollection("teams", participant1Key)
       await removeFromCollection("studies", study1Key)
+      console.log('going to delete files for ' + study1Key)
+      await fsRmdir('tasksuploads/' + study1Key + '/', { recursive: true })
     })
   })
 })
