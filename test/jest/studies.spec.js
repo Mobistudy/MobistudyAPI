@@ -1,11 +1,5 @@
 import {
   DB,
-  pullArango,
-  getArangoImage,
-  getArangoContainer,
-  createArangoContainer,
-  startArangoContainer,
-  stopArangoContainer,
   connectToDatabase,
   dropDatabase,
   addDataToCollection,
@@ -13,7 +7,13 @@ import {
 } from "../arangoTools";
 import createStudiesDB from "../../src/DAO/studiesDAO";
 
-jest.mock("../../src/services/logger");
+jest.mock('../../src/services/logger', () => ({
+  applogger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    trace: jest.fn()
+  }
+}))
 
 Date.prototype.addDays = function (days) {
   var date = new Date(this.valueOf());
@@ -29,25 +29,11 @@ describe("when arangodb is running", () => {
   const DBNAME = "test_studies";
 
   beforeAll(async () => {
-    // let image = await getArangoImage()
-    // try {
-    //   await image.status()
-    // } catch (error) {
-    //   await pullArango()
-    // }
-
-    // let arangoContainer = await getArangoContainer()
-    // if (!arangoContainer) {
-    //   await createArangoContainer()
-    // }
-    // await startArangoContainer()
-
     await connectToDatabase(DBNAME);
   }, 60000);
 
   afterAll(async () => {
     await dropDatabase(DBNAME);
-    // await stopArangoContainer()
   });
 
   describe("when a bunch of users and teams are set", () => {

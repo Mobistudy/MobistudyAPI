@@ -7,7 +7,7 @@ describe('when searching for environment', () => {
   test('you can retrieve weather', async () => {
     let weather = await getWeather(55.6028859, 13.019894299999999)
     expect(weather).not.toBeUndefined()
-    expect(weather.location).toBe('Gamla Staden')
+    expect(weather.location).toBe('Malmo')
   })
 
   test('you can retrieve pollution', async () => {

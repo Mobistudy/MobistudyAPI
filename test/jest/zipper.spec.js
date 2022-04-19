@@ -3,7 +3,13 @@ import { DAO } from '../../src/DAO/DAO'
 import { saveAttachment } from '../../src/services/attachments.mjs'
 import { rmdir as fsRmdir } from 'fs/promises'
 
-jest.mock('../../src/services/logger')
+jest.mock('../../src/services/logger', () => ({
+  applogger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    trace: jest.fn()
+  }
+}))
 jest.mock('../../src/DAO/DAO')
 
 describe('when a participant and some answers are stored', () => {
@@ -109,7 +115,7 @@ describe('when a participant and some answers are stored', () => {
       createdTS: "2019-02-27T12:46:07.294Z",
       distance: 600,
       steps: 433,
-	    borgScale: 5,
+      borgScale: 5,
     }]
     const peakflows = [{
       _key: '723723',

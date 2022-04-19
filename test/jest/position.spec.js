@@ -1,11 +1,5 @@
 import {
   DB,
-  pullArango,
-  getArangoImage,
-  getArangoContainer,
-  createArangoContainer,
-  startArangoContainer,
-  stopArangoContainer,
   connectToDatabase,
   dropDatabase,
   addDataToCollection,
@@ -13,8 +7,13 @@ import {
 } from "../arangoTools";
 import createPositionsDB from "../../src/DAO/positionsDAO"
 
-jest.mock("../../src/services/logger");
-
+jest.mock('../../src/services/logger', () => ({
+  applogger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    trace: jest.fn()
+  }
+}))
 Date.prototype.addDays = function (days) {
   var date = new Date(this.valueOf())
   date.setDate(date.getDate() + days)
@@ -29,25 +28,11 @@ describe("when arangodb is running", () => {
   const DBNAME = "test_positions";
 
   beforeAll(async () => {
-    // let image = await getArangoImage()
-    // try {
-    //   await image.status()
-    // } catch (error) {
-    //   await pullArango()
-    // }
-
-    // let arangoContainer = await getArangoContainer()
-    // if (!arangoContainer) {
-    //   await createArangoContainer()
-    // }
-    // await startArangoContainer()
-
     await connectToDatabase(DBNAME);
   }, 60000);
 
   afterAll(async () => {
     await dropDatabase(DBNAME);
-    // await stopArangoContainer()
   });
 
   describe("when a user and a study are set", () => {
@@ -76,11 +61,11 @@ describe("when arangodb is running", () => {
         userKey: participant1Key,
         createdTS: "2018-11-12T16:40:07.542Z",
         name: 'Dario',
-        studies: [ {
-            studyKey: studyKey,
-            currentStatus: "accepted",
-            acceptedTS: "2019-02-27T12:46:07.294Z",
-          }]
+        studies: [{
+          studyKey: studyKey,
+          currentStatus: "accepted",
+          acceptedTS: "2019-02-27T12:46:07.294Z",
+        }]
       })
     }, 5000)
 
@@ -100,7 +85,7 @@ describe("when arangodb is running", () => {
             altitudeAccuracy: 10
           }
         }
-    })
+      })
       expect(newPosition._key).toBeDefined()
 
       let pos = await positionsDB.getOnePosition(newPosition._key)

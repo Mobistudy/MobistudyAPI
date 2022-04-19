@@ -1,8 +1,13 @@
 import { saveAttachment, getAttachments, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
 import { open as fsOpen, stat as fsStat, rmdir as fsRmdir } from 'fs/promises'
-import { assert } from 'console'
 
-jest.mock("../../src/services/logger")
+jest.mock('../../src/services/logger', () => ({
+  applogger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    trace: jest.fn()
+  }
+}))
 
 describe('when saving an attachment', () => {
 

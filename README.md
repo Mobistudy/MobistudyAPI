@@ -6,8 +6,8 @@ This is the back-end REST API of MobiStudy.
 
 You need to install the following on your system:
 
-- nodejs (v 14 or higher)
-- arango DB (v 3)
+- nodejs (see nvmrc for version)
+- arango DB (v 3.9)
 
 In order to guarantee that the same version of node is used across developers, it is recommendable to use [nvm](https://github.com/nvm-sh/nvm) and run `nvm install && nvm use` to switch to the node version used in this project.
 
@@ -17,7 +17,7 @@ On Arango, you must have created a dedicated database for Mobistudy, and, possib
 also a dedicated user with its password.
 
 To start Arango, you can either [install it](https://www.arangodb.com/), or use Docker. For development, you can use:
-`docker run -e ARANGO_NO_AUTH=1 -p 127.0.0.1:8529:8529 --name mobiArango arangodb`
+`docker run -e ARANGO_NO_AUTH=1 -p 127.0.0.1:8529:8529 --name mobiArango arangodb/arangodb:3.9.1`
 to start a Docker container with Arango. You can then access the web interface on http://localhost:8529
 
 ### Configuration
@@ -48,6 +48,10 @@ provide the same configuration as environment variables.
 See section about Docker for details about environmental variables.
 
 ## Test
+
+You need to have a testing database running either as local install or as docker container, exposed at the port number 5555.
+For example, using docker:
+`docker run -e ARANGO_NO_AUTH=1 -d -p 127.0.0.1:5555:8529 --name mobiTestsDB arangodb/arangodb:3.9.1`
 
 Run `npm run test`. If you want to have the tests run continuously (as you
 change the code), run `npm run test:watch`.

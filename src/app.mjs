@@ -9,7 +9,7 @@ import express from 'express'
 import helmet from 'helmet'
 import passport from 'passport'
 
-import { applogger, httplogger } from './services/logger.mjs'
+import { initLogs, applogger, httplogger } from './services/logger.mjs'
 import authConfig from './services/authSetup.mjs'
 
 import { initializeDAO } from './DAO/DAO.mjs'
@@ -40,6 +40,8 @@ import HoldPhoneRouter from './routes/holdPhone.mjs'
 import VocalizationRouter from './routes/vocalization.mjs'
 
 export default async function () {
+  await initLogs()
+
   const app = express()
 
   app.use(helmet())
