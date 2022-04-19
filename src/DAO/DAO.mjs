@@ -2,7 +2,7 @@
  * This module abstracts the whole DB with functions (a DAO).
  */
 import Database from 'arangojs'
-import getConfig from './config.mjs'
+import getConfig from '../services/config.mjs'
 
 import getStudiesDAO from './studiesDAO.mjs'
 import getFormsDAO from './formsDAO.mjs'
