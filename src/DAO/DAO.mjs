@@ -1,10 +1,9 @@
-'use strict'
-
 /**
  * This module abstracts the whole DB with functions (a DAO).
  */
-
 import Database from 'arangojs'
+import getConfig from './config.mjs'
+
 import getStudiesDAO from './studiesDAO.mjs'
 import getFormsDAO from './formsDAO.mjs'
 import getUsersDAO from './usersDAO.mjs'
@@ -23,76 +22,135 @@ import getFingerTappingDAO from './fingerTappingDAO.mjs'
 import getTugtsDAO from './tugtsDAO.mjs'
 import getHoldPhoneDAO from './holdPhoneDAO.mjs'
 
-import getConfig from '../services/config.mjs'
+import getTasksResultsDAO from './tasksResultsDAO.mjs'
 
-export let DAO = {}
+export const DAO = {
+  db: null,
 
-export async function initializeDAO () {
-  const config = getConfig()
-
-  if (
-    !config.db.host ||
-    !config.db.port ||
-    !config.db.user ||
-    !config.db.password
-  ) {
-    console.error('Configuration is missing some critical parameters', config)
-    throw new Error('Configuration is missing some critical parameters')
-  }
-  const db = new Database({
-    url: 'http://' + config.db.host + ':' + config.db.port
-  })
-
-  db.useDatabase(config.db.name)
-  db.useBasicAuth(config.db.user, config.db.password)
-
-  DAO.startTransaction = async (names) => {
-    return db.beginTransaction({
+  async startTransaction (names) {
+    return this.db.beginTransaction({
       write: names
     })
-  }
+  },
 
-  DAO.endTransaction = async (transaction) => {
+  async endTransaction (transaction) {
     return transaction.commit()
-  }
+  },
 
-  DAO.abortTransation = async (transaction) => {
+  async abortTransaction (transaction) {
     if (transaction) return transaction.abort()
-  }
+  },
 
-  const studies = await getStudiesDAO(db)
-  DAO = Object.assign(studies, DAO)
-  const forms = await getFormsDAO(db)
-  DAO = Object.assign(forms, DAO)
-  const users = await getUsersDAO(db)
-  DAO = Object.assign(users, DAO)
-  const answers = await getAnswersDAO(db)
-  DAO = Object.assign(answers, DAO)
-  const teams = await getTeamsDAO(db)
-  DAO = Object.assign(teams, DAO)
-  const participants = await getParticipantsDAO(db)
-  DAO = Object.assign(participants, DAO)
-  const healthStoreData = await getHealthStoreDataDAO(db)
-  DAO = Object.assign(healthStoreData, DAO)
-  const auditLog = await getAuditLogDAO(db)
-  DAO = Object.assign(auditLog, DAO)
-  const SMWTData = await getSmwtsDAO(db)
-  DAO = Object.assign(SMWTData, DAO)
-  const QCSTData = await getQCSTDataDAO(db)
-  DAO = Object.assign(QCSTData, DAO)
-  const miband3Data = await getMiband3DataDAO(db)
-  DAO = Object.assign(miband3Data, DAO)
-  const po60Data = await getPO60DataDAO(db)
-  DAO = Object.assign(po60Data, DAO)
-  const peakflowData = await getPeakFlowDataDAO(db)
-  DAO = Object.assign(peakflowData, DAO)
-  const pos = await getPositionsDAO(db)
-  DAO = Object.assign(pos, DAO)
-  const ft = await getFingerTappingDAO(db)
-  DAO = Object.assign(ft, DAO)
-  const TUGTData = await getTugtsDAO(db)
-  DAO = Object.assign(TUGTData, DAO)
-  const holdPhoneData = await getHoldPhoneDAO(db)
-  DAO = Object.assign(holdPhoneData, DAO)
+  async initAfterConnection () {
+    const studies = await getStudiesDAO(this.db)
+    for (const property in studies) {
+      this[property] = studies[property]
+    }
+
+    const forms = await getFormsDAO(this.db)
+    for (const property in forms) {
+      this[property] = forms[property]
+    }
+
+    const users = await getUsersDAO(this.db)
+    for (const property in users) {
+      this[property] = users[property]
+    }
+
+    const answers = await getAnswersDAO(this.db)
+    for (const property in answers) {
+      this[property] = answers[property]
+    }
+
+    const teams = await getTeamsDAO(this.db)
+    for (const property in teams) {
+      this[property] = teams[property]
+    }
+
+    const participants = await getParticipantsDAO(this.db)
+    for (const property in participants) {
+      this[property] = participants[property]
+    }
+
+    const auditLog = await getAuditLogDAO(this.db)
+    for (const property in auditLog) {
+      this[property] = auditLog[property]
+    }
+
+    const healthStoreData = await getHealthStoreDataDAO(this.db)
+    for (const property in healthStoreData) {
+      this[property] = healthStoreData[property]
+    }
+
+    const SMWTData = await getSmwtsDAO(this.db)
+    for (const property in SMWTData) {
+      this[property] = SMWTData[property]
+    }
+
+    const QCSTData = await getQCSTDataDAO(this.db)
+    for (const property in QCSTData) {
+      this[property] = QCSTData[property]
+    }
+
+    const miband3Data = await getMiband3DataDAO(this.db)
+    for (const property in miband3Data) {
+      this[property] = miband3Data[property]
+    }
+
+    const po60Data = await getPO60DataDAO(this.db)
+    for (const property in po60Data) {
+      this[property] = po60Data[property]
+    }
+
+    const peakflowData = await getPeakFlowDataDAO(this.db)
+    for (const property in peakflowData) {
+      this[property] = peakflowData[property]
+    }
+
+    const pos = await getPositionsDAO(this.db)
+    for (const property in pos) {
+      this[property] = pos[property]
+    }
+
+    const ft = await getFingerTappingDAO(this.db)
+    for (const property in ft) {
+      this[property] = ft[property]
+    }
+
+    const TUGTData = await getTugtsDAO(this.db)
+    for (const property in TUGTData) {
+      this[property] = TUGTData[property]
+    }
+
+    const holdPhoneData = await getHoldPhoneDAO(this.db)
+    for (const property in holdPhoneData) {
+      this[property] = holdPhoneData[property]
+    }
+
+    const tasksResults = await getTasksResultsDAO(this.db)
+    for (const property in tasksResults) {
+      this[property] = tasksResults[property]
+    }
   // add new collections here
+  },
+
+  async init () {
+    const config = getConfig()
+
+    if (!config) throw new Error('a configuration must be passed')
+    if (
+      !config.db.host ||
+      !config.db.port ||
+      !config.db.user ||
+      !config.db.password
+    ) {
+      console.error('Configuration is missing some critical parameters', config)
+      throw new Error('Configuration is missing some critical parameters')
+    }
+    this.db = new Database({
+      url: 'http://' + config.db.host + ':' + config.db.port
+    })
+
+    this.initializeDAOafterConnection()
+  }
 }
