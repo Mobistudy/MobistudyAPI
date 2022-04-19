@@ -18,9 +18,6 @@ import getMiband3DataDAO from './miband3DataDAO.mjs'
 import getPO60DataDAO from './po60DataDAO.mjs'
 import getPeakFlowDataDAO from './peakflowDataDAO.mjs'
 import getPositionsDAO from './positionsDAO.mjs'
-import getFingerTappingDAO from './fingerTappingDAO.mjs'
-import getTugtsDAO from './tugtsDAO.mjs'
-import getHoldPhoneDAO from './holdPhoneDAO.mjs'
 
 import getTasksResultsDAO from './tasksResultsDAO.mjs'
 
@@ -110,21 +107,6 @@ export const DAO = {
     const pos = await getPositionsDAO(this.db)
     for (const property in pos) {
       this[property] = pos[property]
-    }
-
-    const ft = await getFingerTappingDAO(this.db)
-    for (const property in ft) {
-      this[property] = ft[property]
-    }
-
-    const TUGTData = await getTugtsDAO(this.db)
-    for (const property in TUGTData) {
-      this[property] = TUGTData[property]
-    }
-
-    const holdPhoneData = await getHoldPhoneDAO(this.db)
-    for (const property in holdPhoneData) {
-      this[property] = holdPhoneData[property]
     }
 
     const tasksResults = await getTasksResultsDAO(this.db)

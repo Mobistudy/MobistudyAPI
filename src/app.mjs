@@ -34,12 +34,8 @@ import Miband3Router from './routes/miband3.mjs'
 import PO60Router from './routes/po60.mjs'
 import PeakFlowRouter from './routes/peakflow.mjs'
 import PositionsRouter from './routes/positions.mjs'
-import fingerTappingRouter from './routes/fingerTapping.mjs'
 import mSafetyRouter from './routes/mSafety.mjs'
 import attachmentsRouter from './routes/attachments.mjs'
-import tugtsRouter from './routes/tugts.mjs'
-import HoldPhoneRouter from './routes/holdPhone.mjs'
-import VocalizationRouter from './routes/vocalization.mjs'
 
 export default async function () {
   await initLogs()
@@ -94,11 +90,7 @@ export default async function () {
   app.use(apiPrefix, await PO60Router())
   app.use(apiPrefix, await PeakFlowRouter())
   app.use(apiPrefix, await PositionsRouter())
-  app.use(apiPrefix, await fingerTappingRouter())
   app.use(apiPrefix, await attachmentsRouter())
-  app.use(apiPrefix, await tugtsRouter())
-  app.use(apiPrefix, await HoldPhoneRouter())
-  app.use(apiPrefix, await VocalizationRouter())
 
   app.use(apiPrefix, await mSafetyRouter())
 
