@@ -86,7 +86,7 @@ export default async function () {
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new tappingData Data')
       res.sendStatus(500)
-      DAO.abortTransation(trans)
+      DAO.abortTransaction(trans)
     }
   })
 
