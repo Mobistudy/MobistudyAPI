@@ -204,6 +204,9 @@ export default async function () {
         // Remove holdPhone Data
         await DAO.deleteHoldPhoneByUser(userKey)
 
+        // Remove vocalization Data
+        await DAO.deleteVocalizationByUser(userKey)
+
         // Remove attachments
         await deleteAttachmentsByUser(userKey)
 
@@ -287,6 +290,9 @@ export default async function () {
 
         // Remove holdPhone Data
         await DAO.deleteHoldPhoneByUser(userKey)
+
+        // Remove vocalization Data
+        await DAO.deleteVocalizationByUser(userKey)
 
         // Remove attachments
         await deleteAttachmentsByUser(userKey)

@@ -1,0 +1,17 @@
+{
+  "userKey": "asdasd",
+  "studyKey": "voc",
+  "taskId": 13,
+  "createdTS": "timestamp on the server",
+  "filename": "1_10042022.wav",
+  "report": {
+    "userKey": "asdasd",
+    "studyKey": "voc",
+    "taskId": 13,
+    "summary": {
+      "phases": []
+    },
+    "attachments": []
+  },
+  "testPhase": 1
+}
