@@ -96,7 +96,7 @@ describe("When arangodb is running", () => {
 
     beforeAll(async () => {
       tr1_key = await addDataToCollection('tasksResults', {
-        userKey: '1234',
+        userKey: '5679', // another user
         studyKey: 'abc',
         data: [1, 2, 3]
       })
@@ -114,22 +114,22 @@ describe("When arangodb is running", () => {
       })
     }, 1000)
 
-    test('The results can be retrieved one by one by user', async () => {
+    test('results can be retrieved one by one by user', async () => {
       let res = []
       await TRDAO.getTasksResultsByUser('1234', (d) => {
         res.push(d)
       })
 
-      expect(res.length).toBe(3)
+      expect(res.length).toBe(2)
     })
 
-    test('The results can be retrieved one by one by user and study', async () => {
+    test('results can be retrieved one by one by user and study', async () => {
       let res = []
       await TRDAO.getTasksResultsByUserAndStudy('1234', 'abc', (d) => {
         res.push(d)
       })
 
-      expect(res.length).toBe(3)
+      expect(res.length).toBe(2)
     })
 
 
@@ -152,7 +152,7 @@ describe("When arangodb is running", () => {
       })
     }, 1000)
 
-    test('The results can be removed by key', async () => {
+    test('results can be removed by key', async () => {
       TRDAO.deleteTasksResults(tr_key)
 
       try {
@@ -162,7 +162,7 @@ describe("When arangodb is running", () => {
       }
     })
 
-    test('The results can be removed by study', async () => {
+    test('results can be removed by study', async () => {
       TRDAO.deleteTasksResultsByStudy(tr_key)
 
       try {
@@ -172,7 +172,7 @@ describe("When arangodb is running", () => {
       }
     })
 
-    test('The results can be removed by user', async () => {
+    test('results can be removed by user', async () => {
       TRDAO.deleteTasksResultsByUser(tr_key)
 
       try {
