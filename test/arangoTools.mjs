@@ -52,4 +52,10 @@ export const removeFromCollection = async function (collname, key) {
   return collection.remove(key)
 }
 
+export const getFromCollection = async function (collname, key) {
+  let collection = await getCollection(collname)
+  const results = await collection.document(key)
+  return results
+}
+
 export { db as DB }

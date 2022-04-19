@@ -14,6 +14,8 @@ import authConfig from './services/authSetup.mjs'
 
 import { DAO } from './DAO/DAO.mjs'
 
+import setupRoutes from './router.mjs'
+
 import indexRouter from './routes/index.mjs'
 import studiesRouter from './routes/studies.mjs'
 import dataDownload from './routes/dataDownload.mjs'
@@ -69,6 +71,8 @@ export default async function () {
   await authConfig()
 
   app.use(passport.initialize())
+
+  setupRoutes()
 
   const apiPrefix = '/api'
 
