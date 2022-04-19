@@ -1,7 +1,7 @@
 import express from 'express'
 import passport from 'passport'
 
-import fingerTapping from 'controllers/tasksResults'
+import fingerTapping from './controllers/tasksResults.mjs'
 
 const router = express.Router()
 

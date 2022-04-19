@@ -1,10 +1,7 @@
-'use strict'
-
 /**
  * Sets-up the application.
  * Returns an express app.
  */
-
 import express from 'express'
 import helmet from 'helmet'
 import passport from 'passport'
@@ -14,7 +11,7 @@ import authConfig from './services/authSetup.mjs'
 
 import { DAO } from './DAO/DAO.mjs'
 
-import setupRoutes from './router.mjs'
+import setupRoutes from './routes.mjs'
 
 import indexRouter from './routes/index.mjs'
 import studiesRouter from './routes/studies.mjs'
@@ -62,7 +59,7 @@ export default async function () {
     next()
   })
 
-  DAO.init()
+  await DAO.init()
 
   await authConfig()
 

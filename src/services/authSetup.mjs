@@ -13,12 +13,12 @@ import { DAO } from '../DAO/DAO.mjs'
 import getConfig from './config.mjs'
 
 export default async function () {
-  var config = getConfig()
+  const config = getConfig()
 
   if (config.auth.adminEmail) {
     // generate admin user from config if not already existing
     try {
-      let admin = await DAO.findUser(config.auth.adminEmail)
+      const admin = await DAO.findUser(config.auth.adminEmail)
       if (!admin) {
         await DAO.createUser({
           email: config.auth.adminEmail,
@@ -39,11 +39,11 @@ export default async function () {
     usernameField: 'email',
     passwordField: 'password'
   }, async function (email, password, done) {
-    let user = await DAO.findUser(email)
+    const user = await DAO.findUser(email)
     if (!user) {
       return done(null, false, { message: 'Incorrect email or password.' })
     } else {
-      var dbHashedPwd = user.hashedPassword
+      const dbHashedPwd = user.hashedPassword
       if (bcrypt.compareSync(password, dbHashedPwd)) {
         // OK!
         applogger.info({ email: email }, 'User has logged in')
@@ -64,11 +64,11 @@ export default async function () {
   }))
 
   // this is used each time an API endpoint is called
-  var opts = {}
+  const opts = {}
   opts.jwtFromRequest = PassportJWT.ExtractJwt.fromAuthHeaderAsBearerToken()
   opts.secretOrKey = config.auth.secret
   passport.use(new PassportJWT.Strategy(opts, function (jwtPayload, cb) {
-    let user = jwtPayload
+    const user = jwtPayload
     return cb(null, user)
   }))
 }

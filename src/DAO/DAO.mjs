@@ -113,7 +113,7 @@ export const DAO = {
     for (const property in tasksResults) {
       this[property] = tasksResults[property]
     }
-  // add new collections here
+    // add new collections here
   },
 
   async init () {
@@ -133,6 +133,6 @@ export const DAO = {
       url: 'http://' + config.db.host + ':' + config.db.port
     })
 
-    this.initializeDAOafterConnection()
+    return this.initAfterConnection()
   }
 }
