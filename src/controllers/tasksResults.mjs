@@ -105,17 +105,22 @@ export default {
    * @returns a promise
    */
   async createNew (req, res) {
-    let newTasksResults = req.body
-    if (req.user.role !== 'participant') return res.sendStatus(403)
-    const valid = this.validate(newTasksResults)
-    if (!valid) {
-      applogger.error({ errors: this.validate.errors }, 'Tasks results does not validate against schema')
-      return res.status(400).send('tasks results does not validate against schema')
-    }
-    newTasksResults.userKey = req.user._key
-    if (!newTasksResults.createdTS) newTasksResults.createdTS = new Date()
     let trans
+
     try {
+      let newTasksResults = req.body
+      if (req.user.role !== 'participant') return res.sendStatus(403)
+
+      console.log(this)
+
+      const valid = this.validate(newTasksResults)
+      if (!valid) {
+        applogger.error({ errors: this.validate.errors }, 'Tasks results does not validate against schema')
+        return res.status(400).send('tasks results does not validate against schema')
+      }
+      newTasksResults.userKey = req.user._key
+      if (!newTasksResults.createdTS) newTasksResults.createdTS = new Date()
+
       const participant = await DAO.getParticipantByUserKey(req.user._key)
       if (!participant) {
         const errmess = 'Tasks results sent for a non existing participant'
@@ -178,7 +183,7 @@ export default {
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new tasks results')
       res.sendStatus(500)
-      DAO.abortTransaction(trans)
+      if (trans) DAO.abortTransaction(trans)
     }
   }
 }
