@@ -11,6 +11,9 @@ import Ajv from 'ajv'
 export default {
   validate: null,
 
+  /**
+   * Initialises the controller.
+   */
   async init () {
     const tasksResultsSchema = JSON.parse(
       await readFile('./models/taskResults.json')
@@ -41,8 +44,14 @@ export default {
 
     this.validate = ajv.getSchema('https://mobistudy.org/models/tasksResults.json')
   },
-  // Get all tasks results
-  // optional query param for researcher: studyKey to filter by study
+
+  /**
+   * Get all tasks results
+   * optional query param: studyKey to filter by study
+   * @param {object} req: express request object
+   * @param {object} res: express response object
+   * @returns a promise
+   */
   async getAll (req, res) {
     try {
       if (req.user.role === 'researcher') {
@@ -67,28 +76,52 @@ export default {
     }
   },
 
+  /**
+   * Creates new tasks results. The new results are passed in the body.
+   * Any data inside the property "data" is saved on file and removed from the object
+   * before being saved on the database.
+   * @param {object} req: express request object, the new object must be in the body
+   * @param {object} res: express response object
+   * @returns a promise
+   */
   async createNew (req, res) {
     let newTasksResults = req.body
     if (req.user.role !== 'participant') return res.sendStatus(403)
     const valid = this.validate(newTasksResults)
     if (!valid) {
-      console.error('tasks results does not validate against schema', this.validate.errors)
-      return res.sendStatus(400)
+      applogger.error({ errors: this.validate.errors }, 'Tasks results does not validate against schema')
+      return res.status(400).send('tasks results does not validate against schema')
     }
     newTasksResults.userKey = req.user._key
     if (!newTasksResults.createdTS) newTasksResults.createdTS = new Date()
     let trans
     try {
       const participant = await DAO.getParticipantByUserKey(req.user._key)
-      if (!participant) return res.sendStatus(404)
-      if (!participant.studies) return res.sendStatus(400)
+      if (!participant) {
+        const errmess = 'Tasks results sent for a non existing participant'
+        applogger.warn(errmess)
+        return res.status(400).send(errmess)
+      }
+      if (!participant.studies) {
+        const errmess = 'Tasks results sent for a participant with no studies'
+        applogger.warn(errmess)
+        return res.status(400).send(errmess)
+      }
 
       const study = participant.studies.find((s) => {
         return s.studyKey === newTasksResults.studyKey
       })
-      if (!study) return res.status(400).send('No study with key ' + newTasksResults.studyKey)
+      if (!study) {
+        const errmess = 'Tasks results sent for a participant with no study with key ' + newTasksResults.studyKey
+        applogger.warn(errmess)
+        return res.status(400).send(errmess)
+      }
       const taskItem = study.taskItemsConsent.find(ti => ti.taskId === newTasksResults.taskId)
-      if (!taskItem) return res.status(400).send('No task with id ' + newTasksResults.taskId)
+      if (!taskItem) {
+        const errmess = 'Tasks results sent for a participant with no task with id ' + newTasksResults.taskId
+        applogger.warn(errmess)
+        return res.status(400).send(errmess)
+      }
 
       trans = await DAO.startTransaction([DAO.tasksResultsTransaction(), DAO.participantsTransaction()])
 
@@ -120,10 +153,9 @@ export default {
       res.status(200).send({
         _key: newTasksResults._key
       })
-      applogger.info({ userKey: req.user._key, taskId: newTasksResults.taskId, studyKey: newTasksResults.studyKey }, 'Participant has sent tasks results')
-      auditLogger.log('tasksResultsCreated', req.user._key, newTasksResults.studyKey, newTasksResults.taskId, 'Tasks results created by participant with key ' + participant._key + ' for study with key ' + newTasksResults.studyKey, 'tasksResults', newTasksResults._key, newTasksResults)
+      applogger.info({ userKey: req.user._key, taskId: newTasksResults.taskId, studyKey: newTasksResults.studyKey }, 'Participant has sent tasks results for task ' + taskItem.type)
+      auditLogger.log('tasksResultsCreated', req.user._key, newTasksResults.studyKey, newTasksResults.taskId, 'Results received for ' + taskItem.type + ' task, task id ' + newTasksResults.taskId + ', by participant ' + participant._key + ' for study ' + newTasksResults.studyKey, 'tasksResults', newTasksResults._key, newTasksResults)
     } catch (err) {
-      console.error(err)
       applogger.error({ error: err }, 'Cannot store new tasks results')
       res.sendStatus(500)
       DAO.abortTransaction(trans)

@@ -12,9 +12,10 @@ import TRC from '../../src/controllers/tasksResults'
 
 jest.mock('../../src/services/logger', () => ({
   applogger: {
+    trace: jest.fn(),
     debug: jest.fn(),
     info: jest.fn(),
-    trace: jest.fn(),
+    warn: jest.fn(),
     error: jest.fn()
   }
 }))
@@ -148,7 +149,7 @@ describe("When arangodb is running", () => {
       }, mockRes)
 
       expect(mockRes.code).toBe(400)
-      expect(mockRes.data).toBe('No study with key abc')
+      expect(mockRes.data).toBe('Tasks results sent for a participant with no study with key abc')
     })
 
     test("participant cannot send results for a task he doesn't have", async () => {
@@ -172,7 +173,7 @@ describe("When arangodb is running", () => {
       }, mockRes)
 
       expect(mockRes.code).toBe(400)
-      expect(mockRes.data).toBe('No task with id 100')
+      expect(mockRes.data).toBe('Tasks results sent for a participant with no task with id 100')
     })
 
     test("participant can send results without data", async () => {
@@ -310,7 +311,6 @@ describe("When arangodb is running", () => {
       await removeFromCollection("teams", team1Key)
       await removeFromCollection("teams", participant1Key)
       await removeFromCollection("studies", study1Key)
-      console.log('going to delete files for ' + study1Key)
       await fsRmdir('tasksuploads/' + study1Key + '/', { recursive: true })
     })
   })
