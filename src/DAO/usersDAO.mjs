@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * This provides the data access for users.
 * A use will have basic authentication and data access information:
@@ -19,9 +17,12 @@ export default async function (db) {
   return {
     async findUser (email) {
       // Email string is set to lowercase
-      const query = 'FOR user in users FILTER LOWER(user.email) == \'' + email + '\' RETURN user'
-      applogger.trace('Querying "' + query + '"')
-      const cursor = await db.query(query)
+      const query = 'FOR user in users FILTER LOWER(user.email) == @userEmail RETURN user'
+      const bindings = {
+        userEmail: email
+      }
+      applogger.trace({ bindings }, 'Querying "' + query + '"')
+      const cursor = await db.query(query, bindings)
       const users = await cursor.all()
       if (users.length) return users[0]
       else return undefined
