@@ -58,14 +58,31 @@ export default {
   async getAll (req, res) {
     try {
       if (req.user.role === 'researcher') {
+        // researcher requests tasks results
+        if (!req.query.studyKey) {
+          const errmess = 'Researcher cannot request tasks results without specifying a study'
+          applogger.warn(errmess)
+          return res.status(400).send(errmess)
+        }
         const team = await DAO.getAllTeams(req.user._key, req.query.studyKey)
-        if (team.length === 0) return res.sendStatus(403)
-        else {
+        if (team.length === 0) {
+          const errmess = 'Researcher cannot request tasks results for a study (s)he is not involved in'
+          applogger.warn(errmess)
+          return res.status(403).send(errmess)
+        } else {
           const resultsData = await DAO.getTasksResultsByStudy(req.query.studyKey)
           res.send(resultsData)
         }
       } else if (req.user.role === 'participant') {
-        const resultsData = await DAO.getTasksResultsByUser(req.user._key)
+        // participant requests tasks results
+        let resultsData
+        if (req.query && req.query.studyKey) {
+          // results for a given study
+          resultsData = await DAO.getTasksResultsByUserAndStudy(req.user._key, req.query.studyKey)
+        } else {
+          // results for all studies
+          resultsData = await DAO.getTasksResultsByUser(req.user._key)
+        }
         res.send(resultsData)
       } else {
         // admin
