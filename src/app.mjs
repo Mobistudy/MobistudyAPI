@@ -65,7 +65,7 @@ export default async function () {
 
   app.use(passport.initialize())
 
-  setupRoutes()
+  setupRoutes(app)
 
   const apiPrefix = '/api'
 
