@@ -10,6 +10,9 @@ import {
 import { DAO } from '../../src/DAO/DAO'
 import TRC from '../../src/controllers/tasksResults'
 
+const DBNAME = "test_tasksResultsCtrl"
+
+
 jest.mock('../../src/services/logger', () => ({
   applogger: {
     trace: jest.fn(),
@@ -42,7 +45,6 @@ const mockRes = {
 }
 
 describe("When arangodb is running", () => {
-  const DBNAME = "test_tasksResults";
 
   beforeAll(async () => {
     await connectToDatabase(DBNAME)
@@ -56,7 +58,7 @@ describe("When arangodb is running", () => {
     await dropDatabase(DBNAME)
   })
 
-  describe("when a study exists with finger tapping task", () => {
+  describe("when a study exists with tasks results", () => {
     let study1Key, researcher1Key, team1Key, user1Key, participant1Key;
     beforeAll(async () => {
       // feed with some initial data
@@ -115,6 +117,14 @@ describe("When arangodb is running", () => {
         ]
       })
     }, 5000)
+
+    afterAll(async () => {
+      await removeFromCollection("users", researcher1Key)
+      await removeFromCollection("teams", team1Key)
+      await removeFromCollection("teams", participant1Key)
+      await removeFromCollection("studies", study1Key)
+      await fsRmdir('tasksuploads/' + study1Key + '/', { recursive: true })
+    })
 
     test("researchers cannot send results", async () => {
       TRC.createNew({
@@ -206,62 +216,6 @@ describe("When arangodb is running", () => {
       await removeFromCollection("tasksResults", mockRes.data._key)
     })
 
-    test("participant can get own results", async () => {
-      let res1, res2, res3
-      res1 = await addDataToCollection("tasksResults", {
-        studyKey: study1Key,
-        userKey: user1Key,
-        taskId: 1,
-        taskType: 'form',
-        summary: {
-          startedTS: "2022-02-01",
-          completedTS: "2022-02-01",
-          answered: 1,
-          asked: 1
-        }
-      })
-      res2 = await addDataToCollection("tasksResults", {
-        studyKey: study1Key,
-        userKey: user1Key,
-        taskId: 1,
-        taskType: 'form',
-        summary: {
-          startedTS: "2022-02-02",
-          completedTS: "2022-02-02",
-          answered: 1,
-          asked: 1
-        }
-      })
-      res3 = await addDataToCollection("tasksResults", {
-        studyKey: study1Key,
-        userKey: '5555', // someone else
-        taskId: 1,
-        taskType: 'form',
-        summary: {
-          startedTS: "2022-02-02",
-          completedTS: "2022-02-02",
-          answered: 1,
-          asked: 1
-        }
-      })
-
-      await TRC.getAll({
-        user: {
-          _key: user1Key,
-          role: 'participant'
-        },
-        body: {
-          studyKey: study1Key,
-          taskId: 1,
-          startedTS: new Date().toISOString()
-        }
-      }, mockRes)
-
-      expect(mockRes).toBeDefined()
-      expect(mockRes.code).toBe(200)
-      expect(mockRes.data.length).toBe(2)
-    })
-
     test("participant can send results with data", async () => {
       await TRC.createNew({
         user: {
@@ -306,12 +260,84 @@ describe("When arangodb is running", () => {
       await removeFromCollection("tasksResults", tr._key)
     })
 
-    afterAll(async () => {
-      await removeFromCollection("users", researcher1Key)
-      await removeFromCollection("teams", team1Key)
-      await removeFromCollection("teams", participant1Key)
-      await removeFromCollection("studies", study1Key)
-      await fsRmdir('tasksuploads/' + study1Key + '/', { recursive: true })
+    describe("when some results exist from different users and studies", () => {
+      let res1, res2, res3
+      beforeAll(async () => {
+        res1 = await addDataToCollection("tasksResults", {
+          studyKey: study1Key,
+          userKey: user1Key,
+          taskId: 1,
+          taskType: 'form',
+          summary: {
+            startedTS: "2022-02-01",
+            completedTS: "2022-02-01",
+            answered: 1,
+            asked: 1
+          }
+        })
+        res2 = await addDataToCollection("tasksResults", {
+          studyKey: 'abc', // another study
+          userKey: user1Key,
+          taskId: 1,
+          taskType: 'form',
+          summary: {
+            startedTS: "2022-02-02",
+            completedTS: "2022-02-02",
+            answered: 1,
+            asked: 1
+          }
+        })
+        res3 = await addDataToCollection("tasksResults", {
+          studyKey: study1Key,
+          userKey: '5555', // someone else
+          taskId: 1,
+          taskType: 'form',
+          summary: {
+            startedTS: "2022-02-02",
+            completedTS: "2022-02-02",
+            answered: 1,
+            asked: 1
+          }
+        })
+      })
+
+      afterAll(async () => {
+        await removeFromCollection("tasksResults", res1)
+        await removeFromCollection("tasksResults", res2)
+        await removeFromCollection("tasksResults", res3)
+      })
+
+      test("participant can get all own results", async () => {
+
+        await TRC.getAll({
+          user: {
+            _key: user1Key,
+            role: 'participant'
+          }
+        }, mockRes)
+
+        expect(mockRes).toBeDefined()
+        expect(mockRes.code).toBe(200)
+        expect(mockRes.data.length).toBe(2)
+      })
+
+      test("participant can get own results for a given study", async () => {
+
+        await TRC.getAll({
+          user: {
+            _key: user1Key,
+            role: 'participant'
+          },
+          query: {
+            studyKey: study1Key
+          }
+        }, mockRes)
+
+        expect(mockRes).toBeDefined()
+        expect(mockRes.code).toBe(200)
+        expect(mockRes.data.length).toBe(1)
+        expect(mockRes.data[0].studyKey).toBe(study1Key)
+      })
     })
   })
 })

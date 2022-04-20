@@ -17,14 +17,18 @@ jest.mock('../../src/services/logger', () => ({
 }))
 
 let TRDAO = null
+const DBNAME = "test_tasksResultsDAO"
 
 describe("When arangodb is running", () => {
-  const DBNAME = "test_tasksResults"
 
   beforeAll(async () => {
     await connectToDatabase(DBNAME)
     TRDAO = await getTasksResultsDAO(DB)
   }, 60000)
+
+  afterAll(async () => {
+    await dropDatabase(DBNAME)
+  })
 
   test("tasks results can be created", async () => {
     let newRsults = await TRDAO.createTasksResults({
