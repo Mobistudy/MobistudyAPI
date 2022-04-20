@@ -20,6 +20,7 @@ import getPeakFlowDataDAO from './peakflowDataDAO.mjs'
 import getPositionsDAO from './positionsDAO.mjs'
 
 import getTasksResultsDAO from './tasksResultsDAO.mjs'
+import { applogger } from '../services/logger.mjs'
 
 export const DAO = {
   db: null,
@@ -130,8 +131,12 @@ export const DAO = {
       throw new Error('Configuration is missing some critical parameters')
     }
     this.db = new Database({
-      url: 'http://' + config.db.host + ':' + config.db.port
+      url: 'http://' + config.db.host + ':' + config.db.port,
+      databaseName: config.db.name,
+      auth: { username: config.db.user, password: config.db.password }
     })
+
+    applogger.debug('Connected to database')
 
     return this.initAfterConnection()
   }
