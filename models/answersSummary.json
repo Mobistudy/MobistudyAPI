@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answerSummary.json",
+  "$id": "https://mobistudy.org/models/answerSummary.json",
   "title": "Summary of answers",
   "description": "Summary of the answers provided to forms ",
   "type": "object",

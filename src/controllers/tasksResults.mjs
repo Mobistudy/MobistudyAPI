@@ -5,8 +5,42 @@ import { DAO } from '../DAO/DAO.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { saveAttachment } from '../services/attachments.mjs'
+import { readFile } from 'fs/promises'
+import Ajv from 'ajv'
 
 export default {
+  validate: null,
+
+  async init () {
+    const tasksResultsSchema = JSON.parse(
+      await readFile('./models/taskResults.json')
+    )
+    const answersSummarySchema = JSON.parse(
+      await readFile('./models/answersSummary.json')
+    )
+    const answersDataSchema = JSON.parse(
+      await readFile('./models/answersData.json')
+    )
+    const fingerTappingSummarySchema = JSON.parse(
+      await readFile('./models/fingerTappingSummary.json')
+    )
+    const fingerTappingDataSchema = JSON.parse(
+      await readFile('./models/fingerTappingData.json')
+    )
+
+    const ajv = new Ajv({
+      schemas: [
+        tasksResultsSchema,
+        answersSummarySchema,
+        answersDataSchema,
+        fingerTappingSummarySchema,
+        fingerTappingDataSchema
+      ],
+      allowUnionTypes: true
+    })
+
+    this.validate = ajv.getSchema('https://mobistudy.org/models/tasksResults.json')
+  },
   // Get all tasks results
   // optional query param for researcher: studyKey to filter by study
   async getAll (req, res) {
@@ -36,7 +70,11 @@ export default {
   async createNew (req, res) {
     let newTasksResults = req.body
     if (req.user.role !== 'participant') return res.sendStatus(403)
-    if (!newTasksResults.studyKey) return res.sendStatus(400)
+    const valid = this.validate(newTasksResults)
+    if (!valid) {
+      console.error('tasks results does not validate against schema', this.validate.errors)
+      return res.sendStatus(400)
+    }
     newTasksResults.userKey = req.user._key
     if (!newTasksResults.createdTS) newTasksResults.createdTS = new Date()
     let trans

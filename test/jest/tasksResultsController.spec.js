@@ -47,6 +47,8 @@ describe("When arangodb is running", () => {
     await connectToDatabase(DBNAME)
     DAO.db = DB
     await DAO.initAfterConnection()
+
+    await TRC.init()
   }, 60000)
 
   afterAll(async () => {
@@ -83,12 +85,7 @@ describe("When arangodb is running", () => {
         tasks: [
           {
             id: 1,
-            type: 'fingerTapping',
-            scheduling: {
-              alwaysOn: true,
-              startEvent: 'consent',
-              untilSecs: 60 * 60 * 24 * 7 // 1 week
-            }
+            type: 'form'
           }
         ]
       })
@@ -137,7 +134,16 @@ describe("When arangodb is running", () => {
           role: 'participant'
         },
         body: {
-          studyKey: 'abc'
+          studyKey: 'abc',
+          userKey: user1Key,
+          taskId: 1,
+          taskType: 'form',
+          summary: {
+            startedTS: "2022-02-02",
+            completedTS: "2022-02-02",
+            answered: 1,
+            asked: 1
+          }
         }
       }, mockRes)
 
@@ -153,7 +159,15 @@ describe("When arangodb is running", () => {
         },
         body: {
           studyKey: study1Key,
-          taskId: 100
+          userKey: user1Key,
+          taskId: 100,
+          taskType: 'form',
+          summary: {
+            startedTS: "2022-02-02",
+            completedTS: "2022-02-02",
+            answered: 1,
+            asked: 1
+          }
         }
       }, mockRes)
 
@@ -161,7 +175,7 @@ describe("When arangodb is running", () => {
       expect(mockRes.data).toBe('No task with id 100')
     })
 
-    test("participant can send results", async () => {
+    test("participant can send results without data", async () => {
       await TRC.createNew({
         user: {
           _key: user1Key,
@@ -169,8 +183,15 @@ describe("When arangodb is running", () => {
         },
         body: {
           studyKey: study1Key,
+          userKey: user1Key,
           taskId: 1,
-          startedTS: new Date().toISOString()
+          taskType: 'form',
+          summary: {
+            startedTS: "2022-02-02",
+            completedTS: "2022-02-02",
+            answered: 1,
+            asked: 1
+          }
         }
       }, mockRes)
 
@@ -187,55 +208,40 @@ describe("When arangodb is running", () => {
     test("participant can get own results", async () => {
       let res1, res2, res3
       res1 = await addDataToCollection("tasksResults", {
+        studyKey: study1Key,
         userKey: user1Key,
-        studies: [
-          {
-            studyKey: study1Key,
-            currentStatus: "accepted",
-            acceptedTS: "2019-02-27T12:46:07.294Z",
-            taskItemsConsent: [
-              {
-                taskId: 1,
-                consented: true,
-                lastExecuted: "2019-02-27T12:46:07.294Z"
-              }
-            ]
-          }
-        ]
+        taskId: 1,
+        taskType: 'form',
+        summary: {
+          startedTS: "2022-02-01",
+          completedTS: "2022-02-01",
+          answered: 1,
+          asked: 1
+        }
       })
       res2 = await addDataToCollection("tasksResults", {
+        studyKey: study1Key,
         userKey: user1Key,
-        studies: [
-          {
-            studyKey: study1Key,
-            currentStatus: "accepted",
-            acceptedTS: "2019-02-27T12:46:07.294Z",
-            taskItemsConsent: [
-              {
-                taskId: 1,
-                consented: true,
-                lastExecuted: "2019-02-27T12:46:07.294Z"
-              }
-            ]
-          }
-        ]
+        taskId: 1,
+        taskType: 'form',
+        summary: {
+          startedTS: "2022-02-02",
+          completedTS: "2022-02-02",
+          answered: 1,
+          asked: 1
+        }
       })
       res3 = await addDataToCollection("tasksResults", {
-        userKey: user1Key,
-        studies: [
-          {
-            studyKey: study1Key,
-            currentStatus: "accepted",
-            acceptedTS: "2019-02-27T12:46:07.294Z",
-            taskItemsConsent: [
-              {
-                taskId: 1,
-                consented: true,
-                lastExecuted: "2019-02-27T12:46:07.294Z"
-              }
-            ]
-          }
-        ]
+        studyKey: study1Key,
+        userKey: '5555', // someone else
+        taskId: 1,
+        taskType: 'form',
+        summary: {
+          startedTS: "2022-02-02",
+          completedTS: "2022-02-02",
+          answered: 1,
+          asked: 1
+        }
       })
 
       await TRC.getAll({
@@ -252,7 +258,7 @@ describe("When arangodb is running", () => {
 
       expect(mockRes).toBeDefined()
       expect(mockRes.code).toBe(200)
-      expect(mockRes.data.length).toBe(3)
+      expect(mockRes.data.length).toBe(2)
     })
 
     test("participant can send results with data", async () => {
@@ -263,11 +269,19 @@ describe("When arangodb is running", () => {
         },
         body: {
           studyKey: study1Key,
+          userKey: user1Key,
           taskId: 1,
-          startedTS: new Date().toISOString(),
-          data: {
-            test: 'some test data'
-          }
+          taskType: 'form',
+          summary: {
+            startedTS: "2022-02-02",
+            completedTS: "2022-02-02",
+            answered: 1,
+            asked: 1
+          },
+          data: [{
+            timeStamp: '2022-02-02',
+            questionId: 'q1'
+          }]
         }
       }, mockRes)
 
@@ -275,13 +289,16 @@ describe("When arangodb is running", () => {
 
       let tr = await getFromCollection('tasksResults', mockRes.data._key)
       expect(tr).toBeDefined()
+      expect(tr.data).toBeUndefined()
+      expect(tr.attachments).toBeDefined()
+      expect(tr.attachments.length).toBe(1)
 
       let filePath = 'tasksuploads/' + study1Key + '/' + user1Key + '/1/' + tr._key + '.json'
       await fsStat(filePath)
       let file = await fsOpen(filePath)
       let fileContent = await file.readFile('utf-8')
 
-      expect(fileContent).toBe('{"test":"some test data"}')
+      expect(fileContent).toBe('[{\"timeStamp\":\"2022-02-02\",\"questionId\":\"q1\"}]')
       file.close()
 
       await fsRmdir('tasksuploads/' + study1Key + '/', { recursive: true })

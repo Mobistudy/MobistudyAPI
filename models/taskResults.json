@@ -1,6 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema",
-  "$id": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/taskResults.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/tasksResults.json",
   "title": "Task results",
   "description": "Results of a task",
   "type": "object",
@@ -56,12 +56,12 @@
       ],
       "oneOf": [
         {
-          "description": "For the form task type",
-          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answersSummary.json"
+          "description": "Summary of the answers provided to forms ",
+          "$ref": "https://mobistudy.org/models/answerSummary.json"
         },
         {
-          "description": "For the finger tapping task type",
-          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/fingerTappingSummary.json"
+          "description": "Finger tapping results summary",
+          "$ref": "https://mobistudy.org/models/fingerTappingSummary.json"
         }
       ]
     },
@@ -77,11 +77,11 @@
       "oneOf": [
         {
           "description": "Answers, collected by the form type of task",
-          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/answersData.json"
+          "$ref": "https://mobistudy.org/models/answersData.json"
         },
         {
           "description": "Finger tapping data, result of finger tapping task",
-          "$ref": "https://raw.githubusercontent.com/Mobistudy/MobistudyAPI/master/models/fingerTappingData.json"
+          "$ref": "https://mobistudy.org/models/fingerTappingData.json"
         }
       ]
     }
