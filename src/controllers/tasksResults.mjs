@@ -9,6 +9,9 @@ import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
 
 export default {
+  /**
+   * Json schema validate function
+   */
   validate: null,
 
   /**
