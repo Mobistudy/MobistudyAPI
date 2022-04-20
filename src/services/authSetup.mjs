@@ -26,8 +26,9 @@ export default async function () {
           role: 'admin'
         })
         applogger.info('Admin user created')
+      } else {
+        applogger.debug('Admin user already exists')
       }
-      applogger.debug('Admin user already exists')
     } catch (err) {
       applogger.fatal(err, 'Cannot create admin user')
       process.exit(1)
@@ -41,6 +42,7 @@ export default async function () {
   }, async function (email, password, done) {
     const user = await DAO.findUser(email)
     if (!user) {
+      applogger.trace(email + ' is trying to login, but is not registered')
       return done(null, false, { message: 'Incorrect email or password.' })
     } else {
       const dbHashedPwd = user.hashedPassword
