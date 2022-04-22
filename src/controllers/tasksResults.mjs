@@ -120,8 +120,6 @@ export default {
       let newTasksResults = req.body
       if (req.user.role !== 'participant') return res.sendStatus(403)
 
-      console.log(this)
-
       const valid = this.validate(newTasksResults)
       if (!valid) {
         applogger.error({ errors: this.validate.errors }, 'Tasks results does not validate against schema')

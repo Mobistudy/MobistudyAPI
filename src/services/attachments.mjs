@@ -52,7 +52,6 @@ export async function saveAttachment (userKey, studyKey, taskId, fileName) {
 export async function getAttachments (studyKey, cbk) {
   if (!cbk) throw new Error('Callback must be specified')
   const studyPath = UPLOADSDIR + '/' + studyKey + '/'
-  let stat
   // gracefully return if no directory is found
   try {
     await fsStat(studyPath)

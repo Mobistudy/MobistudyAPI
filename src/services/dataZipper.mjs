@@ -122,13 +122,7 @@ export default {
           archive.append(JSON.stringify(a), { name: 'position/' + a._key + '.json' })
         })
       }).then(() => {
-        // fingerTapping
-        return DAO.getFingerTappingsByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'fingerTapping/' + a._key + '.json' })
-        })
-      }).then(() => {
         // attachments
-
         return getAttachments(studyKey, (res) => {
           archive.append(res.content, { name: 'attachments/' + res.task + '/' + res.user + '/' + res.file })
         })
