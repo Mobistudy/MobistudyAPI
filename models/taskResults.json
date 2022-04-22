@@ -26,7 +26,8 @@
       "type": "string",
       "enum": [
         "form",
-        "fingerTapping"
+        "fingerTapping",
+        "holdPhone"
       ]
     },
     "createdTS": {
@@ -66,6 +67,10 @@
         {
           "description": "Finger tapping results summary",
           "$ref": "https://mobistudy.org/models/fingerTappingSummary.json"
+        },
+        {
+          "description": "Hold the phone results summary",
+          "$ref": "https://mobistudy.org/models/holdPhoneSummary.json"
         }
       ]
     },
@@ -86,6 +91,10 @@
         {
           "description": "Finger tapping data, result of finger tapping task",
           "$ref": "https://mobistudy.org/models/fingerTappingData.json"
+        },
+        {
+          "description": "Results of the hold-the-phone tremor test",
+          "$ref": "https://mobistudy.org/models/holdPhoneData.json"
         }
       ]
     }

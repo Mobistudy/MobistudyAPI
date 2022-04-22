@@ -34,13 +34,22 @@ export default {
       await readFile('./models/fingerTappingData.json')
     )
 
+    const holdPhoneSummarySchema = JSON.parse(
+      await readFile('./models/holdPhoneSummary.json')
+    )
+    const holdPhoneDataSchema = JSON.parse(
+      await readFile('./models/holdPhoneData.json')
+    )
+
     const ajv = new Ajv({
       schemas: [
         tasksResultsSchema,
         answersSummarySchema,
         answersDataSchema,
         fingerTappingSummarySchema,
-        fingerTappingDataSchema
+        fingerTappingDataSchema,
+        holdPhoneSummarySchema,
+        holdPhoneDataSchema
       ],
       allowUnionTypes: true
     })

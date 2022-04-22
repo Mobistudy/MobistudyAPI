@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/holdPhoneSummary.json",
+  "title": "Hold the phone summary",
+  "description": "Summary of the results of the hold the phone task",
+  "type": "object",
+  "properties": {
+    "resting": {
+      "$ref": "#/$defs/phaseData"
+    },
+    "postural": {
+      "$ref": "#/$defs/phaseData"
+    },
+    "kinetic": {
+      "$ref": "#/$defs/phaseData"
+    }
+  },
+  "required": [
+    "resting",
+    "postural",
+    "kinetic"
+  ],
+  "$defs": {
+    "handData": {
+      "type": "object",
+      "properties": {
+        "startedTS": {
+          "type": "string"
+        },
+        "completedTS": {
+          "type": "string"
+        },
+        "AccelerationVariance": {
+          "type": "number"
+        },
+        "OrientationVariance": {
+          "type": "number"
+        }
+      }
+    },
+    "phaseData": {
+      "type": "object",
+      "properties": {
+        "left": {
+          "$ref": "#/$defs/handData"
+        },
+        "right": {
+          "$ref": "#/$defs/handData"
+        }
+      },
+      "required": [
+        "left",
+        "right"
+      ]
+    }
+  }
+}
