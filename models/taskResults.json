@@ -33,6 +33,10 @@
       "description": "Timestamp of when the task was created, either on the app or on the database, as ISO date string",
       "type": "string"
     },
+    "discarded": {
+      "description": "Indicates if the task results were discarded, in which case no summary and no data is associated with this report",
+      "type": "boolean"
+    },
     "phone": {
       "description": "Data related to the phone used for this task",
       "type": "object"
@@ -89,7 +93,6 @@
   "required": [
     "userKey",
     "studyKey",
-    "taskId",
-    "summary"
+    "taskId"
   ]
 }
