@@ -148,6 +148,7 @@ export default {
         applogger.warn(errmess)
         return res.status(400).send(errmess)
       }
+
       const taskItem = study.taskItemsConsent.find(ti => ti.taskId === newTasksResults.taskId)
       if (!taskItem) {
         const errmess = 'Tasks results sent for a participant with no task with id ' + newTasksResults.taskId
@@ -185,8 +186,8 @@ export default {
       res.status(200).send({
         _key: newTasksResults._key
       })
-      applogger.info({ userKey: req.user._key, taskId: newTasksResults.taskId, studyKey: newTasksResults.studyKey }, 'Participant has sent tasks results for task ' + taskItem.type)
-      auditLogger.log('tasksResultsCreated', req.user._key, newTasksResults.studyKey, newTasksResults.taskId, 'Results received for ' + taskItem.type + ' task, task id ' + newTasksResults.taskId + ', by participant ' + participant._key + ' for study ' + newTasksResults.studyKey, 'tasksResults', newTasksResults._key, newTasksResults)
+      applogger.info({ userKey: req.user._key, taskId: newTasksResults.taskId, studyKey: newTasksResults.studyKey }, 'Participant has sent tasks results for task ' + newTasksResults.type)
+      auditLogger.log('tasksResultsCreated', req.user._key, newTasksResults.studyKey, newTasksResults.taskId, 'Results received for ' + newTasksResults.type + ' task, task id ' + newTasksResults.taskId + ', by participant ' + participant._key + ' for study ' + newTasksResults.studyKey, 'tasksResults', newTasksResults._key, newTasksResults)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new tasks results')
       res.sendStatus(500)
