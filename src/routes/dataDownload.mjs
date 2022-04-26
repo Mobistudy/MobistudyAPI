@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * This provides the routes for the download of study data
 */

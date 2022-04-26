@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * This zips data collected in a study.
 */
@@ -120,6 +118,11 @@ export default {
         // position
         return DAO.getPositionsByStudy(studyKey, (a) => {
           archive.append(JSON.stringify(a), { name: 'position/' + a._key + '.json' })
+        })
+      }).then(() => {
+        // tasks results
+        return DAO.getTasksResultsByStudy(studyKey, (a) => {
+          archive.append(JSON.stringify(a), { name: 'taskresults/' + a._key + '.json' })
         })
       }).then(() => {
         // attachments
