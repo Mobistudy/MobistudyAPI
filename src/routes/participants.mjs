@@ -195,17 +195,8 @@ export default async function () {
         // Remove Position Data
         await DAO.deletePositionsByUser(userKey)
 
-        // Remove tapping Data
-        await DAO.deleteFingerTappingsByUser(userKey)
-
-        // Remove TUGT Data
-        await DAO.deleteTugtByUser(userKey)
-
-        // Remove holdPhone Data
-        await DAO.deleteHoldPhoneByUser(userKey)
-
-        // Remove vocalization Data
-        await DAO.deleteVocalizationByUser(userKey)
+        // Remove Tasks results
+        await DAO.deleteTasksResultsByUser(userKey)
 
         // Remove attachments
         await deleteAttachmentsByUser(userKey)
@@ -282,17 +273,8 @@ export default async function () {
         // Remove Position Data
         await DAO.deletePositionsByUser(userKey)
 
-        // Remove tapping Data
-        await DAO.deleteFingerTappingsByUser(userKey)
-
-        // Remove TUGT Data
-        await DAO.deleteTugtByUser(userKey)
-
-        // Remove holdPhone Data
-        await DAO.deleteHoldPhoneByUser(userKey)
-
-        // Remove vocalization Data
-        await DAO.deleteVocalizationByUser(userKey)
+        // Remove Tasks results
+        await DAO.deleteTasksResultsByUser(userKey)
 
         // Remove attachments
         await deleteAttachmentsByUser(userKey)
