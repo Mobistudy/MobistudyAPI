@@ -30,7 +30,7 @@
           "type": "integer"
         },
         "interval": {
-          "type": "integer"
+          "type": "number"
         },
         "acc": {
           "description": "Triaxial acceleration without gravity",
