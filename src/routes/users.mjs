@@ -190,7 +190,6 @@ export default async function () {
           req.query.offset,
           req.query.rowsPerPage
         )
-        console.log('routes/users.mjs RESULT:', result)
         res.send(result)
       } catch (err) {
         applogger.error({ error: err }, 'Cannot retrieve users')

@@ -76,7 +76,8 @@ export default async function (db) {
         queryString += ` RETURN {
           userkey: user._key,
           email: user.email,
-          role: user.role
+          role: user.role,
+          testUser: user.testUser
         }`
       }
       applogger.trace(bindings, 'Querying "' + queryString + '"')
