@@ -5,7 +5,7 @@ import nodeoutlook from 'nodejs-nodemailer-outlook'
 const config = getConfig()
 
 export async function sendEmail (contact, subject, message) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     applogger.debug({ contact, subject, message }, 'sending email')
     try {
       nodeoutlook.sendEmail({
