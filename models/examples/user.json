@@ -1,5 +1,8 @@
 {
+  "cretedTS": "2022-09-11",
+  "updatedTS": "2022-12-03",
   "email": "email@server.com",
   "hashedPassword": "hashedpwd",
-  "role": "participant"
+  "role": "participant",
+  "testUser": false
 }

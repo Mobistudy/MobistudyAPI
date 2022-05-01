@@ -39,6 +39,7 @@ export default async function (db) {
       applogger.trace('Searching for user "' + user._key)
       return user
     },
+
     // NEW GET USER FUNCTION
     async getUsers (countOnly, roleType, userEmail, sortDirection, offset, rowsPerPage) {
       let queryString = ''

@@ -142,12 +142,35 @@ export default async function () {
       if (existing) return res.status(409).send('This email is already registered')
       if (user.role === 'admin') return res.sendStatus(403)
       const newuser = await DAO.createUser(user)
+      newuser.createdTS = new Date()
       res.sendStatus(200)
       applogger.info({ email: newuser.email }, 'New user created')
       auditLogger.log('userCreated', newuser._key, undefined, undefined, 'New user created with email ' + newuser.email, 'users', newuser._key, undefined)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new user')
       res.sendStatus(500)
+    }
+  })
+
+  router.patch('/users/:userKey', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    if (req.user.role === 'researcher') { return res.sendStatus(403) }
+    if (req.user.role === 'participant') {
+      // participant can only change himself
+      if (req.params.userKey !== req.user._key) return res.sendStatus(403)
+    }
+
+    const userKey = req.params.userKey
+
+    // the only parameter that can be changed is if the user is a testuser
+    // role, email and password cannot be changed
+
+    if (req.body.testUser !== undefined) {
+      const isTestUser = req.body.testUser
+      const user = await DAO.getOneUser(userKey)
+      user.testUser = isTestUser
+      user.updatedTS = new Date()
+      await DAO.updateUser(userKey, user)
+      res.sendStatus(200)
     }
   })
 
