@@ -1,37 +1,45 @@
 import getConfig from './config.mjs'
 import { applogger } from './logger.mjs'
-import nodeoutlook from 'nodejs-nodemailer-outlook'
+import nodemailer from 'nodemailer'
 
 const config = getConfig()
 
 export async function sendEmail (contact, subject, message) {
   return new Promise((resolve, reject) => {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp-mail.outlook.com', // hostname
+      secureConnection: false, // TLS requires secureConnection to be false
+      port: 587, // port for secure SMTP
+      tls: {
+        ciphers: 'SSLv3'
+      },
+      auth: {
+        user: config.outlook.user,
+        pass: config.outlook.password
+      }
+    })
+
+    const mailOptions = {
+      from: config.outlook.email, // sender address (who sends)
+      to: contact, // list of receivers (who receives)
+      subject: subject, // Subject line
+      text: '', // plaintext body
+      html: message // html body
+    }
+
     applogger.debug({ contact, subject, message }, 'sending email')
     try {
-      nodeoutlook.sendEmail({
-        auth: {
-          user: config.outlook.user,
-          pass: config.outlook.password
-        },
-        from: config.outlook.email,
-        to: contact,
-        subject: subject,
-        html: message,
-        text: '',
-        replyTo: '',
-        attachments: [],
-        onError: (error) => {
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
           reject(error)
           applogger.error(error, 'Cannot send email to ' + contact)
-        },
-        onSuccess: (i) => {
+        } else {
           resolve()
-          applogger.info(i, 'Email sent to ' + contact)
+          applogger.info('Email sent to ' + contact)
         }
       })
     } catch (error) {
       reject(error)
-      console.error('Error:', error)
       applogger.error(error, 'Cannot send email to ' + contact)
     }
   })
