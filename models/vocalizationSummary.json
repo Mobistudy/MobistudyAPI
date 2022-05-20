@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/vocalizationSummary.json",
+  "title": "Vocalization results summary",
+  "description": "Summary of the data collected in the vocalization task",
+  "type": "object",
+  "properties": {
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "vocal": {
+            "type": "string"
+          },
+          "startedTS": {
+            "type": "string"
+          },
+          "completedTS": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "phases"
+  ]
+}

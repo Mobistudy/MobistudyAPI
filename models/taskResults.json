@@ -27,7 +27,8 @@
       "enum": [
         "form",
         "fingerTapping",
-        "holdPhone"
+        "holdPhone",
+        "vocalization"
       ]
     },
     "createdTS": {
@@ -71,6 +72,10 @@
         {
           "description": "Hold the phone results summary",
           "$ref": "https://mobistudy.org/models/holdPhoneSummary.json"
+        },
+        {
+          "description": "Vocalization results summary",
+          "$ref": "https://mobistudy.org/models/vocalizationSummary.json"
         }
       ]
     },
