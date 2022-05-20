@@ -19,11 +19,13 @@ export async function sendEmail (contact, subject, message) {
       }
     })
 
+    const strippedHtml = message.replace(/<[^>]+>/g, '')
+
     const mailOptions = {
       from: config.outlook.email, // sender address (who sends)
       to: contact, // list of receivers (who receives)
       subject: subject, // Subject line
-      text: '', // plaintext body
+      text: strippedHtml, // plaintext body
       html: message // html body
     }
 
