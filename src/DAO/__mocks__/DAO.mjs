@@ -48,7 +48,7 @@ const DAO = {
   async getPositionsByStudy (studyKey, dataCallback) {
     return this.getNextData(dataCallback)
   },
-  async getFingerTappingsByStudy (studyKey, dataCallback) {
+  async getTasksResultsByStudy (studyKey, dataCallback) {
     return this.getNextData(dataCallback)
   }
 }

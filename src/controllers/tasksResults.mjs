@@ -4,7 +4,7 @@
 import { DAO } from '../DAO/DAO.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
-import { saveAttachment } from '../services/attachments.mjs'
+import { getAttachmentWriter } from '../services/attachments.mjs'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
 
@@ -173,8 +173,8 @@ export default {
 
         // save the attachment
         const filename = newTasksResults._key + '.json'
-        const writer = await saveAttachment(newTasksResults.userKey, newTasksResults.studyKey, newTasksResults.taskId, filename)
-        await writer.writeChunk(JSON.stringify(resultsData))
+        const writer = await getAttachmentWriter(newTasksResults.userKey, newTasksResults.studyKey, newTasksResults.taskId, filename)
+        await writer.write(JSON.stringify(resultsData))
         await writer.end()
 
         // save the filename

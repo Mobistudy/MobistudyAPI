@@ -1,6 +1,6 @@
 import zipper from '../../src/services/dataZipper'
 import { DAO } from '../../src/DAO/DAO'
-import { saveAttachment } from '../../src/services/attachments.mjs'
+import { getAttachmentWriter } from '../../src/services/attachments.mjs'
 import { rmdir as fsRmdir } from 'fs/promises'
 
 jest.mock('../../src/services/logger', () => ({
@@ -161,8 +161,8 @@ describe('when a participant and some answers are stored', () => {
     let studyKey = '123456'
     let taskId = '10'
     let fileName = 'temp.txt'
-    let writer = await saveAttachment(userKey, studyKey, taskId, fileName)
-    await writer.writeChunk('some test data')
+    let writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
+    await writer.write('some test data')
     await writer.end()
   })
 

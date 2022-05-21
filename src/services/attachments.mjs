@@ -4,7 +4,7 @@ import { applogger } from '../services/logger.mjs'
 
 const UPLOADSDIR = 'tasksuploads'
 
-export async function saveAttachment (userKey, studyKey, taskId, fileName) {
+export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) {
   // create the study folder
   const studyDir = UPLOADSDIR + '/' + studyKey
   try {
@@ -39,7 +39,8 @@ export async function saveAttachment (userKey, studyKey, taskId, fileName) {
     if (filehandle) await filehandle.close()
     throw err
   }
-  writer.writeChunk = async (chunk) => {
+
+  writer.write = async (chunk) => {
     await filehandle.writeFile(chunk)
   }
   writer.end = async () => {

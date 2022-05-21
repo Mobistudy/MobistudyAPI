@@ -1,11 +1,10 @@
-'use strict'
 /**
 * This provides the API endpoints for sending files as attachments.
 */
 
 import express from 'express'
 import passport from 'passport'
-import { saveAttachment } from '../services/attachments.mjs'
+import { getAttachmentWriter } from '../services/attachments.mjs'
 import { DAO } from '../DAO/DAO.mjs'
 
 const router = express.Router()
@@ -37,7 +36,7 @@ export default async function () {
       if (regex.test(req.query.filename)) filename = req.query.filename
     }
     // let's create a writer from the request
-    const writer = await saveAttachment(userKey, studyKey, taskId, filename)
+    const writer = await getAttachmentWriter(userKey, studyKey, taskId, filename)
 
     // else dump it raw
     req.on('data', async (chunk) => {

@@ -1,4 +1,4 @@
-import { saveAttachment, getAttachments, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
+import { getAttachmentWriter, getAttachments, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
 import { open as fsOpen, stat as fsStat, rmdir as fsRmdir } from 'fs/promises'
 
 jest.mock('../../src/services/logger', () => ({
@@ -22,9 +22,9 @@ describe('when saving an attachment', () => {
     let studyKey = '456'
     let taskId = '7'
     let fileName = '89.txt'
-    let writer = await saveAttachment(userKey, studyKey, taskId, fileName)
-    await writer.writeChunk('text1 ')
-    await writer.writeChunk('text2')
+    let writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
+    await writer.write('text1 ')
+    await writer.write('text2')
     await writer.end()
     let filePath = 'tasksuploads/456/123/7/89.txt'
     await fsStat(filePath)
@@ -35,9 +35,9 @@ describe('when saving an attachment', () => {
     let studyKey = '456'
     let taskId = '7'
     let fileName = '89.txt'
-    let writer = await saveAttachment(userKey, studyKey, taskId, fileName)
-    await writer.writeChunk('text1 ')
-    await writer.writeChunk('text2')
+    let writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
+    await writer.write('text1 ')
+    await writer.write('text2')
     await writer.end()
     let study, task, user, content
     await getAttachments(studyKey, (res) => {
@@ -59,15 +59,15 @@ describe('when saving an attachment', () => {
     let studyKey = '456'
     let taskId = '1'
     let fileName = 'ttt.txt'
-    let writer = await saveAttachment(userKey, studyKey, taskId, fileName)
-    await writer.writeChunk('text1')
+    let writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
+    await writer.write('text1')
     await writer.end()
 
     studyKey = '678'
     taskId = '2'
     fileName = 'ttt.txt'
-    writer = await saveAttachment(userKey, studyKey, taskId, fileName)
-    await writer.writeChunk('text2')
+    writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
+    await writer.write('text2')
     await writer.end()
 
     await deleteAttachmentsByUser(userKey)
