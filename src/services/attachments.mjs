@@ -43,6 +43,14 @@ export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) 
   writer.write = async (chunk) => {
     await filehandle.writeFile(chunk)
   }
+
+  writer.getStream = () => {
+    return filehandle.createWriteStream({
+      autoClose: true,
+      emitClose: true
+    })
+  }
+
   writer.end = async () => {
     applogger.debug('Attachment file saved for user ' + userKey + ' study ' + studyKey + ' task ' + taskId + ' at ' + filePath)
     if (filehandle) await filehandle.close()

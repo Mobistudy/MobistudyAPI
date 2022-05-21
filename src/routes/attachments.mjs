@@ -38,6 +38,16 @@ export default async function () {
     // let's create a writer from the request
     const writer = await getAttachmentWriter(userKey, studyKey, taskId, filename)
 
+    const writeStream = writer.getStream()
+
+    // This pipes the POST data to the file
+    req.pipe(writeStream)
+
+    // This is here incase any errors occur
+    writeStream.on('error', (err) => {
+      res.status(500).send('Cannot save file ' + err)
+    })
+
     // else dump it raw
     req.on('data', async (chunk) => {
       await writer.writeChunk(chunk)
