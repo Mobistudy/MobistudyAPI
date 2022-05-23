@@ -8,3 +8,5 @@ config/config.json
 README.md
 Dockerfile
 .DS_Store
+.crt
+.key
