@@ -42,6 +42,7 @@ import getApp from './app.mjs'
       const privateKey = fs.readFileSync(config.cert.key, 'utf8')
       const certificate = fs.readFileSync(config.cert.file, 'utf8')
 
+      console.log('Using certificates')
       server = https.createServer({ key: privateKey, cert: certificate }, app)
     } else {
       // HTTP case

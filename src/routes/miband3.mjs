@@ -9,7 +9,7 @@ import passport from 'passport'
 import { DAO } from '../DAO/DAO.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
-import { saveAttachment } from '../services/attachments.mjs'
+import { getAttachmentWriter } from '../services/attachments.mjs'
 
 const router = express.Router()
 
@@ -95,8 +95,8 @@ export default async function () {
 
       // save the attachments
       const filename = newMiband3Data._key + '.json'
-      const writer = await saveAttachment(newMiband3Data.userKey, newMiband3Data.studyKey, newMiband3Data.taskId, filename)
-      await writer.writeChunk(JSON.stringify(miband3Data))
+      const writer = await getAttachmentWriter(newMiband3Data.userKey, newMiband3Data.studyKey, newMiband3Data.taskId, filename)
+      await writer.write(JSON.stringify(miband3Data))
       await writer.end()
 
       // save the filename

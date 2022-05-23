@@ -9,7 +9,7 @@ import passport from 'passport'
 import { DAO } from '../DAO/DAO.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
-import { saveAttachment } from '../services/attachments.mjs'
+import { getAttachmentWriter } from '../services/attachments.mjs'
 
 const router = express.Router()
 
@@ -73,12 +73,12 @@ export default async function () {
 
       // save the attachments
       const positionsFilename = 'positions_' + newSmwt._key + '.json'
-      let writer = await saveAttachment(newSmwt.userKey, newSmwt.studyKey, newSmwt.taskId, positionsFilename)
-      await writer.writeChunk(JSON.stringify(positions))
+      let writer = await getAttachmentWriter(newSmwt.userKey, newSmwt.studyKey, newSmwt.taskId, positionsFilename)
+      await writer.write(JSON.stringify(positions))
       await writer.end()
       const stepsFilename = 'steps_' + newSmwt._key + '.json'
-      writer = await saveAttachment(newSmwt.userKey, newSmwt.studyKey, newSmwt.taskId, stepsFilename)
-      await writer.writeChunk(JSON.stringify(steps))
+      writer = await getAttachmentWriter(newSmwt.userKey, newSmwt.studyKey, newSmwt.taskId, stepsFilename)
+      await writer.write(JSON.stringify(steps))
       await writer.end()
 
       // save the filename

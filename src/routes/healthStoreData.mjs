@@ -9,7 +9,7 @@ import passport from 'passport'
 import { DAO } from '../DAO/DAO.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
-import { saveAttachment } from '../services/attachments.mjs'
+import { getAttachmentWriter } from '../services/attachments.mjs'
 
 const router = express.Router()
 
@@ -65,8 +65,8 @@ export default async function () {
       newHealthStoreData = await DAO.createHealthStoreData(newHealthStoreData, trans)
       // save the attachment
       const filename = newHealthStoreData._key + '.json'
-      const writer = await saveAttachment(newHealthStoreData.userKey, newHealthStoreData.studyKey, newHealthStoreData.taskId, filename)
-      await writer.writeChunk(JSON.stringify(hsData))
+      const writer = await getAttachmentWriter(newHealthStoreData.userKey, newHealthStoreData.studyKey, newHealthStoreData.taskId, filename)
+      await writer.write(JSON.stringify(hsData))
       await writer.end()
 
       // save the filename
