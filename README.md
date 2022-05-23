@@ -60,7 +60,7 @@ change the code), run `npm run test:watch`.
 
 The code is written mostly in ES6 and uses ES6 modules, please be consistent.
 
-The folder structure is vaguely inspired by [this](https://softwareontheroad.com/ideal-nodejs-project-structure).
+The folder structure follows this pattern:
 ```
 project
 └───config                  // contains the runtime configuration files
@@ -71,13 +71,20 @@ project
 │   │   └───en              // English text
 │   │   └───sv              // Swedish text
 │   │   └───es              // Spanish text
-│   └───routes              // API endpoints
+│   └───controllers         // controllers of the endpoints
+│   └───routes              // API endpoints - controllers combined
 │   └───services            // application logic
 └───test                    // automatic tests and experiments
     └───jest                // unit tests specs
 ```
 
 Run `npm run dev` to start a self-restarting server. This needs `nodemon` package to be installed globally, do that with `npm i -g nodemon`.
+
+By default, the server runs on http. In some cases you may need to use https on a local testing environment, in this case, follow [this tutorial](https://javascript.plainenglish.io/enable-https-for-localhost-during-local-development-in-node-js-96204453d72b). For example, if you need the app to send data to the server through the local network, identify the IP address of the server on the local network (say it's 192.168.0.190), then run
+
+```sh
+mkcert create-cert 192.168.0.190
+```
 
 ## Contribute
 
