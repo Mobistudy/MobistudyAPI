@@ -1,4 +1,4 @@
-FROM node:14.17   as build
+FROM node:16.15.0 as build
 
 # RUN apk --no-cache add --virtual native-deps \
 #   g++ gcc libgcc libstdc++ linux-headers autoconf automake make nasm python git && \
@@ -13,7 +13,7 @@ RUN npm install --production
 
 COPY . /usr/src/app
 
-FROM node:fermium-alpine3.12
+FROM node:16.15.0-alpine3.15
 
 COPY --from=build /usr/src/app /usr/src/app
 
