@@ -34,7 +34,7 @@ export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) 
   const writer = {}
   try {
     filePath = taskDir + '/' + fileName
-    filehandle = await fsOpen(filePath, 'w')
+    filehandle = await fsOpen(filePath, 'w+')
   } catch (err) {
     if (filehandle) await filehandle.close()
     throw err
@@ -45,6 +45,8 @@ export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) 
   }
 
   writer.getStream = () => {
+    if (!filehandle) throw new Error('File handle was not created')
+    console.log(filehandle)
     return filehandle.createWriteStream({
       autoClose: true,
       emitClose: true

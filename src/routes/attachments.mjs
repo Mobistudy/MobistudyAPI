@@ -35,27 +35,31 @@ export default async function () {
       const regex = /^[\w\-. ]+$/
       if (regex.test(req.query.filename)) filename = req.query.filename
     }
-    // let's create a writer from the request
-    const writer = await getAttachmentWriter(userKey, studyKey, taskId, filename)
+    let writer
+    try {
+      // let's create a writer from the request
+      writer = await getAttachmentWriter(userKey, studyKey, taskId, filename)
 
-    const writeStream = writer.getStream()
+      const writeStream = writer.getStream()
 
-    // This pipes the POST data to the file
-    req.pipe(writeStream)
+      // This pipes the POST data to the file
+      req.pipe(writeStream)
 
-    // This is here incase any errors occur
-    writeStream.on('error', (err) => {
+      // This is here incase any errors occur
+      writeStream.on('error', (err) => {
+        writer.end()
+        res.status(500).send('Cannot save file ' + err)
+      })
+
+      req.on('end', async () => {
+        await writer.end()
+        res.send(filename)
+      })
+    } catch (err) {
+      console.error('Cannot store attachment', err)
+      if (writer) writer.end()
       res.status(500).send('Cannot save file ' + err)
-    })
-
-    // else dump it raw
-    req.on('data', async (chunk) => {
-      await writer.writeChunk(chunk)
-    })
-    req.on('end', async () => {
-      await writer.end()
-      res.send(filename)
-    })
+    }
   })
 
   return router
