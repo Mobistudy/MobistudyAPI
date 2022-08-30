@@ -71,7 +71,7 @@ project
 │   │   └───en              // English text
 │   │   └───sv              // Swedish text
 │   │   └───es              // Spanish text
-│   └───controllers         // controllers of the endpoints
+│   └───controllers         // controllers of the API endpoints
 │   └───routes              // API endpoints - controllers combined
 │   └───services            // application logic
 └───test                    // automatic tests and experiments
