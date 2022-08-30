@@ -406,11 +406,8 @@ export default async function () {
       const userKey = req.params.userKey
       const studyKey = req.params.studyKey
       const payload = req.body
-      payload.studyKey = studyKey
       let currentStatus
-      const updatedCurrentStatus = undefined
-      const taskItemsCons = []
-      const extraItemsCons = []
+      const updatedCurrentStatus = payload.currentStatus
       try {
         if (
           req.user.role === 'participant' &&
@@ -427,6 +424,8 @@ export default async function () {
           }
         }
         if (!userKey || !studyKey) return res.sendStatus(400)
+        const user = await DAO.getOneUser(userKey)
+        if (!user) return res.sendStatus(404)
         const participant = await DAO.getParticipantByUserKey(userKey)
         if (!participant) return res.sendStatus(404)
 
@@ -442,24 +441,36 @@ export default async function () {
             return s.studyKey === studyKey
           })
         }
-        if (studyIndex === -1) {
+
+        // empty payload can be sent to reset a test user
+        const isEmptyPayload = (Object.keys(payload).length === 0)
+        if (isEmptyPayload && !user.testUser) return res.sendStatus(400)
+
+        if (studyIndex === -1 && isEmptyPayload) {
+          // nothing to do, study is not listed for this participant
+          return res.sendStatus(200)
+        } else if (studyIndex === -1 && !isEmptyPayload) {
+          // study needs to be added
           participant.studies.push({
             studyKey: studyKey
           })
           studyIndex = participant.studies.length - 1
         }
-        // Get study status before patch update
-        for (let i = 0; i < participant.studies.length; i++) {
-          // Before a participant accepts a study, there will be no current status in the participant
-          if (
-            participant.studies[i].studyKey === studyKey &&
-            participant.studies[i].currentStatus !== undefined
-          ) {
-            currentStatus = participant.studies[i].currentStatus
-          }
+
+        if (isEmptyPayload) {
+          // study must be removed
+          participant.studies.splice(studyIndex, 1)
+        } else {
+          // study must be updated
+
+          // Get study status before patch update
+          currentStatus = participant.studies[studyIndex].currentStatus
+
+          // update the study
+          // TODO: use [deepmerge](https://github.com/TehShrike/deepmerge) instead
+          participant.studies[studyIndex] = payload
         }
-        // TODO: use [deepmerge](https://github.com/TehShrike/deepmerge) instead
-        participant.studies[studyIndex] = payload
+
         // Update the DB
         await DAO.updateParticipant(participant._key, participant)
         applogger.info(
