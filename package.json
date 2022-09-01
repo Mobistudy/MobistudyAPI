@@ -39,6 +39,6 @@
     "eslint-plugin-promise": "^5.1.0",
     "jest": "^25.5.4",
     "jest-esnext": "0.0.4",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.19"
   }
 }
