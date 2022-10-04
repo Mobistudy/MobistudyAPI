@@ -52,6 +52,13 @@ export default {
       await readFile('./models/vocalizationSummary.json')
     )
 
+    const drawingSummarySchema = JSON.parse(
+      await readFile('./models/drawingSummary.json')
+    )
+    const drawingDataSchema = JSON.parse(
+      await readFile('./models/drawingData.json')
+    )
+
     const ajv = new Ajv({
       schemas: [
         tasksResultsSchema,
@@ -63,7 +70,9 @@ export default {
         holdPhoneDataSchema,
         tugtSummarySchema,
         tugtDataSchema,
-        vocalizaitonSummarySchema
+        vocalizaitonSummarySchema,
+        drawingSummarySchema,
+        drawingDataSchema
       ],
       allowUnionTypes: true
     })

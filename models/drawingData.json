@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/drawingData.json",
+  "title": "Drawing test data",
+  "description": "Complete data of the results of the drawing test",
+  "type": "object",
+  "properties": {
+    "spiral": {
+      "$ref": "#/$defs/phaseData"
+    },
+    "square": {
+      "$ref": "#/$defs/phaseData"
+    }
+  },
+  "required": [
+    "spiral",
+    "square"
+  ],
+  "$defs": {
+    "accSample": {
+      "description": "Sample holding data about phone's acceleration",
+      "type": "object",
+      "properties": {
+        "msFromStart": {
+          "description": "Millis from when the data capture was started",
+          "type": "integer"
+        },
+        "interval": {
+          "type": "number"
+        },
+        "acc": {
+          "description": "Triaxial acceleration without gravity",
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "z": {
+              "type": "number"
+            }
+          }
+        },
+        "accG": {
+          "description": "Triaxial acceleration with gravity",
+          "type": "object",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "z": {
+              "type": "number"
+            }
+          }
+        },
+        "rotRate": {
+          "description": "Triaxial rotation rate",
+          "type": "object",
+          "properties": {
+            "alpha": {
+              "type": "number"
+            },
+            "beta": {
+              "type": "number"
+            },
+            "gamma": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "required": [
+        "msFromStart",
+        "acc",
+        "accG"
+      ]
+    },
+    "orientSample": {
+      "description": "Sample holding data about phone's orientation",
+      "type": "object",
+      "properties": {
+        "msFromStart": {
+          "description": "Millis from when the data capture was started",
+          "type": "integer"
+        },
+        "abs": {
+          "type": "number"
+        },
+        "alpha": {
+          "type": "number"
+        },
+        "beta": {
+          "type": "number"
+        },
+        "gamma": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "msFromStart"
+      ]
+    },
+    "handData": {
+      "type": "object",
+      "properties": {
+        "startedTS": {
+          "type": "string"
+        },
+        "completedTS": {
+          "type": "string"
+        },
+        "motion": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/accSample"
+          }
+        },
+        "orientation": {
+          "type": "array",
+          "items": {}
+        }
+      }
+    },
+    "phaseData": {
+      "type": "object",
+      "properties": {
+        "shapeCoordinates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y"
+            ]
+          }
+        },
+        "touchCoordinates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "ts": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "y",
+              "ts"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

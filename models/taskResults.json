@@ -29,7 +29,8 @@
         "fingerTapping",
         "holdPhone",
         "tugt",
-        "vocalization"
+        "vocalization",
+        "drawing"
       ]
     },
     "createdTS": {
@@ -81,6 +82,10 @@
         {
           "description": "Timed up and go results summary",
           "$ref": "https://mobistudy.org/models/tugtSummary.json"
+        },
+        {
+          "description": "Drawing results summary",
+          "$ref": "https://mobistudy.org/models/drawingSummary.json"
         }
       ]
     },
@@ -109,6 +114,10 @@
         {
           "description": "Results of the timed up and go test",
           "$ref": "https://mobistudy.org/models/tugtData.json"
+        },
+        {
+          "description": "Results of the drawing test",
+          "$ref": "https://mobistudy.org/models/drawingData.json"
         }
       ]
     }
