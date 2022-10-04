@@ -17,7 +17,7 @@ On Arango, you must have created a dedicated database for Mobistudy, and, possib
 also a dedicated user with its password.
 
 To start Arango, you can either [install it](https://www.arangodb.com/), or use Docker. For development, you can use:
-`docker run -e ARANGO_NO_AUTH=1 -p 127.0.0.1:8529:8529 --name mobiArango arangodb/arangodb:3.9.1`
+`docker run -e ARANGO_NO_AUTH=1 -p 127.0.0.1:8529:8529 --name mobiArango arangodb/arangodb:3.9.3`
 to start a Docker container with Arango. You can then access the web interface on http://localhost:8529
 
 ### Configuration
@@ -36,7 +36,7 @@ Once inside, create a new user (you can call it “mobistudy”) and a new datab
 
 ## Run
 
-The code is written using ES6 module, so you need a recent version of NodeJS.
+The code is written using ES6 module, so you need a recent version of NodeJS (recommended version is 16.17.0, use [nvm](https://github.com/nvm-sh/nvm) to automatically switch among versions).
 To start it:
 
     npm start
