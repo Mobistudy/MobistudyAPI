@@ -41,6 +41,13 @@ export default {
       await readFile('./models/holdPhoneData.json')
     )
 
+    const tugtSummarySchema = JSON.parse(
+      await readFile('./models/tugtSummary.json')
+    )
+    const tugtDataSchema = JSON.parse(
+      await readFile('./models/tugtData.json')
+    )
+
     const vocalizaitonSummarySchema = JSON.parse(
       await readFile('./models/vocalizationSummary.json')
     )
@@ -54,6 +61,8 @@ export default {
         fingerTappingDataSchema,
         holdPhoneSummarySchema,
         holdPhoneDataSchema,
+        tugtSummarySchema,
+        tugtDataSchema,
         vocalizaitonSummarySchema
       ],
       allowUnionTypes: true

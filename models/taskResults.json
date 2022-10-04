@@ -28,6 +28,7 @@
         "form",
         "fingerTapping",
         "holdPhone",
+        "tugt",
         "vocalization"
       ]
     },
@@ -76,6 +77,10 @@
         {
           "description": "Vocalization results summary",
           "$ref": "https://mobistudy.org/models/vocalizationSummary.json"
+        },
+        {
+          "description": "Timed up and go results summary",
+          "$ref": "https://mobistudy.org/models/tugtSummary.json"
         }
       ]
     },
@@ -100,6 +105,10 @@
         {
           "description": "Results of the hold-the-phone tremor test",
           "$ref": "https://mobistudy.org/models/holdPhoneData.json"
+        },
+        {
+          "description": "Results of the timed up and go test",
+          "$ref": "https://mobistudy.org/models/tugtData.json"
         }
       ]
     }
