@@ -11,5 +11,9 @@
     "totalVariabilitySpiral": {
       "type": "number"
     }
-  }
+  },
+  "required": [
+    "totalVariabilitySquare",
+    "totalVariabilitySpiral"
+  ]
 }

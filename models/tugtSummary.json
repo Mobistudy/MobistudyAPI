@@ -5,14 +5,8 @@
   "description": "Summary of the results of the timed up and got test",
   "type": "object",
   "properties": {
-    "startedTS": {
-      "type": "string"
-    },
-    "completedTS": {
-      "type": "string"
-    },
     "durationMs": {
-      "type": "number"
+      "type": "integer"
     }
   },
   "required": [

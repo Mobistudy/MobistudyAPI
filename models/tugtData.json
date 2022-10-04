@@ -13,7 +13,9 @@
     },
     "orientation": {
       "type": "array",
-      "items": {}
+      "items": {
+        "$ref": "#/$defs/orientSample"
+      }
     }
   },
   "required": [
