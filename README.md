@@ -80,9 +80,11 @@ project
 
 Run `npm run dev` to start a self-restarting server. This needs `nodemon` package to be installed globally, do that with `npm i -g nodemon`.
 
-By default, the server runs on http. In some cases you may need to use https on a local testing environment, in this case, follow [this tutorial](https://javascript.plainenglish.io/enable-https-for-localhost-during-local-development-in-node-js-96204453d72b). For example, if you need the app to send data to the server through the local network, identify the IP address of the server on the local network (say it's 192.168.0.190), then run
+By default, the server runs on http. In some cases you may need to use https on a local testing environment, in this case, follow [this tutorial](https://javascript.plainenglish.io/enable-https-for-localhost-during-local-development-in-node-js-96204453d72b). For example, if you need the app to send data to the server through the local network, identify the IP address of the server on the local network (say it's 192.168.0.190), then run:
 
 ```sh
+npm install -g mkcert
+mkcert create-ca
 mkcert create-cert 192.168.0.190
 ```
 
