@@ -95,7 +95,7 @@
           "type": "integer"
         },
         "abs": {
-          "type": "number"
+          "type": "boolean"
         },
         "alpha": {
           "type": "number"
