@@ -30,7 +30,9 @@
         "holdPhone",
         "tugt",
         "vocalization",
-        "drawing"
+        "drawing",
+        "dataQuery",
+        "miband3"
       ]
     },
     "createdTS": {
@@ -86,6 +88,14 @@
         {
           "description": "Drawing results summary",
           "$ref": "https://mobistudy.org/models/drawingSummary.json"
+        },
+        {
+          "description": "Data downloaded from HealthKit or Google Fit through the data query task",
+          "$ref": "https://mobistudy.org/models/dataQuerySummary.json"
+        },
+        {
+          "description": "Results summary of the MiBand3 data download",
+          "$ref": "https://mobistudy.org/models/miband3Summary.json"
         }
       ]
     },
@@ -118,6 +128,14 @@
         {
           "description": "Results of the drawing test",
           "$ref": "https://mobistudy.org/models/drawingData.json"
+        },
+        {
+          "description": "Results of the data query",
+          "$ref": "https://mobistudy.org/models/dataQueryData.json"
+        },
+        {
+          "description": "Data collected from the MiBand3",
+          "$ref": "https://mobistudy.org/models/miband3Data.json"
         }
       ]
     }

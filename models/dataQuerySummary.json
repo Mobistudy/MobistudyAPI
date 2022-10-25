@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/dataQuerySummary.json",
+  "title": "Data query summary",
+  "description": "Summary of the results of the data query test, which retrieves data from Google Fit or HealthKit.",
+  "type": "object",
+  "properties": {
+    "dataType": {
+      "type": "string"
+    },
+    "length": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "dataType",
+    "length"
+  ]
+}

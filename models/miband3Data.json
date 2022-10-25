@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/miband3Data.json",
+  "title": "Miband3 data",
+  "description": "Complete data of the task that retrieves data from the MiBand3 activity band.",
+  "type": "array",
+  "items": {
+    "description": "Sample holding data collected by the MiBand3",
+    "type": "object",
+    "properties": {
+      "activityType": {
+        "description": "Activity type as detected by the activity band, enumerative",
+        "type": "number"
+      },
+      "date": {
+        "type": "string"
+      },
+      "hr": {
+        "description": "Heart rate measured by the band",
+        "type": "number"
+      },
+      "intensity": {
+        "description": "Activity intensity measured by the band",
+        "type": "number"
+      },
+      "steps": {
+        "description": "Steps walked measured by the band",
+        "type": "number"
+      }
+    }
+  }
+}

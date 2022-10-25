@@ -59,6 +59,20 @@ export default {
       await readFile('./models/drawingData.json')
     )
 
+    const dataQuerySummarySchema = JSON.parse(
+      await readFile('./models/dataQuerySummary.json')
+    )
+    const dataQueryDataSchema = JSON.parse(
+      await readFile('./models/dataQueryData.json')
+    )
+
+    const miband3SummarySchema = JSON.parse(
+      await readFile('./models/miband3Summary.json')
+    )
+    const miband3DataSchema = JSON.parse(
+      await readFile('./models/miband3Data.json')
+    )
+
     const ajv = new Ajv({
       schemas: [
         tasksResultsSchema,
@@ -72,7 +86,11 @@ export default {
         tugtDataSchema,
         vocalizaitonSummarySchema,
         drawingSummarySchema,
-        drawingDataSchema
+        drawingDataSchema,
+        dataQuerySummarySchema,
+        dataQueryDataSchema,
+        miband3SummarySchema,
+        miband3DataSchema
       ],
       allowUnionTypes: true
     })
