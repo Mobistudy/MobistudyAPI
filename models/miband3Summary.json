@@ -5,17 +5,12 @@
   "description": "Summary of the data downloaded from the MiBand3.",
   "type": "object",
   "properties": {
-    "device": {
-      "description": "Information about the miband3 device.",
-      "type": "object"
-    },
     "length": {
       "description": "Total number of samples retrieved.",
       "type": "number"
     }
   },
   "required": [
-    "device",
     "length"
   ]
 }
