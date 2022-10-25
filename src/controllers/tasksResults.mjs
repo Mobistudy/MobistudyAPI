@@ -73,6 +73,13 @@ export default {
       await readFile('./models/miband3Data.json')
     )
 
+    const smwtSummarySchema = JSON.parse(
+      await readFile('./models/smwtSummary.json')
+    )
+    const smwtDataSchema = JSON.parse(
+      await readFile('./models/smwtData.json')
+    )
+
     const ajv = new Ajv({
       schemas: [
         tasksResultsSchema,
@@ -90,7 +97,9 @@ export default {
         dataQuerySummarySchema,
         dataQueryDataSchema,
         miband3SummarySchema,
-        miband3DataSchema
+        miband3DataSchema,
+        smwtSummarySchema,
+        smwtDataSchema
       ],
       allowUnionTypes: true
     })

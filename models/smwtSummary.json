@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/smwtSummary.json",
+  "title": "Six-minute walk test summary",
+  "description": "Summary of the 6-minute walk test.",
+  "type": "object",
+  "properties": {
+    "distance": {
+      "description": "Total distance walked.",
+      "type": "number"
+    },
+    "borgScale": {
+      "description": "Effort level.",
+      "type": "number"
+    },
+    "steps": {
+      "description": "Total number of steps.",
+      "type": "number"
+    }
+  },
+  "required": [
+    "distance",
+    "borgScale"
+  ]
+}

@@ -32,7 +32,8 @@
         "vocalization",
         "drawing",
         "dataQuery",
-        "miband3"
+        "miband3",
+        "smwt"
       ]
     },
     "createdTS": {
@@ -96,6 +97,10 @@
         {
           "description": "Results summary of the MiBand3 data download",
           "$ref": "https://mobistudy.org/models/miband3Summary.json"
+        },
+        {
+          "description": "Results summary of the 6-minute walk test",
+          "$ref": "https://mobistudy.org/models/smwtSummary.json"
         }
       ]
     },
@@ -136,6 +141,10 @@
         {
           "description": "Data collected from the MiBand3",
           "$ref": "https://mobistudy.org/models/miband3Data.json"
+        },
+        {
+          "description": "Data collected in the 6-minute walk test task",
+          "$ref": "https://mobistudy.org/models/smwtData.json"
         }
       ]
     }

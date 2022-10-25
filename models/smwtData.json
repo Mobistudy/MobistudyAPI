@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/smwtData.json",
+  "title": "Six-minute walk test data",
+  "description": "Raw data for the 6mwt.",
+  "type": "object",
+  "properties": {
+    "positions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "coords": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "coords"
+        ]
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "numberOfSteps": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "numberOfSteps"
+        ]
+      }
+    }
+  },
+  "required": [
+    "positions"
+  ]
+}
