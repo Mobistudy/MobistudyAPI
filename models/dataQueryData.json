@@ -3,15 +3,23 @@
   "$id": "https://mobistudy.org/models/dataQueryData.json",
   "title": "Data query data",
   "description": "Complete data of the data query task, which retrieves data from HealthKit and Google Fit.",
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "endDate": {
-        "type": "string"
-      },
-      "unit": {
-        "type": "string"
+  "type": "object",
+  "properties": {
+    "dataType": {
+      "type": "string"
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "endDate": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
       }
     }
   }
