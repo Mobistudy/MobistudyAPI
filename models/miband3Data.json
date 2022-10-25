@@ -46,6 +46,7 @@
     }
   },
   "required": [
-    "device"
+    "device",
+    "samples"
   ]
 }
