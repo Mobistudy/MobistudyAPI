@@ -33,7 +33,8 @@
         "drawing",
         "dataQuery",
         "miband3",
-        "smwt"
+        "smwt",
+        "po60"
       ]
     },
     "createdTS": {
@@ -101,6 +102,10 @@
         {
           "description": "Results summary of the 6-minute walk test",
           "$ref": "https://mobistudy.org/models/smwtSummary.json"
+        },
+        {
+          "description": "Results summary of PO60 pulseoximetry",
+          "$ref": "https://mobistudy.org/models/po60Summary.json"
         }
       ]
     },
@@ -145,6 +150,10 @@
         {
           "description": "Data collected in the 6-minute walk test task",
           "$ref": "https://mobistudy.org/models/smwtData.json"
+        },
+        {
+          "description": "Data collected from the PO60 pulseoximeter",
+          "$ref": "https://mobistudy.org/models/po60Data.json"
         }
       ]
     }

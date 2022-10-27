@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/po60Data.json",
+  "title": "Pulseoximetry data",
+  "description": "Detailed pulseoximetry data from the PO60 pulseoximeter",
+  "type": "object",
+  "properties": {
+    "device": {
+      "type": "object"
+    },
+    "samples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "startTS": {
+            "type": "string"
+          },
+          "endTS": {
+            "type": "string"
+          },
+          "spo2Min": {
+            "type": "number"
+          },
+          "spo2Max": {
+            "type": "number"
+          },
+          "spo2Avg": {
+            "type": "number"
+          },
+          "hrMin": {
+            "type": "number"
+          },
+          "hrMax": {
+            "type": "number"
+          },
+          "hrAvg": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "samples"
+  ]
+}

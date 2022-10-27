@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/po60Summary.json",
+  "title": "Pulseoximetry results summary",
+  "description": "Summary of the data collected by the PO60 pulseoximeter",
+  "type": "object",
+  "properties": {
+    "spo2": {
+      "type": "number"
+    },
+    "hr": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "spo2"
+  ]
+}

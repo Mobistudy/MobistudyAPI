@@ -80,6 +80,13 @@ export default {
       await readFile('./models/smwtData.json')
     )
 
+    const po60SummarySchema = JSON.parse(
+      await readFile('./models/po60Summary.json')
+    )
+    const po60DataSchema = JSON.parse(
+      await readFile('./models/po60Data.json')
+    )
+
     const ajv = new Ajv({
       schemas: [
         tasksResultsSchema,
@@ -99,7 +106,9 @@ export default {
         miband3SummarySchema,
         miband3DataSchema,
         smwtSummarySchema,
-        smwtDataSchema
+        smwtDataSchema,
+        po60SummarySchema,
+        po60DataSchema
       ],
       allowUnionTypes: true
     })
