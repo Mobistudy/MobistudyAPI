@@ -8,7 +8,7 @@
     "device": {
       "type": "object"
     },
-    "samples": {
+    "pulseoximetry": {
       "type": "array",
       "items": {
         "type": "object",
@@ -42,6 +42,6 @@
     }
   },
   "required": [
-    "samples"
+    "pulseoximetry"
   ]
 }

@@ -9,7 +9,7 @@
       "description": "Information about the miband3 device.",
       "type": "object"
     },
-    "samples": {
+    "activity": {
       "type": "array",
       "items": {
         "description": "Sample holding data collected by the MiBand3",
@@ -47,6 +47,6 @@
   },
   "required": [
     "device",
-    "samples"
+    "activity"
   ]
 }
