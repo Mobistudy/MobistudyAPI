@@ -35,7 +35,8 @@
         "miband3",
         "smwt",
         "po60",
-        "position"
+        "position",
+        "peakFlow"
       ]
     },
     "createdTS": {
@@ -111,6 +112,10 @@
         {
           "description": "Results summary of position task",
           "$ref": "https://mobistudy.org/models/positionSummary.json"
+        },
+        {
+          "description": "Results summary of the peak flow meter task",
+          "$ref": "https://mobistudy.org/models/peakFlowSummary.json"
         }
       ]
     },
@@ -163,6 +168,10 @@
         {
           "description": "Data collected from the position task",
           "$ref": "https://mobistudy.org/models/positionData.json"
+        },
+        {
+          "description": "Data collected from the peak flow meter",
+          "$ref": "https://mobistudy.org/models/peakFlowData.json"
         }
       ]
     }

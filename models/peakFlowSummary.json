@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/peakFlowSummary.json",
+  "title": "Pulseoximetry results summary",
+  "description": "Summary of the data collected by the PO60 pulseoximeter",
+  "type": "object",
+  "properties": {
+    "pefMax": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "pefMax"
+  ]
+}

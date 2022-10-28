@@ -94,6 +94,13 @@ export default {
       await readFile('./models/positionData.json')
     )
 
+    const peakFlowSummarySchema = JSON.parse(
+      await readFile('./models/peakFlowSummary.json')
+    )
+    const peakFlowDataSchema = JSON.parse(
+      await readFile('./models/peakFlowData.json')
+    )
+
     const ajv = new Ajv({
       schemas: [
         tasksResultsSchema,
@@ -117,7 +124,9 @@ export default {
         po60SummarySchema,
         po60DataSchema,
         positionSummarySchema,
-        positionDataSchema
+        positionDataSchema,
+        peakFlowSummarySchema,
+        peakFlowDataSchema
       ],
       allowUnionTypes: true
     })
