@@ -8,9 +8,19 @@
     "length": {
       "description": "Total number of samples retrieved.",
       "type": "number"
+    },
+    "firstTS": {
+      "description": "timestamp of the first sample",
+      "type": "string"
+    },
+    "lastTS": {
+      "description": "timestamp of the last sample",
+      "type": "string"
     }
   },
   "required": [
-    "length"
+    "length",
+    "firstTS",
+    "lastTS"
   ]
 }
