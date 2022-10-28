@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/positionData.json",
+  "title": "Position detailed data",
+  "description": "Detailed data from the position task including weather, air quality and allergens",
+  "type": "object",
+  "properties": {
+    "weather": {
+      "type": "object"
+    },
+    "pollution": {
+      "type": "object"
+    },
+    "postcode": {
+      "type": "object"
+    },
+    "allergens": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "weather",
+    "pollution"
+  ]
+}

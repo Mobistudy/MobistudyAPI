@@ -87,6 +87,13 @@ export default {
       await readFile('./models/po60Data.json')
     )
 
+    const positionSummarySchema = JSON.parse(
+      await readFile('./models/positionSummary.json')
+    )
+    const positionDataSchema = JSON.parse(
+      await readFile('./models/positionData.json')
+    )
+
     const ajv = new Ajv({
       schemas: [
         tasksResultsSchema,
@@ -108,7 +115,9 @@ export default {
         smwtSummarySchema,
         smwtDataSchema,
         po60SummarySchema,
-        po60DataSchema
+        po60DataSchema,
+        positionSummarySchema,
+        positionDataSchema
       ],
       allowUnionTypes: true
     })

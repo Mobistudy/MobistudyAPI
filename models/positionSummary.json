@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/positionSummary.json",
+  "title": "Position and environment summary",
+  "description": "Summary of the data collected within the position and environment task",
+  "type": "object",
+  "properties": {
+    "location": {
+      "type": "string"
+    },
+    "weather": {
+      "type": "string"
+    },
+    "aqi": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "location",
+    "weather",
+    "temperature",
+    "aqi"
+  ]
+}

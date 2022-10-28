@@ -34,7 +34,8 @@
         "dataQuery",
         "miband3",
         "smwt",
-        "po60"
+        "po60",
+        "position"
       ]
     },
     "createdTS": {
@@ -106,6 +107,10 @@
         {
           "description": "Results summary of PO60 pulseoximetry",
           "$ref": "https://mobistudy.org/models/po60Summary.json"
+        },
+        {
+          "description": "Results summary of position task",
+          "$ref": "https://mobistudy.org/models/positionSummary.json"
         }
       ]
     },
@@ -154,6 +159,10 @@
         {
           "description": "Data collected from the PO60 pulseoximeter",
           "$ref": "https://mobistudy.org/models/po60Data.json"
+        },
+        {
+          "description": "Data collected from the position task",
+          "$ref": "https://mobistudy.org/models/positionData.json"
         }
       ]
     }
