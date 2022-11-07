@@ -152,6 +152,21 @@ export default async function () {
     }
   })
 
+  router.get('/users/renewToken', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    const user = req.user
+    applogger.debug(user.email + 'has requested a new token')
+
+    delete user.token
+    delete user.exp
+    delete user.iat
+
+    const newToken = jwt.sign(user, config.auth.secret, {
+      expiresIn: config.auth.tokenExpires
+    })
+    user.token = newToken
+    res.send(newToken)
+  })
+
   router.patch('/users/:userKey', passport.authenticate('jwt', { session: false }), async (req, res) => {
     if (req.user.role === 'researcher') { return res.sendStatus(403) }
     if (req.user.role === 'participant') {
