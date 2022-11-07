@@ -37,7 +37,7 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
-    "jest": "^25.5.4",
+    "jest": "^29.3.0",
     "jest-esnext": "0.0.4",
     "nodemon": "^2.0.19"
   }
