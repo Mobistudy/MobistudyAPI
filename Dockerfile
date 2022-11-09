@@ -23,4 +23,16 @@ ENV NODE_ENV=production
 CMD ["npm", "start"]
 
 EXPOSE 8080
-USER node
+
+ARG USER_ID
+ARG GROUP_ID
+
+RUN adduser \
+  --disabled-password \
+  --gecos "" \
+  --home "$(pwd)" \
+  --no-create-home \
+  --uid "$USER_ID" \
+  "user"
+
+USER user
