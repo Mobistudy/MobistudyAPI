@@ -24,5 +24,3 @@ ENV NODE_ENV=production
 CMD ["npm", "start"]
 
 EXPOSE 8080
-
-USER node
