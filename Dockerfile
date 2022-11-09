@@ -1,4 +1,4 @@
-FROM node:16.17.0 as build
+FROM node:16.18.1 as build
 
 # RUN apk --no-cache add --virtual native-deps \
 #   g++ gcc libgcc libstdc++ linux-headers autoconf automake make nasm python git && \
@@ -13,7 +13,8 @@ RUN npm install --production
 
 COPY . /usr/src/app
 
-FROM node:16.17.1-alpine3.15
+# https://snyk.io/blog/choosing-the-best-node-js-docker-image/
+FROM node:16.18.1-bullseye-slim
 
 COPY --from=build /usr/src/app /usr/src/app
 
@@ -24,15 +25,4 @@ CMD ["npm", "start"]
 
 EXPOSE 8080
 
-ARG USER_ID
-ARG GROUP_ID
-
-RUN adduser \
-  --disabled-password \
-  --gecos "" \
-  --home "$(pwd)" \
-  --no-create-home \
-  --uid "$USER_ID" \
-  "user"
-
-USER user
+USER node
