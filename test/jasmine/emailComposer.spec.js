@@ -1,11 +1,14 @@
-import { DAO } from '../../src/DAO/DAO'
+import { DAO } from '../../src/DAO/DAO.mjs'
 import { studyStatusUpdateCompose, passwordRecoveryCompose } from '../../src/services/emailComposer.mjs'
 
-jest.mock('../../src/DAO/DAO')
+let DAOretVal = {}
+DAO.getOneStudy = jasmine.createSpy().and.callFake(function () {
+  return DAOretVal
+})
 
 describe('when composing an email', () => {
 
-  test('the email password recovery is correct', async () => {
+  it('the email password recovery is correct', async () => {
     let email = await passwordRecoveryCompose('link', 'token', 'en')
     expect(email.title).toBe('Mobistudy password recovery')
     expect(email.content).toBe(`<p>You have requested to reset your password on Mobistudy.</p>
@@ -14,13 +17,13 @@ describe('when composing an email', () => {
     <p>This code will expire after 24 hours.</p>`)
   })
 
-  test('the email password recovery in Spanish is correct', async () => {
+  it('the email password recovery in Spanish is correct', async () => {
     let email = await passwordRecoveryCompose('link', 'token', 'es')
     expect(email.title).toBe('Recuperación de contraseña de Mobistudy')
   })
 
-  test('the email for a completed study is correct', async () => {
-    DAO.__setReturnedValue({
+  it('the email for a completed study is correct', async () => {
+    DAOretVal = {
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -32,7 +35,7 @@ describe('when composing an email', () => {
         taskItems: [],
         extraItems: []
       }
-    })
+    }
 
     let email = await studyStatusUpdateCompose('1', {
       language: 'en',
@@ -42,11 +45,11 @@ describe('when composing an email', () => {
       }]
     })
     expect(email.title).toBe('Completion of study teststudy')
-    expect(email.content).toBe('The study teststudy has now been completed. Thank you for your participation.')
+    expect(email.content).toBe('<p>The study teststudy has now been completed. Thank you for your participation.</p>')
   })
 
-  test('the email for a withdrawn study is correct', async () => {
-    DAO.__setReturnedValue({
+  it('the email for a withdrawn study is correct', async () => {
+    DAOretVal = {
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -55,7 +58,7 @@ describe('when composing an email', () => {
         }
       },
       consent: { taskItems: [], extraItems: [] }
-    })
+    }
 
     let email = await studyStatusUpdateCompose('1', {
       language: 'en',
@@ -65,11 +68,11 @@ describe('when composing an email', () => {
       }]
     })
     expect(email.title).toBe('Withdrawal from study teststudy')
-    expect(email.content).toBe('You have withdrawn from the study teststudy. Thank you for your time.')
+    expect(email.content).toBe('<p>You have withdrawn from the study teststudy. Thank you for your time.</p>')
   })
 
-  test('the email for an accepted study is correct', async () => {
-    DAO.__setReturnedValue({
+  it('the email for an accepted study is correct', async () => {
+    DAOretVal = {
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -92,7 +95,7 @@ describe('when composing an email', () => {
           }
         }]
       }
-    })
+    }
 
     let email = await studyStatusUpdateCompose('1', {
       language: 'en',
@@ -109,6 +112,6 @@ describe('when composing an email', () => {
     })
 
     expect(email.title).toBe('Confirmation of acceptance of study teststudy')
-    expect(email.content).toBe('Thank you for accepting to take part in the study teststudy.\n\nYou have consented to the following:\n\u2022 task1\n\u2022 extra1\n')
+    expect(email.content).toBe('<p>Thank you for accepting to take part in the study teststudy.</p>\n\n<p>You have consented to the following:</p>\n <ul> \n <li> task1 </li> \n <li> extra1 </li> \n </ul> \n')
   })
 })

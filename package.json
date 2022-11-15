@@ -4,13 +4,13 @@
   "version": "0.3.1",
   "description": "The REST API of Mobistudy",
   "main": "./src/www.mjs",
+  "type": "module",
   "scripts": {
     "lint": "eslint --ext .js,.mjs src",
     "start": "node ./src/www.mjs",
     "dev": "nodemon --trace-warnings",
-    "test": "jest --updateSnapshot -i --env=node",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch -i --env=node",
-    "test:watchAll": "jest --watchAll -i --env=node"
+    "test": "jasmine test/jasmine/**/*.spec.js",
+    "test:watch": "nodemon  --exec 'jasmine \"test/jasmine/**/*.spec.js\"'"
   },
   "dependencies": {
     "ajv": "^8.11.0",
@@ -37,8 +37,7 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
-    "jest": "^29.3.0",
-    "jest-esnext": "0.0.4",
+    "jasmine": "^4.5.0",
     "nodemon": "^2.0.19"
   }
 }

@@ -4,7 +4,7 @@ import {
   dropDatabase,
   addDataToCollection,
   removeFromCollection,
-} from "../arangoTools";
+} from "../arangoTools.mjs";
 import createStudiesDB from "../../src/DAO/studiesDAO";
 
 jest.mock('../../src/services/logger', () => ({

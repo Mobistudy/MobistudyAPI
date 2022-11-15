@@ -38,7 +38,7 @@ export default async function () {
       res.send(form)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot retrieve form with _key ' + req.params.form_key)
-      res.sendStatus(500)
+      res.sendStatus(err.code)
     }
   })
 

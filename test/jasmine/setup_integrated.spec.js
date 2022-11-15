@@ -1,8 +1,8 @@
 import {
   ARANGOPORT,
   connectToDatabase, dropDatabase
-} from '../arangoTools'
-const axios = require('axios')
+} from '../arangoTools.mjs'
+import axios from 'axios'
 
 describe('when arangodb is running ', () => {
 
@@ -16,7 +16,7 @@ describe('when arangodb is running ', () => {
     await dropDatabase(DBNAME)
   })
 
-  test('user mobistudy can access db mobistudy', async () => {
+  it('user mobistudy can access db mobistudy', async () => {
     let resp = await axios.get('http://localhost:' + ARANGOPORT + '/_db/' + DBNAME + '/', {
       auth: {
         username: 'mobistudy',
