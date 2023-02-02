@@ -1,14 +1,21 @@
-import Arango from 'arangojs'
+import Database from 'arangojs'
 
 let db
 
 export const ARANGOPORT = '5555'
+const ROOT_PWD = ''
 
+/**
+ * Connects or creates a new database
+ * @param {string} dbname database name
+ * @returns a promise
+ */
 export const connectToDatabase = async function (dbname) {
-  db = new Arango({
-    url: 'http://localhost:' + ARANGOPORT,
-    precaptureStackTraces: true,
-    auth: { username: 'root', password: '' },
+  if (db) return db
+
+  db = new Database({
+    url: 'http://127.0.0.1:' + ARANGOPORT,
+    auth: { username: 'root', password: ROOT_PWD },
   })
   const names = await db.listUserDatabases()
   if (!names.includes(dbname)) {
@@ -17,18 +24,28 @@ export const connectToDatabase = async function (dbname) {
     })
   }
 
-  db.useDatabase(dbname)
+  db.database(dbname)
   db.useBasicAuth('mobistudy', 'testpwd')
 
   return db
 }
 
+/**
+ * Drops an entire database
+ * @param {string} dbname database name
+ * @returns a promise
+ */
 export const dropDatabase = async function (dbname) {
-  db.useDatabase('_system')
-  db.useBasicAuth('root', 'testtest')
+  db.database('_system')
+  db.useBasicAuth('root', ROOT_PWD)
   await db.dropDatabase(dbname)
 }
 
+/**
+ * Loads or create a collection
+ * @param {string} collname name fo the collection
+ * @returns a promise that returns the collection object
+ */
 export const getCollection = async function (collname) {
   // load or create collection
   let names = await db.listCollections()
