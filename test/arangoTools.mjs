@@ -11,18 +11,25 @@ const ROOT_PWD = ''
  * @returns a promise
  */
 export const connectToDatabase = async function (dbname) {
-  if (db) return db
-
-  db = new Database({
-    url: 'http://127.0.0.1:' + ARANGOPORT,
-    auth: { username: 'root', password: ROOT_PWD },
-  })
-  const names = await db.listUserDatabases()
-  if (!names.includes(dbname)) {
-    await db.createDatabase(dbname, {
-      users: [{ username: 'mobistudy', passwd: 'testpwd' }]
+  if (!db) {
+    db = new Database({
+      url: 'http://127.0.0.1:' + ARANGOPORT,
+      auth: { username: 'root', password: ROOT_PWD },
     })
+  } else {
+    db.database('_system')
+    db.useBasicAuth('root', ROOT_PWD)
   }
+
+  const names = await db.listUserDatabases()
+  if (names.includes(dbname)) {
+    // drop it first
+    await db.dropDatabase(dbname)
+  }
+  // create it
+  await db.createDatabase(dbname, {
+    users: [{ username: 'mobistudy', passwd: 'testpwd' }]
+  })
 
   db.database(dbname)
   db.useBasicAuth('mobistudy', 'testpwd')

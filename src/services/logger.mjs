@@ -13,8 +13,8 @@ const config = getConfig()
 const HTTPLOG_FILENAME = 'http.log'
 const APPLOG_FILENAME = 'app.log'
 
-let applogger_
-let httppino_
+let applogger_ = {}
+let httppino_ = {}
 
 const initLogs = async function () {
   if (!rfs) throw new Error('Cannot load rotating fle stream')

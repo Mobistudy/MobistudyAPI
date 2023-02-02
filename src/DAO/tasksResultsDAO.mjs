@@ -101,7 +101,7 @@ export default async function (db) {
     },
 
     async getOneTaskResult (_key) {
-      const results = await collection.document(_key)
+      const results = await collection.document(_key, { graceful: true })
       return results
     },
 

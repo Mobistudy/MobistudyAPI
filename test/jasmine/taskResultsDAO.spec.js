@@ -1,44 +1,39 @@
 import {
-  DB,
-  connectToDatabase,
-  dropDatabase,
-  addDataToCollection,
-  removeFromCollection,
-} from "../arangoTools"
+  ARANGOPORT,
+  connectToDatabase, dropDatabase,
+  addDataToCollection, removeFromCollection
+} from '../arangoTools.mjs'
+import axios from 'axios'
+import getTasksResultsDAO from '../../src/DAO/tasksResultsDAO.mjs'
+import { applogger } from '../../src/services/logger.mjs'
+import { fakeLogger } from '../mocks/logger.mjs'
 
-import getTasksResultsDAO from '../../src/DAO/tasksResultsDAO'
+// mock app logger
+Object.assign(applogger, fakeLogger)
 
-jest.mock('../../src/services/logger', () => ({
-  applogger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    trace: jest.fn()
-  }
-}))
+let TRDAO
 
-let TRDAO = null
-const DBNAME = "test_tasksResultsDAO"
+describe('when arangodb is running ', () => {
 
-describe("When arangodb is running", () => {
+  const DBNAME = 'test_tasksresults'
 
   beforeAll(async () => {
-    await connectToDatabase(DBNAME)
-    TRDAO = await getTasksResultsDAO(DB)
+    let db = await connectToDatabase(DBNAME)
+    TRDAO = await getTasksResultsDAO(db, applogger)
   }, 60000)
 
   afterAll(async () => {
     await dropDatabase(DBNAME)
   })
 
-  test("tasks results can be created", async () => {
-    let newRsults = await TRDAO.createTasksResults({
-      userKey: '4545',
-      studyKey: 'a1a2',
-      data: [1, 2, 3]
+  it('user mobistudy can access db test_tasksresults', async () => {
+    let resp = await axios.get('http://localhost:' + ARANGOPORT + '/_db/' + DBNAME + '/', {
+      auth: {
+        username: 'mobistudy',
+        password: 'testpwd'
+      }
     })
-
-    expect(newRsults._key).not.toBeNull()
-    expect(newRsults._key).not.toBeUndefined()
+    expect(resp.status).toBe(200)
   })
 
   describe("When adding tasks results", () => {
@@ -52,7 +47,11 @@ describe("When arangodb is running", () => {
       })
     }, 1000)
 
-    test('The results can be retrieved by key', async () => {
+    afterAll(async () => {
+      await removeFromCollection('tasksResults', tr_key)
+    })
+
+    it('The results can be retrieved by key', async () => {
       let newResults = await TRDAO.getOneTaskResult(tr_key)
 
       expect(newResults).not.toBeNull()
@@ -61,7 +60,7 @@ describe("When arangodb is running", () => {
       expect(newResults.studyKey).toBe('abc')
     })
 
-    test("tasks results can be retrieved by user", async () => {
+    it("tasks results can be retrieved by user", async () => {
       let newResults = await TRDAO.getTasksResultsByUser('1234')
 
       expect(newResults).not.toBeNull()
@@ -70,7 +69,8 @@ describe("When arangodb is running", () => {
       expect(newResults[0].studyKey).toBe('abc')
     })
 
-    test("tasks results can be retrieved by study", async () => {
+
+    it("tasks results can be retrieved by study", async () => {
       let newResults = await TRDAO.getTasksResultsByStudy('abc')
 
       expect(newResults).not.toBeNull()
@@ -80,7 +80,7 @@ describe("When arangodb is running", () => {
       expect(newResults[0].studyKey).toBe('abc')
     })
 
-    test("tasks results can be retrieved by user and study", async () => {
+    it("tasks results can be retrieved by user and study", async () => {
       let newResults = await TRDAO.getTasksResultsByUserAndStudy('1234', 'abc')
 
       expect(newResults).not.toBeNull()
@@ -90,9 +90,6 @@ describe("When arangodb is running", () => {
       expect(newResults[0].studyKey).toBe('abc')
     })
 
-    afterAll(async () => {
-      await removeFromCollection('tasksResults', tr_key)
-    })
   })
 
   describe("When adding several tasks results", () => {
@@ -118,7 +115,14 @@ describe("When arangodb is running", () => {
       })
     }, 1000)
 
-    test('results can be retrieved one by one by user', async () => {
+    afterAll(async () => {
+      await removeFromCollection('tasksResults', tr1_key)
+      await removeFromCollection('tasksResults', tr2_key)
+      await removeFromCollection('tasksResults', tr3_key)
+    })
+
+
+    it('results can be retrieved one by one by user', async () => {
       let res = []
       await TRDAO.getTasksResultsByUser('1234', (d) => {
         res.push(d)
@@ -127,7 +131,7 @@ describe("When arangodb is running", () => {
       expect(res.length).toBe(2)
     })
 
-    test('results can be retrieved one by one by user and study', async () => {
+    it('results can be retrieved one by one by user and study', async () => {
       let res = []
       await TRDAO.getTasksResultsByUserAndStudy('1234', 'abc', (d) => {
         res.push(d)
@@ -135,20 +139,13 @@ describe("When arangodb is running", () => {
 
       expect(res.length).toBe(2)
     })
-
-
-    afterAll(async () => {
-      await removeFromCollection('tasksResults', tr1_key)
-      await removeFromCollection('tasksResults', tr2_key)
-      await removeFromCollection('tasksResults', tr3_key)
-    })
   })
 
 
   describe("When adding tasks results", () => {
     let tr_key
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       tr_key = await addDataToCollection('tasksResults', {
         userKey: '1234',
         studyKey: 'abc',
@@ -156,17 +153,18 @@ describe("When arangodb is running", () => {
       })
     }, 1000)
 
-    test('results can be removed by key', async () => {
-      TRDAO.deleteTasksResults(tr_key)
+    // afterAll(async () => {
+    //   await removeFromCollection('tasksResults', tr_key)
+    // })
 
-      try {
-        await TRDAO.getOneTaskResult(tr_key)
-      } catch (e) {
-        expect(e.message).toEqual('document not found')
-      }
+    it('results can be removed by key', async () => {
+      await TRDAO.deleteTasksResults(tr_key)
+
+      let tr = await TRDAO.getOneTaskResult(tr_key)
+      expect(tr).toBeNull()
     })
 
-    test('results can be removed by study', async () => {
+    it('results can be removed by study', async () => {
       TRDAO.deleteTasksResultsByStudy(tr_key)
 
       try {
@@ -176,7 +174,7 @@ describe("When arangodb is running", () => {
       }
     })
 
-    test('results can be removed by user', async () => {
+    it('results can be removed by user', async () => {
       TRDAO.deleteTasksResultsByUser(tr_key)
 
       try {
@@ -186,9 +184,6 @@ describe("When arangodb is running", () => {
       }
     })
 
-    afterAll(async () => {
-      await removeFromCollection('tasksResults', tr_key)
-    })
   })
 
 })
