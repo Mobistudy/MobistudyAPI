@@ -119,7 +119,6 @@ export default async function () {
     passport.authenticate('jwt', { session: false }),
     async function (req, res) {
       try {
-        // TODO: do some access control
         const study = await DAO.getOneStudy(req.params.study_key)
         if (!study) res.sendStatus(404)
         else res.json(study)

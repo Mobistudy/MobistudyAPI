@@ -6,14 +6,14 @@ import {
 import axios from 'axios'
 import getTasksResultsDAO from '../../src/DAO/tasksResultsDAO.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-import { fakeLogger } from '../mocks/logger.mjs'
+import { mockObject } from '../mocks/mocker.mjs'
 
 // mock app logger
-Object.assign(applogger, fakeLogger)
+mockObject(applogger)
 
 let TRDAO
 
-describe('Testing tasks results DAO, when arangodb is running,', () => {
+describe('Testing tasks results DAO, with arango running,', () => {
 
   const DBNAME = 'test_tasksresults'
 

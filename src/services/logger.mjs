@@ -13,8 +13,64 @@ const config = getConfig()
 const HTTPLOG_FILENAME = 'http.log'
 const APPLOG_FILENAME = 'app.log'
 
-let applogger_ = {}
-let httppino_ = {}
+let pinoapplogger
+let applogger = {
+  trace (object, message) {
+    if (message) {
+      console.debug(message, object)
+      pinoapplogger.trace(object, message)
+    } else {
+      console.debug(object)
+      pinoapplogger.trace(object)
+    }
+  },
+  debug (object, message) {
+    if (message) {
+      console.debug(message, object)
+      pinoapplogger.debug(object, message)
+    } else {
+      console.debug(object)
+      pinoapplogger.debug(object)
+    }
+  },
+  info (object, message) {
+    if (message) {
+      console.info(message, object)
+      pinoapplogger.info(object, message)
+    } else {
+      console.info(object)
+      pinoapplogger.info(object)
+    }
+  },
+  warn (object, message) {
+    if (message) {
+      console.warn(message, object)
+      pinoapplogger.warn(object, message)
+    } else {
+      console.warn(object)
+      pinoapplogger.warn(object)
+    }
+  },
+  error (object, message) {
+    if (message) {
+      console.error(message, object)
+      pinoapplogger.error(object, message)
+    } else {
+      console.error(object)
+      pinoapplogger.error(object)
+    }
+  },
+  fatal (object, message) {
+    if (message) {
+      console.error(message, object)
+      pinoapplogger.fatal(object, message)
+    } else {
+      console.error(object)
+      pinoapplogger.fatal(object)
+    }
+  }
+}
+let httplogger = {}
 
 const initLogs = async function () {
   if (!rfs) throw new Error('Cannot load rotating fle stream')
@@ -37,74 +93,16 @@ const initLogs = async function () {
   applogstream.on('error', console.error)
   applogstream.on('warning', console.error)
 
-  httppino_ = pinohttp(httplogstream)
-  const applogger = pino(applogstream)
+  httplogger = pinohttp(httplogstream)
+  const pinoapplogger = pino(applogstream)
 
-  httppino_.level = config.logs.level
-  applogger.level = config.logs.level
+  httplogger.level = config.logs.level
+  pinoapplogger.level = config.logs.level
 
-  if (config.logs.console) {
-    applogger_ = {
-      trace (object, message) {
-        if (message) {
-          console.debug(message, object)
-          applogger.trace(object, message)
-        } else {
-          console.debug(object)
-          applogger.trace(object)
-        }
-      },
-      debug (object, message) {
-        if (message) {
-          console.debug(message, object)
-          applogger.debug(object, message)
-        } else {
-          console.debug(object)
-          applogger.debug(object)
-        }
-      },
-      info (object, message) {
-        if (message) {
-          console.info(message, object)
-          applogger.info(object, message)
-        } else {
-          console.info(object)
-          applogger.info(object)
-        }
-      },
-      warn (object, message) {
-        if (message) {
-          console.warn(message, object)
-          applogger.warn(object, message)
-        } else {
-          console.warn(object)
-          applogger.warn(object)
-        }
-      },
-      error (object, message) {
-        if (message) {
-          console.error(message, object)
-          applogger.error(object, message)
-        } else {
-          console.error(object)
-          applogger.error(object)
-        }
-      },
-      fatal (object, message) {
-        if (message) {
-          console.error(message, object)
-          applogger.fatal(object, message)
-        } else {
-          console.error(object)
-          applogger.fatal(object)
-        }
-      }
-    }
-  } else {
-    applogger_ = applogger
+  if (!config.logs.console) {
+    // just use the pino version directly
+    applogger = pinoapplogger
   }
 }
 
-export { initLogs }
-export { httppino_ as httplogger }
-export { applogger_ as applogger }
+export { initLogs, httplogger, applogger }

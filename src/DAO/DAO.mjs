@@ -42,14 +42,10 @@ export const DAO = {
 
   async initAfterConnection () {
     const studies = await getStudiesDAO(this.db)
-    for (const property in studies) {
-      this[property] = studies[property]
-    }
+    Object.assign(this, studies)
 
     const studiesStats = await getStudiesStatsDAO(this.db)
-    for (const property in studiesStats) {
-      this[property] = studiesStats[property]
-    }
+    Object.assign(this, studiesStats)
 
     const forms = await getFormsDAO(this.db)
     for (const property in forms) {

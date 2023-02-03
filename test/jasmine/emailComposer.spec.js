@@ -2,11 +2,14 @@ import { DAO } from '../../src/DAO/DAO.mjs'
 import { studyStatusUpdateCompose, passwordRecoveryCompose } from '../../src/services/emailComposer.mjs'
 
 let DAOretVal = {}
-DAO.getOneStudy = jasmine.createSpy().and.callFake(function () {
-  return DAOretVal
-})
 
 describe('when composing an email', () => {
+
+  beforeAll(() => {
+    DAO.getOneStudy = function () {
+      return DAOretVal
+    }
+  })
 
   it('the email password recovery is correct', async () => {
     let email = await passwordRecoveryCompose('link', 'token', 'en')

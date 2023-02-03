@@ -7,14 +7,14 @@ import setupStudiesStats from '../../src/DAO/studiesStats.mjs'
 import setupParticipants from '../../src/DAO/participantsDAO.mjs'
 import setupTasksResults from '../../src/DAO/tasksResultsDAO.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-import { fakeLogger } from '../mocks/logger.mjs'
+import { mockObject } from '../mocks/mocker.mjs'
 
 // mock app logger
-Object.assign(applogger, fakeLogger)
+mockObject(applogger)
 
 let SSDAO
 
-describe('Testing studies stats, when arangodb is running,', () => {
+describe('Testing studies stats DA integrated in Arango,', () => {
 
   const DBNAME = 'test_studiestats'
 
