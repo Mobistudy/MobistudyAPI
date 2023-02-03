@@ -3,9 +3,9 @@
  */
 import { applogger } from '../services/logger.mjs'
 
-export default async function (dao) {
+export default async function (storage) {
 
-  dao.getLastTasksSummary = async function (studyKey, dataCallback) {
+  storage.getLastTasksSummary = async function (studyKey, dataCallback) {
     let queryString = `FOR p IN participants
   FILTER @studyKey IN p.studies[*].studyKey
   LET lastTask = FIRST(

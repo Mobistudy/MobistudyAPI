@@ -18,9 +18,9 @@ import getMiband3DataDAO from './miband3DataDAO.mjs'
 import getPO60DataDAO from './po60DataDAO.mjs'
 import getPeakFlowDataDAO from './peakflowDataDAO.mjs'
 import getPositionsDAO from './positionsDAO.mjs'
-import getTasksResultsDAO from './tasksResultsDAO.mjs'
 
 // new style DAO functions
+import extendTasksResults from './tasksResults.mjs'
 import extendStudyStats from './studiesStats.mjs'
 
 
@@ -44,39 +44,35 @@ export const DAO = {
   },
 
   async extendDAO () {
+    // old style extension
     const studies = await getStudiesDAO(this.db)
     Object.assign(this, studies)
 
-    extendStudyStats(this)
+    const users = await getUsersDAO(this.db)
+    Object.assign(this, users)
 
+    const teams = await getTeamsDAO(this.db)
+    Object.assign(this, teams)
+
+    const participants = await getParticipantsDAO(this.db)
+    Object.assign(this, participants)
+
+    const auditLog = await getAuditLogDAO(this.db)
+    Object.assign(this, auditLog)
+
+    // new style extension
+    extendStudyStats(this)
+    extendTasksResults(this)
+
+    // will be removed
     const forms = await getFormsDAO(this.db)
     for (const property in forms) {
       this[property] = forms[property]
     }
 
-    const users = await getUsersDAO(this.db)
-    for (const property in users) {
-      this[property] = users[property]
-    }
-
     const answers = await getAnswersDAO(this.db)
     for (const property in answers) {
       this[property] = answers[property]
-    }
-
-    const teams = await getTeamsDAO(this.db)
-    for (const property in teams) {
-      this[property] = teams[property]
-    }
-
-    const participants = await getParticipantsDAO(this.db)
-    for (const property in participants) {
-      this[property] = participants[property]
-    }
-
-    const auditLog = await getAuditLogDAO(this.db)
-    for (const property in auditLog) {
-      this[property] = auditLog[property]
     }
 
     const healthStoreData = await getHealthStoreDataDAO(this.db)
@@ -113,12 +109,6 @@ export const DAO = {
     for (const property in pos) {
       this[property] = pos[property]
     }
-
-    const tasksResults = await getTasksResultsDAO(this.db)
-    for (const property in tasksResults) {
-      this[property] = tasksResults[property]
-    }
-    // add new collections here
   },
 
   async init () {
