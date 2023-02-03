@@ -5,7 +5,6 @@ import Database from 'arangojs'
 import getConfig from '../services/config.mjs'
 
 import getStudiesDAO from './studiesDAO.mjs'
-import getStudiesStatsDAO from './studiesStats.mjs'
 import getFormsDAO from './formsDAO.mjs'
 import getUsersDAO from './usersDAO.mjs'
 import getAuditLogDAO from './auditLogDAO.mjs'
@@ -19,8 +18,12 @@ import getMiband3DataDAO from './miband3DataDAO.mjs'
 import getPO60DataDAO from './po60DataDAO.mjs'
 import getPeakFlowDataDAO from './peakflowDataDAO.mjs'
 import getPositionsDAO from './positionsDAO.mjs'
-
 import getTasksResultsDAO from './tasksResultsDAO.mjs'
+
+// new style DAO functions
+import extendStudyStats from './studiesStats.mjs'
+
+
 import { applogger } from '../services/logger.mjs'
 
 export const DAO = {
@@ -40,12 +43,11 @@ export const DAO = {
     if (transaction) return transaction.abort()
   },
 
-  async initAfterConnection () {
+  async extendDAO () {
     const studies = await getStudiesDAO(this.db)
     Object.assign(this, studies)
 
-    const studiesStats = await getStudiesStatsDAO(this.db)
-    Object.assign(this, studiesStats)
+    extendStudyStats(this)
 
     const forms = await getFormsDAO(this.db)
     for (const property in forms) {
@@ -140,6 +142,6 @@ export const DAO = {
 
     applogger.debug('Connected to database')
 
-    return this.initAfterConnection()
+    return this.extendDAO()
   }
 }

@@ -1,18 +1,18 @@
 import {
-  ARANGOPORT,
   connectToDatabase, dropDatabase,
   addDataToCollection, removeFromCollection
 } from '../arangoTools.mjs'
-import setupStudiesStats from '../../src/DAO/studiesStats.mjs'
 import setupParticipants from '../../src/DAO/participantsDAO.mjs'
 import setupTasksResults from '../../src/DAO/tasksResultsDAO.mjs'
+import extendDAOStudiesStats from '../../src/DAO/studiesStats.mjs'
 import { applogger } from '../../src/services/logger.mjs'
 import { mockObject } from '../mocks/mocker.mjs'
 
 // mock app logger
 mockObject(applogger)
 
-let SSDAO
+// DAO used for testing
+let testDAO = {}
 
 describe('Testing studies stats DA integrated in Arango,', () => {
 
@@ -20,9 +20,10 @@ describe('Testing studies stats DA integrated in Arango,', () => {
 
   beforeAll(async () => {
     let db = await connectToDatabase(DBNAME)
+    testDAO.db = db
     await setupParticipants(db)
     await setupTasksResults(db)
-    SSDAO = await setupStudiesStats(db)
+    await extendDAOStudiesStats(testDAO)
   }, 60000)
 
   afterAll(async () => {
@@ -59,7 +60,7 @@ describe('Testing studies stats DA integrated in Arango,', () => {
     })
 
     it('the wrong study gives no results', async () => {
-      let summary = await SSDAO.getLastTasksSummary('12345')
+      let summary = await testDAO.getLastTasksSummary('12345')
 
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()
@@ -67,7 +68,7 @@ describe('Testing studies stats DA integrated in Arango,', () => {
     })
 
     it('The LastTasksSummary statistics do not include last task date and type', async () => {
-      let summary = await SSDAO.getLastTasksSummary('abc')
+      let summary = await testDAO.getLastTasksSummary('abc')
 
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()
@@ -158,7 +159,7 @@ describe('Testing studies stats DA integrated in Arango,', () => {
     })
 
     it('the LastTasksSummary statistics are retrieved correctly', async () => {
-      let summary = await SSDAO.getLastTasksSummary('abc')
+      let summary = await testDAO.getLastTasksSummary('abc')
 
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()

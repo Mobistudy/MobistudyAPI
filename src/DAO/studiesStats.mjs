@@ -1,15 +1,12 @@
 /**
  * This provides statistics about the studies.
  */
-import utils from './utils.mjs'
 import { applogger } from '../services/logger.mjs'
 
-export default async function (db) {
+export default async function (dao) {
 
-  return {
-
-    async getLastTasksSummary (studyKey, dataCallback) {
-      let queryString = `FOR p IN participants
+  dao.getLastTasksSummary = async function (studyKey, dataCallback) {
+    let queryString = `FOR p IN participants
   FILTER @studyKey IN p.studies[*].studyKey
   LET lastTask = FIRST(
     FOR t IN tasksResults
@@ -21,19 +18,18 @@ export default async function (db) {
   )
   RETURN { userKey: p.userKey, name: p.name, surname: p.surname, DOB: p.dateOfBirth, status: FIRST(p.studies[* FILTER CURRENT.studyKey == @studyKey].currentStatus), lastTaskDate: lastTask.createdTS, lastTaskType: lastTask.taskType }`
 
-      const bindings = {
-        studyKey
-      }
-
-      applogger.trace(bindings, 'Querying "' + queryString + '"')
-      const cursor = await db.query(queryString, bindings)
-
-      if (dataCallback) {
-        while (cursor.hasNext) {
-          const a = await cursor.next()
-          dataCallback(a)
-        }
-      } else return cursor.all()
+    const bindings = {
+      studyKey
     }
+
+    applogger.trace(bindings, 'Querying "' + queryString + '"')
+    const cursor = await this.db.query(queryString, bindings)
+
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else return cursor.all()
   }
 }
