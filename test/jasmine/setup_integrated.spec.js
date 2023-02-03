@@ -4,7 +4,7 @@ import {
 } from '../arangoTools.mjs'
 import axios from 'axios'
 
-describe('when arangodb is running ', () => {
+describe('Testing integrated setup, when arango is running', () => {
 
   const DBNAME = 'test_setup'
 

@@ -13,13 +13,13 @@ Object.assign(applogger, fakeLogger)
 
 let TRDAO
 
-describe('when arangodb is running ', () => {
+describe('Testing tasks results DAO, when arangodb is running,', () => {
 
   const DBNAME = 'test_tasksresults'
 
   beforeAll(async () => {
     let db = await connectToDatabase(DBNAME)
-    TRDAO = await getTasksResultsDAO(db, applogger)
+    TRDAO = await getTasksResultsDAO(db)
   }, 60000)
 
   afterAll(async () => {
