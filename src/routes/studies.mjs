@@ -357,7 +357,6 @@ export default async function () {
       try {
         const invitationalCode = req.params.invitationalCode
         const study = await DAO.getInvitationalStudy(invitationalCode)
-        applogger.info({ study: study }, 'Study:')
         if (!study) throw new Error('Cannot find study based on code.')
         res.send(study)
       } catch (err) {

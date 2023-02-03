@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * Some utilities for the DB.
 */

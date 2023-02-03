@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * This provides the data access for the environment data sent by patients.
  */

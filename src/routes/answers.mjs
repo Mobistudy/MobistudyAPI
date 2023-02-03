@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * This provides the API endpoints for the study answers of the participants.
 */
