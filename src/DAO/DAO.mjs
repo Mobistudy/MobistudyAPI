@@ -5,6 +5,7 @@ import Database from 'arangojs'
 import getConfig from '../services/config.mjs'
 
 import getStudiesDAO from './studiesDAO.mjs'
+import getStudiesStatsDAO from './studiesStats.mjs'
 import getFormsDAO from './formsDAO.mjs'
 import getUsersDAO from './usersDAO.mjs'
 import getAuditLogDAO from './auditLogDAO.mjs'
@@ -43,6 +44,11 @@ export const DAO = {
     const studies = await getStudiesDAO(this.db)
     for (const property in studies) {
       this[property] = studies[property]
+    }
+
+    const studiesStats = await getStudiesStatsDAO(this.db)
+    for (const property in studiesStats) {
+      this[property] = studiesStats[property]
     }
 
     const forms = await getFormsDAO(this.db)
