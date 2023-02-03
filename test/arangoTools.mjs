@@ -17,8 +17,8 @@ export const connectToDatabase = async function (dbname) {
       auth: { username: 'root', password: ROOT_PWD },
     })
   } else {
-    db.database('_system')
-    db.useBasicAuth('root', ROOT_PWD)
+    db = db.useBasicAuth('root', ROOT_PWD)
+    db = db.database('_system')
   }
 
   const names = await db.listUserDatabases()
@@ -31,8 +31,8 @@ export const connectToDatabase = async function (dbname) {
     users: [{ username: 'mobistudy', passwd: 'testpwd' }]
   })
 
-  db.database(dbname)
-  db.useBasicAuth('mobistudy', 'testpwd')
+  db = db.useBasicAuth('mobistudy', 'testpwd')
+  db = db.database(dbname)
 
   return db
 }
@@ -43,8 +43,8 @@ export const connectToDatabase = async function (dbname) {
  * @returns a promise
  */
 export const dropDatabase = async function (dbname) {
-  db.database('_system')
-  db.useBasicAuth('root', ROOT_PWD)
+  db = db.useBasicAuth('root', ROOT_PWD)
+  db = db.database('_system')
   await db.dropDatabase(dbname)
 }
 
