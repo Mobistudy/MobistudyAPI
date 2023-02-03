@@ -94,7 +94,7 @@ const initLogs = async function () {
   applogstream.on('warning', console.error)
 
   httplogger = pinohttp(httplogstream)
-  const pinoapplogger = pino(applogstream)
+  pinoapplogger = pino(applogstream)
 
   httplogger.level = config.logs.level
   pinoapplogger.level = config.logs.level
