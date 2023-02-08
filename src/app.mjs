@@ -26,7 +26,6 @@ import auditLogRouter from './routes/auditLog.mjs'
 import testerRouter from './routes/tester.mjs'
 import vocabularyRouter from './routes/vocabulary.mjs'
 import smwtsRouter from './routes/smwts.mjs'
-import QCSTRouter from './routes/QCSTData.mjs'
 import Miband3Router from './routes/miband3.mjs'
 import PO60Router from './routes/po60.mjs'
 import PeakFlowRouter from './routes/peakflow.mjs'
@@ -82,7 +81,6 @@ export default async function () {
   app.use(apiPrefix, await testerRouter())
   app.use(apiPrefix, await vocabularyRouter())
   app.use(apiPrefix, await smwtsRouter())
-  app.use(apiPrefix, await QCSTRouter())
   app.use(apiPrefix, await Miband3Router())
   app.use(apiPrefix, await PO60Router())
   app.use(apiPrefix, await PeakFlowRouter())

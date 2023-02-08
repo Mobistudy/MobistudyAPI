@@ -23,6 +23,14 @@ export default async function (storage) {
     return COLLECTION_NAME
   }
 
+  /**
+   * Gets all the tasks results.
+   * The result changes depending on one's role, admins can see all,
+   * researchers only those related to their studies
+   * and participants only own.
+   * @param {function} dataCallback used to receive data one by one
+   * @returns a promise that gives an array of task results
+   */
   storage.getAllTasksResults = async function (dataCallback) {
     const filter = ''
     const query = 'FOR data IN ' + COLLECTION_NAME + ' ' + filter + ' RETURN data'
@@ -36,6 +44,12 @@ export default async function (storage) {
     } else return cursor.all()
   }
 
+  /**
+   * Gets the tasks results for a specific user
+   * @param {string} userKey key of the user to be found
+   * @param {function} dataCallback function called when retrieving one-by-one
+   * @returns a promise that gives an array of task results
+   */
   storage.getTasksResultsByUser = async function (userKey, dataCallback) {
     const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey RETURN data'
     const bindings = { userKey: userKey }
