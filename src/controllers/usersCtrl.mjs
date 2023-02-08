@@ -1,5 +1,5 @@
 /**
-* This provides the API endpoints for authentication.
+* This provides the controllers for authentication and users management.
 */
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -45,7 +45,7 @@ export default {
 
   },
 
-  login: function (req, res, next) {
+  login: function (req, res) {
     res.send(req.user)
     auditLogger.log('login', req.user._key, undefined, undefined, 'User ' + req.user.email + ' has logged in', 'users', req.user._key, undefined)
   },

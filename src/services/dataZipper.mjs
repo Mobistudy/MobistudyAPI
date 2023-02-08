@@ -109,21 +109,6 @@ export default {
             archive.append(JSON.stringify(a), { name: 'miband3/' + a._key + '.json' })
           })
         }).then(() => {
-          // po60
-          return DAL.getPO60DataByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'po60/' + a._key + '.json' })
-          })
-        }).then(() => {
-          // qcst
-          return DAL.getQCSTDataByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'qcst/' + a._key + '.json' })
-          })
-        }).then(() => {
-          // smwt
-          return DAL.getSmwtsDataByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'smwt/' + a._key + '.json' })
-          })
-        }).then(() => {
           // peakflow
           return DAL.getPeakFlowsByStudy(studyKey, (a) => {
             archive.append(JSON.stringify(a), { name: 'peakflow/' + a._key + '.json' })

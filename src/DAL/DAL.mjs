@@ -25,7 +25,7 @@ import * as positions from './positionsDAL.mjs'
 
 import { applogger } from '../services/logger.mjs'
 
-export const DAL = {
+export let DAL = {
   db: null,
 
   async startTransaction (names) {
@@ -43,7 +43,6 @@ export const DAL = {
   },
 
   async extendDAL () {
-
     Object.assign(this, users.DAL)
     Object.assign(this, teams.DAL)
     Object.assign(this, studies.DAL)
