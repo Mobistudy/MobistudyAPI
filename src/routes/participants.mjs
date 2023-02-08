@@ -256,15 +256,6 @@ export default async function () {
         // Remove Miband3 Data
         await DAL.deleteMiband3DataByUser(userKey)
 
-        // Remove QCST Data
-        await DAL.deleteQCSTDataByUser(userKey)
-
-        // Remove SMWT Data
-        await DAL.deleteSmwtByUser(userKey)
-
-        // Remove PO60 Data
-        await DAL.deletePO60DataByUser(userKey)
-
         // Remove Peakflow Data
         await DAL.deletePeakFlowDataByUser(userKey)
 
