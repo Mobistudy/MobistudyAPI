@@ -1,8 +1,6 @@
 /**
 * This provides the API endpoints for authentication.
 */
-import express from 'express'
-import passport from 'passport'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import owasp from 'owasp-password-strength-test'
@@ -23,8 +21,6 @@ owasp.config({
   minOptionalTestsToPass: 3
 })
 
-const router = express.Router()
-
 const config = getConfig()
 
 const pwdCheck = function (email, password) {
@@ -41,13 +37,20 @@ const pwdCheck = function (email, password) {
   return true
 }
 
-export default async function () {
-  router.post('/login', passport.authenticate('local', { session: false }), function (req, res, next) {
+export default {
+  /**
+   * Initialises the controller.
+   */
+  async init () {
+
+  },
+
+  login: function (req, res, next) {
     res.send(req.user)
     auditLogger.log('login', req.user._key, undefined, undefined, 'User ' + req.user.email + ' has logged in', 'users', req.user._key, undefined)
-  })
+  },
 
-  router.post('/sendResetPasswordEmail', async function (req, res) {
+  sendPasswordResetEmail: async function (req, res) {
     if (req.body.email) {
       const email = req.body.email
       const existing = await DAL.findUserByEmail(email)
@@ -72,9 +75,9 @@ export default async function () {
       applogger.info({ email: req.body.email }, 'Reset password email sent')
       auditLogger.log('resetPasswordEmail', existing._key, undefined, undefined, 'User ' + email + ' has requested a reset password email', 'users', existing._key, undefined)
     } else res.sendStatus(400)
-  })
+  },
 
-  router.post('/resetPassword', async function (req, res) {
+  resetPassword: async function (req, res) {
     if (req.body.token && req.body.password) {
       let decoded
       try {
@@ -114,9 +117,9 @@ export default async function () {
         auditLogger.log('resetPassword', existing._key, undefined, undefined, 'User ' + email + ' has changed the password', 'users', existing._key, undefined)
       }
     } else res.sendStatus(400)
-  })
+  },
 
-  router.post('/users', async (req, res) => {
+  createUser: async (req, res) => {
     const user = req.body
     const password = user.password
     if (!pwdCheck(user.email, password)) return res.status(400).send('Password too weak')
@@ -148,9 +151,9 @@ export default async function () {
       applogger.error({ error: err }, 'Cannot store new user')
       res.sendStatus(500)
     }
-  })
+  },
 
-  router.get('/users/renewToken', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  renewToken: async (req, res) => {
     const user = req.user
     applogger.debug(user.email + 'has requested a new token')
 
@@ -163,9 +166,9 @@ export default async function () {
     })
     user.token = newToken
     res.send(newToken)
-  })
+  },
 
-  router.patch('/users/:userKey', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  updateUser: async (req, res) => {
     if (req.user.role === 'researcher') { return res.sendStatus(403) }
     if (req.user.role === 'participant') {
       // participant can only change himself
@@ -185,36 +188,9 @@ export default async function () {
       await DAL.updateUser(userKey, user)
       res.sendStatus(200)
     }
-  })
+  },
 
-  // possible query parameters:
-  // studyKey: the key of the study (TO DELETE ?? DUPLICATED BY GET/ALL )
-  router.get('/users', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    try {
-      let val
-      if (req.user.role === 'admin') {
-        val = await DAL.getUsers()
-      } else if (req.user.role === 'researcher') {
-        // TODO: make sure the study Key is among the ones the researcher is allowed
-        // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
-        if (req.query.studyKey) val = await DAL.getUsers(false, null, 'participant', [req.query.studyKey])
-        else {
-          // TODO: retrieve studies where this participant is involved in and retrieve the studyes
-          // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
-          // val = await DAL.getAllUsersByCriteria('participant', [studyKeys])
-        }
-      } else { // a participant
-        val = await DAL.getOneUser(req.user._key)
-      }
-      res.send(val)
-    } catch (err) {
-      applogger.error({ error: err }, 'Cannot store new user')
-      res.sendStatus(500)
-    }
-  })
-
-  // NEW GET USER FUNCTION
-  router.get('/getUsers', passport.authenticate('jwt', { session: false }), async function (req, res) {
+  getUsers: async function (req, res) {
     if (req.user.role !== 'admin') {
       console.log('not an admin')
       res.sendStatus(403)
@@ -233,10 +209,9 @@ export default async function () {
         res.sendStatus(500)
       }
     }
-  })
+  },
 
-  // NEW GET USER COUNT FUNCTION
-  router.get('/getUsers/count', passport.authenticate('jwt', { session: false }), async function (req, res) {
+  getUsersCount: async function (req, res) {
     if (req.user.role !== 'admin') {
       console.log('not an admin')
       res.sendStatus(403)
@@ -255,26 +230,9 @@ export default async function () {
         res.sendStatus(500)
       }
     }
-  })
+  },
 
-  // Get All Users in Db (TO DELETE ?? DUPLICATED BY GET/ALL )
-  router.get('/users/all', passport.authenticate('jwt', { session: false }), async (req, res) => {
-    try {
-      let val
-      // Only Admin can get a list of all users
-      if (req.user.role === 'admin') {
-        val = await DAL.getAllUsers()
-      } else if (req.user.role === 'researcher') {
-        // See all Users associated to teams to which this researcher belongs
-      }
-      res.send(val)
-    } catch (err) {
-      applogger.error({ error: err }, 'Cannot get all users')
-      res.sendStatus(500)
-    }
-  })
-
-  router.get('/users/:user_key', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  getUserByKey: async (req, res) => {
     try {
       let val
       if (req.user.role === 'admin') {
@@ -288,11 +246,11 @@ export default async function () {
       applogger.error({ error: err }, 'Cannot retrieve user details')
       res.sendStatus(500)
     }
-  })
+  },
 
   // Remove Specified User (currently only removes researchers)
   // TODO: remove participants as well
-  router.delete('/users/:user_key', passport.authenticate('jwt', { session: false }), async function (req, res) {
+  removeUser: async function (req, res) {
     try {
       const userKey = req.params.user_key
       // Only admin can remove a team
@@ -322,7 +280,5 @@ export default async function () {
       applogger.error({ error: err }, 'Cannot delete user with key ' + req.params.user_key)
       res.sendStatus(500)
     }
-  })
-
-  return router
+  }
 }

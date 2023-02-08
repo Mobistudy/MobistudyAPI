@@ -17,7 +17,6 @@ import indexRouter from './routes/index.mjs'
 import studiesRouter from './routes/studies.mjs'
 import dataDownload from './routes/dataDownload.mjs'
 import formsRouter from './routes/forms.mjs'
-import usersRouter from './routes/users.mjs'
 import participantsRouter from './routes/participants.mjs'
 import teamsRouter from './routes/teams.mjs'
 import answersRouter from './routes/answers.mjs'
@@ -70,7 +69,6 @@ export default async function () {
   app.use(apiPrefix, await studiesRouter())
   app.use(apiPrefix, dataDownload(app))
   app.use(apiPrefix, await formsRouter())
-  app.use(apiPrefix, await usersRouter())
   app.use(apiPrefix, await participantsRouter())
   app.use(apiPrefix, await teamsRouter())
   app.use(apiPrefix, await answersRouter())
