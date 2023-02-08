@@ -1,12 +1,10 @@
-'use strict'
-
 /**
 * This provides the API endpoints for the form descriptions.
 */
 
 import express from 'express'
 import passport from 'passport'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 
@@ -20,9 +18,9 @@ export default async function () {
       // TODO: do some access control
       let forms
       if (req.query.list) {
-        forms = await DAO.getFormsList()
+        forms = await DAL.getFormsList()
       } else {
-        forms = await DAO.getAllForms()
+        forms = await DAL.getAllForms()
       }
       res.send(forms)
     } catch (err) {
@@ -34,7 +32,7 @@ export default async function () {
   router.get('/forms/:form_key', passport.authenticate('jwt', { session: false }), async function (req, res) {
     try {
       // TODO: do some access control
-      const form = await DAO.getOneForm(req.params.form_key)
+      const form = await DAL.getOneForm(req.params.form_key)
       res.send(form)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot retrieve form with _key ' + req.params.form_key)
@@ -47,7 +45,7 @@ export default async function () {
     newform.created = new Date()
     try {
       // TODO: do some access control, same as study, only researchers, any team
-      newform = await DAO.createForm(newform)
+      newform = await DAL.createForm(newform)
       res.send(newform)
       applogger.info(newform, 'New form created')
       auditLogger.log('formCreated', req.user._key, undefined, undefined, 'New form created', 'forms', newform._key, newform)
@@ -61,7 +59,7 @@ export default async function () {
     let newform = req.body
     try {
       // TODO: do some access control
-      newform = await DAO.replaceForm(req.params.form_key, newform)
+      newform = await DAL.replaceForm(req.params.form_key, newform)
       res.send(newform)
       applogger.info(newform, 'Form has been replaced')
       auditLogger.log('formReplaced', req.user._key, undefined, undefined, 'Form has been replaced', 'forms', newform._key, newform)
@@ -75,7 +73,7 @@ export default async function () {
     let newform = req.body
     try {
       // TODO: do some access control
-      newform = await DAO.updateForm(req.params.form_key, newform)
+      newform = await DAL.updateForm(req.params.form_key, newform)
       res.send(newform)
       applogger.info(newform, 'Form has been updated')
       auditLogger.log('formUpdate', req.user._key, undefined, undefined, 'Form has been updated', 'forms', newform._key, newform)
@@ -88,7 +86,7 @@ export default async function () {
   router.delete('/forms/:form_key', passport.authenticate('jwt', { session: false }), async function (req, res) {
     try {
       // TODO: do some access control
-      await DAO.deleteForm(req.params.form_key)
+      await DAL.deleteForm(req.params.form_key)
       res.sendStatus(200)
       applogger.info({ formKey: req.params.form_key }, 'Form has been deleted')
       auditLogger.log('formUpdate', req.user._key, undefined, undefined, 'Form with key ' + req.params.form_key + ' has been deleted', 'forms', req.params.form_key, undefined)

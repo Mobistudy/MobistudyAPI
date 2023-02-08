@@ -1,12 +1,10 @@
-'use strict'
-
 /**
  * This provides the API endpoints for the participants profiles.
  */
 
 import express from 'express'
 import passport from 'passport'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { studyStatusUpdateCompose } from '../services/emailComposer.mjs'
@@ -25,7 +23,7 @@ export default async function () {
       try {
         if (req.user.role === 'participant') {
           // participants can retrieve only themselves
-          const result = await DAO.getParticipantByUserKey(req.user._key)
+          const result = await DAL.getParticipantByUserKey(req.user._key)
           res.send(result)
         } else if (
           req.user.role === 'researcher' ||
@@ -34,13 +32,13 @@ export default async function () {
           if (req.user.role === 'researcher') {
             // extra check about the teams
             if (req.query.teamKey) {
-              const team = await DAO.getOneTeam(req.query.teamKey)
+              const team = await DAL.getOneTeam(req.query.teamKey)
               if (!team.researchersKeys.includes(req.user._key)) {
                 return res.sendStatus(403)
               }
             }
             if (req.query.studyKey) {
-              const team = await DAO.getAllTeams(
+              const team = await DAL.getAllTeams(
                 req.user._key,
                 req.query.studyKey
               )
@@ -49,34 +47,34 @@ export default async function () {
           }
           let participants = []
           if (req.query.studyKey) {
-            participants = await DAO.getParticipantsByStudy(
+            participants = await DAL.getParticipantsByStudy(
               req.query.studyKey,
               req.query.currentStatus
             )
           } else if (req.query.teamKey) {
-            participants = await DAO.getParticipantsByTeam(
+            participants = await DAL.getParticipantsByTeam(
               req.query.teamKey,
               req.query.currentStatus
             )
           } else if (req.query.currentStatus) {
             if (req.user.role === 'researcher') {
-              participants = await DAO.getParticipantsByResearcher(
+              participants = await DAL.getParticipantsByResearcher(
                 req.user._key,
                 req.query.currentStatus
               )
             } else {
               // admin
-              participants = await DAO.getParticipantsByCurrentStatus(
+              participants = await DAL.getParticipantsByCurrentStatus(
                 req.query.currentStatus
               )
             }
           } else {
             if (req.user.role === 'researcher') {
-              participants = await DAO.getParticipantsByResearcher(
+              participants = await DAL.getParticipantsByResearcher(
                 req.user._key
               )
             } else {
-              participants = await DAO.getAllParticipants()
+              participants = await DAL.getAllParticipants()
             }
           }
           res.json(participants)
@@ -99,12 +97,12 @@ export default async function () {
         ) {
           return res.sendStatus(403)
         } else if (req.user.role === 'researcher') {
-          const parts = await DAO.getParticipantsByResearcher(req.user._key)
+          const parts = await DAL.getParticipantsByResearcher(req.user._key)
           if (!parts.includes(req.params.participant_key)) {
             return res.sendStatus(403)
           }
         } else {
-          const participant = await DAO.getOneParticipant(
+          const participant = await DAL.getOneParticipant(
             req.params.participant_key
           )
           res.send(participant)
@@ -127,7 +125,7 @@ export default async function () {
       newparticipant.createdTS = new Date()
       try {
         if (req.user.role === 'participant') {
-          newparticipant = await DAO.createParticipant(newparticipant)
+          newparticipant = await DAL.createParticipant(newparticipant)
           res.send(newparticipant)
           applogger.info(
             {
@@ -168,44 +166,44 @@ export default async function () {
       if (req.user.role === 'researcher') return res.sendStatus(403)
       try {
         const userKey = req.params.userKey
-        const participant = await DAO.getParticipantByUserKey(userKey)
+        const participant = await DAL.getParticipantByUserKey(userKey)
         if (!participant) return res.sendStatus(404)
 
         // Remove Answers
-        await DAO.deleteAnswersByUser(userKey)
+        await DAL.deleteAnswersByUser(userKey)
 
         // Remove Health Store Data
-        await DAO.deleteHealthStoreDataByUser(userKey)
+        await DAL.deleteHealthStoreDataByUser(userKey)
 
         // Remove Miband3 Data
-        await DAO.deleteMiband3DataByUser(userKey)
+        await DAL.deleteMiband3DataByUser(userKey)
 
         // Remove QCST Data
-        await DAO.deleteQCSTDataByUser(userKey)
+        await DAL.deleteQCSTDataByUser(userKey)
 
         // Remove SMWT Data
-        await DAO.deleteSmwtByUser(userKey)
+        await DAL.deleteSmwtByUser(userKey)
 
         // Remove PO60 Data
-        await DAO.deletePO60DataByUser(userKey)
+        await DAL.deletePO60DataByUser(userKey)
 
         // Remove Peakflow Data
-        await DAO.deletePeakFlowDataByUser(userKey)
+        await DAL.deletePeakFlowDataByUser(userKey)
 
         // Remove Position Data
-        await DAO.deletePositionsByUser(userKey)
+        await DAL.deletePositionsByUser(userKey)
 
         // Remove Tasks results
-        await DAO.deleteTasksResultsByUser(userKey)
+        await DAL.deleteTasksResultsByUser(userKey)
 
         // Remove attachments
         await deleteAttachmentsByUser(userKey)
 
         // Remove Audit logs
-        await DAO.deleteLogsByUser(userKey)
+        await DAL.deleteLogsByUser(userKey)
 
-        await DAO.removeParticipant(participant._key)
-        await DAO.removeUser(req.params.userKey)
+        await DAL.removeParticipant(participant._key)
+        await DAL.removeUser(req.params.userKey)
         res.sendStatus(200)
         applogger.info(
           { userKey: participant._key },
@@ -237,7 +235,7 @@ export default async function () {
       try {
         const partKey = req.params.participant_key
         // Get User Key of participant first. Then remove participant and then user.
-        const participant = await DAO.getOneParticipant(partKey)
+        const participant = await DAL.getOneParticipant(partKey)
         if (participant === null) return res.sendStatus(404)
         // Participant can remove only himself from Participant and Users DB
         const userKey = participant.userKey
@@ -250,40 +248,40 @@ export default async function () {
         }
 
         // Remove Answers
-        await DAO.deleteAnswersByUser(userKey)
+        await DAL.deleteAnswersByUser(userKey)
 
         // Remove Health Store Data
-        await DAO.deleteHealthStoreDataByUser(userKey)
+        await DAL.deleteHealthStoreDataByUser(userKey)
 
         // Remove Miband3 Data
-        await DAO.deleteMiband3DataByUser(userKey)
+        await DAL.deleteMiband3DataByUser(userKey)
 
         // Remove QCST Data
-        await DAO.deleteQCSTDataByUser(userKey)
+        await DAL.deleteQCSTDataByUser(userKey)
 
         // Remove SMWT Data
-        await DAO.deleteSmwtByUser(userKey)
+        await DAL.deleteSmwtByUser(userKey)
 
         // Remove PO60 Data
-        await DAO.deletePO60DataByUser(userKey)
+        await DAL.deletePO60DataByUser(userKey)
 
         // Remove Peakflow Data
-        await DAO.deletePeakFlowDataByUser(userKey)
+        await DAL.deletePeakFlowDataByUser(userKey)
 
         // Remove Position Data
-        await DAO.deletePositionsByUser(userKey)
+        await DAL.deletePositionsByUser(userKey)
 
         // Remove Tasks results
-        await DAO.deleteTasksResultsByUser(userKey)
+        await DAL.deleteTasksResultsByUser(userKey)
 
         // Remove attachments
         await deleteAttachmentsByUser(userKey)
 
         // Remove Audit logs
-        await DAO.deleteLogsByUser(userKey)
+        await DAL.deleteLogsByUser(userKey)
 
-        await DAO.removeParticipant(partKey)
-        await DAO.removeUser(userKey)
+        await DAL.removeParticipant(partKey)
+        await DAL.removeUser(userKey)
         res.sendStatus(200)
         applogger.info(
           { participantKey: partKey },
@@ -319,13 +317,13 @@ export default async function () {
         return res.sendStatus(403)
       }
       if (req.user.role === 'researcher') {
-        const allowedParts = await DAO.getParticipantsByResearcher(
+        const allowedParts = await DAL.getParticipantsByResearcher(
           req.user._key
         )
         if (!allowedParts.includes(req.params.user)) return res.sendStatus(403)
       }
       try {
-        const participant = await DAO.getParticipantByUserKey(
+        const participant = await DAL.getParticipantByUserKey(
           req.params.userKey
         )
         if (!participant) return res.sendStatus(404)
@@ -359,11 +357,11 @@ export default async function () {
       }
       if (req.user.role === 'researcher') return res.sendStatus(403)
       try {
-        const participant = await DAO.getParticipantByUserKey(
+        const participant = await DAL.getParticipantByUserKey(
           req.params.userKey
         )
         if (!participant) return res.sendStatus(404)
-        newparticipant = await DAO.updateParticipant(
+        newparticipant = await DAL.updateParticipant(
           participant._key,
           newparticipant
         )
@@ -416,7 +414,7 @@ export default async function () {
           return res.sendStatus(403)
         }
         if (req.user.role === 'researcher') {
-          const allowedParts = await DAO.getParticipantsByResearcher(
+          const allowedParts = await DAL.getParticipantsByResearcher(
             req.user._key
           )
           if (!allowedParts.includes(req.params.user)) {
@@ -424,9 +422,9 @@ export default async function () {
           }
         }
         if (!userKey || !studyKey) return res.sendStatus(400)
-        const user = await DAO.getOneUser(userKey)
+        const user = await DAL.getOneUser(userKey)
         if (!user) return res.sendStatus(404)
-        const participant = await DAO.getParticipantByUserKey(userKey)
+        const participant = await DAL.getParticipantByUserKey(userKey)
         if (!participant) return res.sendStatus(404)
 
         // Updated Time Stamp
@@ -472,7 +470,7 @@ export default async function () {
         }
 
         // Update the DB
-        await DAO.updateParticipant(participant._key, participant)
+        await DAL.updateParticipant(participant._key, participant)
         applogger.info(
           { participantKey: participant._key, study: payload },
           'Participant has changed studies status'
@@ -483,8 +481,8 @@ export default async function () {
           payload.studyKey,
           undefined,
           'Participant with key ' +
-            participant._key +
-            ' has changed studies status',
+          participant._key +
+          ' has changed studies status',
           'participants',
           participant._key,
           payload
@@ -529,7 +527,7 @@ export default async function () {
       try {
         if (req.user.role != 'participant') return res.sendStatus(403)
         if (!userKey || !studyKey) return res.sendStatus(400)
-        const participant = await DAO.getParticipantByUserKey(userKey)
+        const participant = await DAL.getParticipantByUserKey(userKey)
         if (!participant) return res.sendStatus(404)
 
         // find the study
@@ -553,7 +551,7 @@ export default async function () {
         participant.studies[studyIndex].taskItemsConsent[taskIndex] = payload
 
         // Update the DB
-        await DAO.updateParticipant(participant._key, participant)
+        await DAL.updateParticipant(participant._key, participant)
 
         res.sendStatus(200)
         applogger.info(
@@ -566,8 +564,8 @@ export default async function () {
           payload.studyKey,
           undefined,
           'Participant with key ' +
-            participant._key +
-            ' has changed task item consent status',
+          participant._key +
+          ' has changed task item consent status',
           'participants',
           participant._key,
           payload
@@ -592,13 +590,13 @@ export default async function () {
           res.sendStatus(403)
         } else if (req.user.role === 'researcher') {
           if (req.user.role === 'researcher') {
-            const team = await DAO.getAllTeams(
+            const team = await DAL.getAllTeams(
               req.user._key,
               req.params.studyKey
             )
             if (team.length === 0) return res.sendStatus(403)
           }
-          const participants = await DAO.getParticipantsStatusCountByStudy(
+          const participants = await DAL.getParticipantsStatusCountByStudy(
             req.params.studyKey
           )
           res.json(participants)

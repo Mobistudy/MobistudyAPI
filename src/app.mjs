@@ -9,7 +9,7 @@ import passport from 'passport'
 import { initLogs, applogger, httplogger } from './services/logger.mjs'
 import authConfig from './services/authSetup.mjs'
 
-import { DAO } from './DAO/DAO.mjs'
+import { DAL } from './DAL/DAL.mjs'
 
 import setupRoutes from './routes.mjs'
 
@@ -56,7 +56,7 @@ export default async function () {
     next()
   })
 
-  await DAO.init()
+  await DAL.init()
 
   await authConfig()
 

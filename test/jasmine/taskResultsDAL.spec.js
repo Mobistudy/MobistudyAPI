@@ -4,7 +4,7 @@ import {
   addDataToCollection, removeFromCollection
 } from '../arangoTools.mjs'
 import axios from 'axios'
-import extendStorageTasksResults from '../../src/DAO/tasksResults.mjs'
+import * as tasksResults from '../../src/DAL/tasksResultsDAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
 import { mockObject } from '../mocks/mocker.mjs'
 
@@ -12,16 +12,17 @@ import { mockObject } from '../mocks/mocker.mjs'
 mockObject(applogger)
 
 // Storage module used for testing
-let testStorage = {}
+let testDAL = {}
 
-describe('Testing tasks results DAO, with arango running,', () => {
+describe('Testing tasks results DAL,', () => {
 
   const DBNAME = 'test_tasksresults'
 
   beforeAll(async () => {
     let db = await connectToDatabase(DBNAME)
-    testStorage.db = db
-    await extendStorageTasksResults(testStorage)
+    testDAL.db = db
+    await tasksResults.init(db)
+    Object.assign(testDAL, tasksResults.DAL)
   }, 60000)
 
   afterAll(async () => {
@@ -54,7 +55,7 @@ describe('Testing tasks results DAO, with arango running,', () => {
     })
 
     it('The results can be retrieved by key', async () => {
-      let newResults = await testStorage.getOneTaskResult(tr_key)
+      let newResults = await testDAL.getOneTaskResult(tr_key)
 
       expect(newResults).not.toBeNull()
       expect(newResults).toBeDefined()
@@ -63,7 +64,7 @@ describe('Testing tasks results DAO, with arango running,', () => {
     })
 
     it("tasks results can be retrieved by user", async () => {
-      let newResults = await testStorage.getTasksResultsByUser('1234')
+      let newResults = await testDAL.getTasksResultsByUser('1234')
 
       expect(newResults).not.toBeNull()
       expect(newResults.length).toBe(1)
@@ -73,7 +74,7 @@ describe('Testing tasks results DAO, with arango running,', () => {
 
 
     it("tasks results can be retrieved by study", async () => {
-      let newResults = await testStorage.getTasksResultsByStudy('abc')
+      let newResults = await testDAL.getTasksResultsByStudy('abc')
 
       expect(newResults).not.toBeNull()
       expect(newResults.length).toBe(1)
@@ -83,7 +84,7 @@ describe('Testing tasks results DAO, with arango running,', () => {
     })
 
     it("tasks results can be retrieved by user and study", async () => {
-      let newResults = await testStorage.getTasksResultsByUserAndStudy('1234', 'abc')
+      let newResults = await testDAL.getTasksResultsByUserAndStudy('1234', 'abc')
 
       expect(newResults).not.toBeNull()
       expect(newResults.length).toBe(1)
@@ -126,7 +127,7 @@ describe('Testing tasks results DAO, with arango running,', () => {
 
     it('results can be retrieved one by one by user', async () => {
       let res = []
-      await testStorage.getTasksResultsByUser('1234', (d) => {
+      await testDAL.getTasksResultsByUser('1234', (d) => {
         res.push(d)
       })
 
@@ -135,7 +136,7 @@ describe('Testing tasks results DAO, with arango running,', () => {
 
     it('results can be retrieved one by one by user and study', async () => {
       let res = []
-      await testStorage.getTasksResultsByUserAndStudy('1234', 'abc', (d) => {
+      await testDAL.getTasksResultsByUserAndStudy('1234', 'abc', (d) => {
         res.push(d)
       })
 
@@ -160,27 +161,27 @@ describe('Testing tasks results DAO, with arango running,', () => {
     // })
 
     it('results can be removed by key', async () => {
-      await testStorage.deleteTasksResults(tr_key)
+      await testDAL.deleteTasksResults(tr_key)
 
-      let tr = await testStorage.getOneTaskResult(tr_key)
+      let tr = await testDAL.getOneTaskResult(tr_key)
       expect(tr).toBeNull()
     })
 
     it('results can be removed by study', async () => {
-      testStorage.deleteTasksResultsByStudy(tr_key)
+      testDAL.deleteTasksResultsByStudy(tr_key)
 
       try {
-        await testStorage.getOneTaskResult(tr_key)
+        await testDAL.getOneTaskResult(tr_key)
       } catch (e) {
         expect(e.message).toEqual('document not found')
       }
     })
 
     it('results can be removed by user', async () => {
-      testStorage.deleteTasksResultsByUser(tr_key)
+      testDAL.deleteTasksResultsByUser(tr_key)
 
       try {
-        await testStorage.getOneTaskResult(tr_key)
+        await testDAL.getOneTaskResult(tr_key)
       } catch (e) {
         expect(e.message).toEqual('document not found')
       }

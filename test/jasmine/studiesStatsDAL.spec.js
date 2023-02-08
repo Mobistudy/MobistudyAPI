@@ -2,9 +2,9 @@ import {
   connectToDatabase, dropDatabase,
   addDataToCollection, removeFromCollection
 } from '../arangoTools.mjs'
-import setupParticipants from '../../src/DAO/participantsDAO.mjs'
-import extendStorageTasksResults from '../../src/DAO/tasksResults.mjs'
-import extendStorageStudiesStats from '../../src/DAO/studiesStats.mjs'
+import * as participants from '../../src/DAL/participantsDAL.mjs'
+import * as tasksResults from '../../src/DAL/tasksResultsDAL.mjs'
+import * as studystats from '../../src/DAL/studiesStatsDAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
 import { mockObject } from '../mocks/mocker.mjs'
 
@@ -12,7 +12,7 @@ import { mockObject } from '../mocks/mocker.mjs'
 mockObject(applogger)
 
 // Storage module used for testing
-let testStorage = {}
+let testDAL = {}
 
 describe('Testing studies stats DA integrated in Arango,', () => {
 
@@ -20,10 +20,13 @@ describe('Testing studies stats DA integrated in Arango,', () => {
 
   beforeAll(async () => {
     let db = await connectToDatabase(DBNAME)
-    testStorage.db = db
-    await setupParticipants(db)
-    await extendStorageTasksResults(testStorage)
-    await extendStorageStudiesStats(testStorage)
+    testDAL.db = db
+    await participants.init(db)
+    Object.assign(testDAL, participants.DAL)
+    await tasksResults.init(db)
+    Object.assign(testDAL, tasksResults.DAL)
+    await studystats.init(db)
+    Object.assign(testDAL, studystats.DAL)
   }, 60000)
 
   afterAll(async () => {
@@ -60,7 +63,7 @@ describe('Testing studies stats DA integrated in Arango,', () => {
     })
 
     it('the wrong study gives no results', async () => {
-      let summary = await testStorage.getLastTasksSummary('12345')
+      let summary = await testDAL.getLastTasksSummary('12345')
 
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()
@@ -68,7 +71,7 @@ describe('Testing studies stats DA integrated in Arango,', () => {
     })
 
     it('The LastTasksSummary statistics do not include last task date and type', async () => {
-      let summary = await testStorage.getLastTasksSummary('abc')
+      let summary = await testDAL.getLastTasksSummary('abc')
 
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()
@@ -159,7 +162,7 @@ describe('Testing studies stats DA integrated in Arango,', () => {
     })
 
     it('the LastTasksSummary statistics are retrieved correctly', async () => {
-      let summary = await testStorage.getLastTasksSummary('abc')
+      let summary = await testDAL.getLastTasksSummary('abc')
 
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()

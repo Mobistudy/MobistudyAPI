@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * This provides the API endpoints for authentication.
 */
@@ -9,7 +7,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import owasp from 'owasp-password-strength-test'
 import zxcvbn from 'zxcvbn'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import getConfig from '../services/config.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
@@ -52,7 +50,7 @@ export default async function () {
   router.post('/sendResetPasswordEmail', async function (req, res) {
     if (req.body.email) {
       const email = req.body.email
-      const existing = await DAO.findUser(email)
+      const existing = await DAL.findUserByEmail(email)
       if (!existing) return res.sendStatus(200)
 
       const daysecs = 24 * 60 * 60
@@ -65,7 +63,7 @@ export default async function () {
       let language = 'en'
       if (existing.role === 'participant') {
         // find language of the participant
-        const part = await DAO.getParticipantByUserKey(existing._key)
+        const part = await DAL.getParticipantByUserKey(existing._key)
         language = part.language
       }
       const msg = passwordRecoveryCompose(serverlink, token, language)
@@ -93,7 +91,7 @@ export default async function () {
         const newPasssword = req.body.password
         if (!pwdCheck(email, newPasssword)) return res.status(400).send('Password too weak')
         const hashedPassword = bcrypt.hashSync(newPasssword, 8)
-        const existing = await DAO.findUser(email)
+        const existing = await DAL.findUserByEmail(email)
         if (!existing) {
           applogger.info('Resetting password, email ' + email + ' not registered')
           return res.status(409).send('This email is not registered')
@@ -101,13 +99,13 @@ export default async function () {
         let language = 'en'
         if (existing.role === 'participant') {
           // find language of the participant
-          const part = await DAO.getParticipantByUserKey(existing._key)
+          const part = await DAL.getParticipantByUserKey(existing._key)
           language = part.language
         }
         const msg = newPasswordCompose(language)
         await sendEmail(email, msg.title, msg.content)
 
-        await DAO.updateUser(existing._key, {
+        await DAL.updateUser(existing._key, {
           hashedPassword: hashedPassword
         })
 
@@ -138,10 +136,10 @@ export default async function () {
     delete user.password
     user.hashedPassword = hashedPassword
     try {
-      const existing = await DAO.findUser(user.email)
+      const existing = await DAL.findUserByEmail(user.email)
       if (existing) return res.status(409).send('This email is already registered')
       if (user.role === 'admin') return res.sendStatus(403)
-      const newuser = await DAO.createUser(user)
+      const newuser = await DAL.createUser(user)
       newuser.createdTS = new Date()
       res.sendStatus(200)
       applogger.info({ email: newuser.email }, 'New user created')
@@ -181,10 +179,10 @@ export default async function () {
 
     if (req.body.testUser !== undefined) {
       const isTestUser = req.body.testUser
-      const user = await DAO.getOneUser(userKey)
+      const user = await DAL.getOneUser(userKey)
       user.testUser = isTestUser
       user.updatedTS = new Date()
-      await DAO.updateUser(userKey, user)
+      await DAL.updateUser(userKey, user)
       res.sendStatus(200)
     }
   })
@@ -195,17 +193,18 @@ export default async function () {
     try {
       let val
       if (req.user.role === 'admin') {
-        val = await DAO.getAllUsersByCriteria(null, [req.query.studyKey])
+        val = await DAL.getUsers()
       } else if (req.user.role === 'researcher') {
         // TODO: make sure the study Key is among the ones the researcher is allowed
-        if (req.query.studyKey) val = await DAO.getAllUsersByCriteria('participant', [req.query.studyKey])
+        // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
+        if (req.query.studyKey) val = await DAL.getUsers(false, null, 'participant', [req.query.studyKey])
         else {
-          // TODO: retrieve studies where this participant is involved in
-          let studyKeys
-          val = await DAO.getAllUsersByCriteria('participant', [studyKeys])
+          // TODO: retrieve studies where this participant is involved in and retrieve the studyes
+          // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
+          // val = await DAL.getAllUsersByCriteria('participant', [studyKeys])
         }
       } else { // a participant
-        val = await DAO.getOneUser(req.user._key)
+        val = await DAL.getOneUser(req.user._key)
       }
       res.send(val)
     } catch (err) {
@@ -221,7 +220,7 @@ export default async function () {
       res.sendStatus(403)
     } else {
       try {
-        const result = await DAO.getUsers(false,
+        const result = await DAL.getUsers(false,
           req.query.roleType,
           req.query.userEmail,
           req.query.sortDirection,
@@ -243,7 +242,7 @@ export default async function () {
       res.sendStatus(403)
     } else {
       try {
-        const result = await DAO.getUsers(true,
+        const result = await DAL.getUsers(true,
           req.query.roleType,
           req.query.userEmail,
           req.query.sortDirection,
@@ -264,7 +263,7 @@ export default async function () {
       let val
       // Only Admin can get a list of all users
       if (req.user.role === 'admin') {
-        val = await DAO.getAllUsersInDb()
+        val = await DAL.getAllUsers()
       } else if (req.user.role === 'researcher') {
         // See all Users associated to teams to which this researcher belongs
       }
@@ -279,10 +278,10 @@ export default async function () {
     try {
       let val
       if (req.user.role === 'admin') {
-        val = await DAO.getOneUser(req.params.user_key)
+        val = await DAL.getOneUser(req.params.user_key)
       } else if (req.user.role === 'researcher') {
         // TODO: make sure the user Key is among the ones the researcher is allowed. i.e is part of the team key
-        val = await DAO.getOneUser(req.params.user_key)
+        val = await DAL.getOneUser(req.params.user_key)
       }
       res.send(val)
     } catch (err) {
@@ -299,20 +298,20 @@ export default async function () {
       // Only admin can remove a team
       if (req.user.role === 'admin') {
         // Remove user from all teams
-        const teamsOfUser = await DAO.getAllTeams(userKey)
+        const teamsOfUser = await DAL.getAllTeams(userKey)
         // For each team, find the user key in the researcher keys and remove
         for (let i = 0; i < teamsOfUser.length; i++) {
           const teamKeyOfUser = teamsOfUser[i]._key
-          const selTeam = await DAO.getOneTeam(teamKeyOfUser)
+          const selTeam = await DAL.getOneTeam(teamKeyOfUser)
           const index = selTeam.researchersKeys.indexOf(userKey)
           if (index !== null) {
             selTeam.researchersKeys.splice(index, 1)
           }
-          await DAO.replaceTeam(teamKeyOfUser, selTeam)
+          await DAL.replaceTeam(teamKeyOfUser, selTeam)
         }
-        // Then, FINALLY, remove user from DAO
-        const user = await DAO.getOneUser(userKey)
-        await DAO.removeUser(userKey)
+        // Then, FINALLY, remove user from DAL
+        const user = await DAL.getOneUser(userKey)
+        await DAL.removeUser(userKey)
         res.sendStatus(200)
 
         applogger.info({ email: user.email }, 'User deleted')

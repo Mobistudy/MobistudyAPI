@@ -1,12 +1,10 @@
-'use strict'
-
 /**
 * This provides the API endpoints for the health data of the participant.
 */
 
 import express from 'express'
 import passport from 'passport'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getAttachmentWriter } from '../services/attachments.mjs'
@@ -19,18 +17,18 @@ export default async function () {
   router.get('/healthStoreData', passport.authenticate('jwt', { session: false }), async function (req, res) {
     try {
       if (req.user.role === 'researcher') {
-        const team = await DAO.getAllTeams(req.user._key, req.query.studyKey)
+        const team = await DAL.getAllTeams(req.user._key, req.query.studyKey)
         if (team.length === 0) return res.sendStatus(403)
         else {
-          const storeData = await DAO.getHealthStoreDataByStudy(req.query.studyKey)
+          const storeData = await DAL.getHealthStoreDataByStudy(req.query.studyKey)
           res.send(storeData)
         }
       } else if (req.user.role === 'participant') {
-        const storeData = await DAO.getHealthStoreDataByUser(req.user._key)
+        const storeData = await DAL.getHealthStoreDataByUser(req.user._key)
         res.send(storeData)
       } else {
         // admin
-        const tappingData = await DAO.getAllHealthStoreData()
+        const tappingData = await DAL.getAllHealthStoreData()
         res.send(tappingData)
       }
     } catch (err) {
@@ -46,7 +44,7 @@ export default async function () {
     if (!newHealthStoreData.createdTS) newHealthStoreData.createdTS = new Date()
     let trans
     try {
-      const participant = await DAO.getParticipantByUserKey(req.user._key)
+      const participant = await DAL.getParticipantByUserKey(req.user._key)
       if (!participant) return res.sendStatus(404)
       const study = participant.studies.find((s) => {
         return s.studyKey === newHealthStoreData.studyKey
@@ -55,14 +53,14 @@ export default async function () {
       const taskItem = study.taskItemsConsent.find(ti => ti.taskId === newHealthStoreData.taskId)
       if (!taskItem) return res.sendStatus(400)
 
-      trans = await DAO.startTransaction([DAO.healthStoreDataTransaction(), DAO.participantsTransaction()])
+      trans = await DAL.startTransaction([DAL.healthStoreDataTransaction(), DAL.participantsTransaction()])
 
       // separate raw data from the object stored on the database
       const hsData = newHealthStoreData.healthData
       delete newHealthStoreData.healthData
 
       // store the data on the database
-      newHealthStoreData = await DAO.createHealthStoreData(newHealthStoreData, trans)
+      newHealthStoreData = await DAL.createHealthStoreData(newHealthStoreData, trans)
       // save the attachment
       const filename = newHealthStoreData._key + '.json'
       const writer = await getAttachmentWriter(newHealthStoreData.userKey, newHealthStoreData.studyKey, newHealthStoreData.taskId, filename)
@@ -71,14 +69,14 @@ export default async function () {
 
       // save the filename
       newHealthStoreData.attachments = [filename]
-      newHealthStoreData = await DAO.replaceHealthStoreData(newHealthStoreData._key, newHealthStoreData, trans)
+      newHealthStoreData = await DAL.replaceHealthStoreData(newHealthStoreData._key, newHealthStoreData, trans)
 
       // also update task status
       taskItem.lastExecuted = newHealthStoreData.createdTS
-      await DAO.replaceParticipant(participant._key, participant, trans)
+      await DAL.replaceParticipant(participant._key, participant, trans)
 
       // all done now
-      DAO.endTransaction(trans)
+      DAL.endTransaction(trans)
 
       res.sendStatus(200)
       applogger.info({ userKey: req.user._key, taskId: newHealthStoreData.taskId, studyKey: newHealthStoreData.studyKey }, 'Participant has sent health store data')

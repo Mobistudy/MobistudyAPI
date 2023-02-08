@@ -6,7 +6,7 @@ import express from 'express'
 import passport from 'passport'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 
 const router = express.Router()
 
@@ -16,19 +16,19 @@ export default async function () {
       if (req.user.role === 'researcher') {
         // extra check about the teams
         if (req.query.teamKey) {
-          const team = await DAO.getOneTeam(req.query.teamKey)
+          const team = await DAL.getOneTeam(req.query.teamKey)
           if (!team.researchersKeys.includes(req.user._key)) return res.sendStatus(403)
           else {
             // TODO: only answers related to the studies managed by the team should be returned
-            const answers = await DAO.getAllAnswers()
+            const answers = await DAL.getAllAnswers()
             res.send(answers)
           }
         }
         if (req.query.studyKey) {
-          const team = await DAO.getAllTeams(req.user._key, req.query.studyKey)
+          const team = await DAL.getAllTeams(req.user._key, req.query.studyKey)
           if (team.length === 0) return res.sendStatus(403)
           else {
-            const answers = await DAO.getAnswersByStudy(req.query.studyKey)
+            const answers = await DAL.getAnswersByStudy(req.query.studyKey)
             res.send(answers)
           }
         }
@@ -42,7 +42,7 @@ export default async function () {
   router.get('/answers/:answer_key', passport.authenticate('jwt', { session: false }), async function (req, res) {
     try {
       // TODO: do some access control
-      const answer = await DAO.getOneAnswer(req.params.answer_key)
+      const answer = await DAL.getOneAnswer(req.params.answer_key)
       res.send(answer)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot retrieve answer with _key ' + req.params.answer_key)
@@ -56,9 +56,9 @@ export default async function () {
     newanswer.userKey = req.user._key
     if (!newanswer.createdTS) newanswer.createdTS = new Date()
     try {
-      newanswer = await DAO.createAnswer(newanswer)
+      newanswer = await DAL.createAnswer(newanswer)
       // also update task status
-      const participant = await DAO.getParticipantByUserKey(req.user._key)
+      const participant = await DAL.getParticipantByUserKey(req.user._key)
       if (!participant) return res.sendStatus(404)
 
       const study = participant.studies.find((s) => {
@@ -69,7 +69,7 @@ export default async function () {
       if (!taskItem) return res.sendStatus(400)
       taskItem.lastExecuted = newanswer.createdTS
       // update the participant
-      await DAO.replaceParticipant(participant._key, participant)
+      await DAL.replaceParticipant(participant._key, participant)
       res.send(newanswer)
 
       applogger.info({ userKey: req.user._key, taskId: newanswer.taskId, studyKey: newanswer.studyKey }, 'Participant has sent answers to a form')

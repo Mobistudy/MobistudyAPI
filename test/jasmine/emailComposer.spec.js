@@ -1,13 +1,13 @@
-import { DAO } from '../../src/DAO/DAO.mjs'
+import { DAL } from '../../src/DAL/DAL.mjs'
 import { studyStatusUpdateCompose, passwordRecoveryCompose } from '../../src/services/emailComposer.mjs'
 
-let DAOretVal = {}
+let DALretVal = {}
 
 describe('when composing an email', () => {
 
   beforeAll(() => {
-    DAO.getOneStudy = function () {
-      return DAOretVal
+    DAL.getOneStudy = function () {
+      return DALretVal
     }
   })
 
@@ -26,7 +26,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a completed study is correct', async () => {
-    DAOretVal = {
+    DALretVal = {
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -52,7 +52,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a withdrawn study is correct', async () => {
-    DAOretVal = {
+    DALretVal = {
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -75,7 +75,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for an accepted study is correct', async () => {
-    DAOretVal = {
+    DALretVal = {
       generalities: {
         languages: ['en', 'it'],
         title: {

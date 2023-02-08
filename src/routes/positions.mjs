@@ -1,12 +1,10 @@
-'use strict'
-
 /**
  * This provides the API endpoints for the position data of the participant.
  */
 
 import express from 'express'
 import passport from 'passport'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getWeather, getPollution, getPostcode, getAllergenes } from '../services/environment.mjs'
@@ -21,14 +19,14 @@ export default async function () {
       const lat = req.query.lat
       const long = req.query.long
       if (!lat || !long) return res.sendStatus(400)
-      const env = { }
+      const env = {}
 
       try {
         env.weather = await getWeather(lat, long)
       } catch (err) {
         // send at least the structure
         env.weather = {
-          wind: { }
+          wind: {}
         }
         applogger.error({ error: err }, 'Cannot retrieve weather')
       }
@@ -38,7 +36,7 @@ export default async function () {
       } catch (err) {
         // send at least the structure
         env.pollution = {
-          components: { }
+          components: {}
         }
         applogger.error({ error: err }, 'Cannot retrieve pollution')
       }
@@ -57,8 +55,8 @@ export default async function () {
         // send at least the structure
         env.allergens = {
           pollen: {
-            Count: { },
-            Risk: { }
+            Count: {},
+            Risk: {}
           }
         }
         applogger.error({ error: err }, 'Cannot retrieve allergenes')
@@ -77,22 +75,22 @@ export default async function () {
         if (req.user.role === 'researcher') {
           // extra check about the teams
           if (req.query.teamKey) {
-            const team = await DAO.getOneTeam(req.query.teamKey)
+            const team = await DAL.getOneTeam(req.query.teamKey)
             if (!team.researchersKeys.includes(req.user._key)) { return res.sendStatus(403) } else {
-              const poss = await DAO.getAllPositions()
+              const poss = await DAL.getAllPositions()
               res.send(poss)
             }
           }
           if (req.query.studyKey) {
-            const team = await DAO.getAllTeams(req.user._key, req.query.studyKey)
+            const team = await DAL.getAllTeams(req.user._key, req.query.studyKey)
             if (team.length === 0) return res.sendStatus(403)
             else {
-              const poss = await DAO.getPositionsByStudy(req.query.studyKey)
+              const poss = await DAL.getPositionsByStudy(req.query.studyKey)
               res.send(poss)
             }
           }
         } else if (req.user.role === 'participant') {
-          const poss = await DAO.getPositionsByUser(req.user._key)
+          const poss = await DAL.getPositionsByUser(req.user._key)
           res.send(poss)
         }
       } catch (err) {
@@ -108,7 +106,7 @@ export default async function () {
     passport.authenticate('jwt', { session: false }),
     async function (req, res) {
       try {
-        const poss = await DAO.getPositionsByUser(req.params.userKey)
+        const poss = await DAL.getPositionsByUser(req.params.userKey)
         res.send(poss)
       } catch (err) {
         applogger.error({ error: err }, 'Cannot retrieve positions')
@@ -123,7 +121,7 @@ export default async function () {
     passport.authenticate('jwt', { session: false }),
     async function (req, res) {
       try {
-        const poss = await DAO.getPositionsByUserAndStudy(
+        const poss = await DAL.getPositionsByUserAndStudy(
           req.params.userKey,
           req.params.studyKey
         )
@@ -144,10 +142,10 @@ export default async function () {
       newpos.userKey = req.user._key
       if (!newpos.createdTS) newpos.createdTS = new Date()
       try {
-        newpos = await DAO.createPosition(newpos)
+        newpos = await DAL.createPosition(newpos)
         // also update task status
 
-        const participant = await DAO.getParticipantByUserKey(req.user._key)
+        const participant = await DAL.getParticipantByUserKey(req.user._key)
         if (!participant) return res.sendStatus(404)
         const study = participant.studies.find((s) => {
           return s.studyKey === newpos.studyKey
@@ -159,7 +157,7 @@ export default async function () {
         if (!taskItem) return res.sendStatus(400)
         taskItem.lastExecuted = newpos.createdTS
         // update the participant
-        await DAO.replaceParticipant(participant._key, participant)
+        await DAL.replaceParticipant(participant._key, participant)
         res.sendStatus(200)
         applogger.info(
           {
@@ -175,9 +173,9 @@ export default async function () {
           newpos.studyKey,
           newpos.taskId,
           'Position created by participant with key ' +
-            participant._key +
-            ' for study with key ' +
-            newpos.studyKey,
+          participant._key +
+          ' for study with key ' +
+          newpos.studyKey,
           'positions',
           newpos._key,
           newpos

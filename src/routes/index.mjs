@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * This is just to test that everything works.
 */

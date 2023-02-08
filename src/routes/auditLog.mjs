@@ -1,12 +1,10 @@
-'use strict'
-
 /**
 * This provides the API endpoints for the Aidit Log profiles.
 */
 
 import express from 'express'
 import passport from 'passport'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 
 const router = express.Router()
@@ -17,7 +15,7 @@ export default async function () {
       res.sendStatus(403)
     } else {
       try {
-        const result = await DAO.getLogEventTypes(req.query)
+        const result = await DAL.getLogEventTypes(req.query)
         res.send(result)
       } catch (err) {
         applogger.error({ error: err }, 'Cannot retrieve audit log')
@@ -45,10 +43,10 @@ export default async function () {
         // Researcher: a study must be specified and the researcher has to be allowed to see that study
         if (req.user.role === 'researcher') {
           if (!req.query.studyKey) return res.sendStatus(400)
-          const teams = await DAO.getAllTeams(req.user._key, req.query.studyKey)
+          const teams = await DAL.getAllTeams(req.user._key, req.query.studyKey)
           if (teams.length === 0) return res.sendStatus(403)
         }
-        const result = await DAO.getAuditLogs(false,
+        const result = await DAL.getAuditLogs(false,
           req.query.after,
           req.query.before,
           req.query.eventType,
@@ -72,7 +70,7 @@ export default async function () {
       res.sendStatus(403)
     } else {
       try {
-        const result = await DAO.getAuditLogs(true,
+        const result = await DAL.getAuditLogs(true,
           req.query.after,
           req.query.before,
           req.query.eventType,

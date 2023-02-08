@@ -1,5 +1,3 @@
-'use strict'
-
 /**
  * This provides the API endpoints for the teams.
  */
@@ -8,7 +6,7 @@ import express from 'express'
 import passport from 'passport'
 import jwt from 'jsonwebtoken'
 
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import getConfig from '../services/config.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
@@ -25,9 +23,9 @@ export default async function () {
       try {
         let teams
         if (req.user.role === 'admin') {
-          teams = await DAO.getAllTeams()
+          teams = await DAL.getAllTeams()
         } else if (req.user.role === 'researcher') {
-          teams = await DAO.getAllTeams(req.user._key)
+          teams = await DAL.getAllTeams(req.user._key)
         } else return res.sendStatus(403)
         res.send(teams)
       } catch (err) {
@@ -44,10 +42,10 @@ export default async function () {
       try {
         let team
         if (req.user.role === 'admin') {
-          team = await DAO.getOneTeam(req.params.team_key)
+          team = await DAL.getOneTeam(req.params.team_key)
           res.send(team)
         } else if (req.user.role === 'researcher') {
-          team = await DAO.getOneTeam(req.params.team_key)
+          team = await DAL.getOneTeam(req.params.team_key)
           if (team.researchersKeys.includes(req.user._key)) res.send(team)
           else res.sendStatus(403)
         } else res.sendStatus(403)
@@ -71,9 +69,9 @@ export default async function () {
         newteam.createdTS = new Date()
         newteam.researchersKeys = []
         try {
-          const existingTeam = await DAO.findTeam(newteam.name)
+          const existingTeam = await DAL.findTeam(newteam.name)
           if (existingTeam) return res.sendStatus(409)
-          newteam = await DAO.createTeam(newteam)
+          newteam = await DAL.createTeam(newteam)
           res.send(newteam)
           applogger.info(newteam, 'New team created')
           auditLogger.log(
@@ -102,7 +100,7 @@ export default async function () {
         try {
           const teamkey = req.params.teamKey
 
-          const team = await DAO.getOneTeam(teamkey)
+          const team = await DAL.getOneTeam(teamkey)
           if (!team) return res.sendStatus(400)
 
           const weeksecs = 7 * 24 * 60 * 60
@@ -119,7 +117,7 @@ export default async function () {
           team.invitationExpiry = new Date(
             new Date().getTime() + weeksecs * 1000
           )
-          await DAO.replaceTeam(teamkey, team)
+          await DAL.replaceTeam(teamkey, team)
           res.send(token)
         } catch (err) {
           applogger.error(
@@ -156,7 +154,7 @@ export default async function () {
           res.sendStatus(400)
         } else {
           const decodedTeamKey = decoded.teamKey
-          const selTeam = await DAO.getOneTeam(decodedTeamKey)
+          const selTeam = await DAL.getOneTeam(decodedTeamKey)
           if (selTeam) {
             if (selTeam.researchersKeys.includes(researcherKeyUpdt)) {
               applogger.error(
@@ -165,7 +163,7 @@ export default async function () {
               res.sendStatus(409)
             } else {
               selTeam.researchersKeys.push(researcherKeyUpdt)
-              await DAO.replaceTeam(decodedTeamKey, selTeam)
+              await DAL.replaceTeam(decodedTeamKey, selTeam)
               res.json({ teamName: selTeam.name })
               applogger.info(selTeam, 'Reseacher added to a team')
               auditLogger.log(
@@ -174,9 +172,9 @@ export default async function () {
                 undefined,
                 undefined,
                 'Researcher with key ' +
-                  researcherKeyUpdt +
-                  ' added to team ' +
-                  selTeam.name,
+                researcherKeyUpdt +
+                ' added to team ' +
+                selTeam.name,
                 'teams',
                 selTeam._key,
                 selTeam
@@ -185,8 +183,8 @@ export default async function () {
           } else {
             applogger.error(
               'Adding researcher to team, team with key ' +
-                decodedTeamKey +
-                ' does not exist'
+              decodedTeamKey +
+              ' does not exist'
             )
             res.sendStatus(400)
           }
@@ -208,12 +206,12 @@ export default async function () {
       const userKey = req.body.userRemoved.userKey
       if (req.user.role === 'admin') {
         try {
-          const selTeam = await DAO.getOneTeam(teamKey)
+          const selTeam = await DAL.getOneTeam(teamKey)
           const index = selTeam.researchersKeys.indexOf(userKey)
           if (index !== null) {
             selTeam.researchersKeys.splice(index, 1)
           }
-          await DAO.replaceTeam(teamKey, selTeam)
+          await DAL.replaceTeam(teamKey, selTeam)
           res.sendStatus(200)
           applogger.info(selTeam, 'Reseacher removed from team')
           auditLogger.log(
@@ -222,9 +220,9 @@ export default async function () {
             undefined,
             undefined,
             'Researcher with key ' +
-              userKey +
-              ' removed from team ' +
-              selTeam.name,
+            userKey +
+            ' removed from team ' +
+            selTeam.name,
             'teams',
             selTeam._key,
             selTeam
@@ -247,41 +245,41 @@ export default async function () {
         if (req.user.role === 'admin') {
           const teamkey = req.params.team_key
           // look for studies of that team
-          const teamStudies = await DAO.getAllTeamStudies(teamkey)
+          const teamStudies = await DAL.getAllTeamStudies(teamkey)
           let participantsByStudy = []
           // Get list of participants per study. Then delete each study.
           for (let i = 0; i < teamStudies.length; i++) {
-            participantsByStudy = await DAO.getParticipantsByStudy(
+            participantsByStudy = await DAL.getParticipantsByStudy(
               teamStudies[i]._key,
               null
             )
             for (let j = 0; j < participantsByStudy.length; j++) {
               // Per participant, remove the study
               const partKey = participantsByStudy[j]._key
-              const participant = await DAO.getOneParticipant(partKey)
+              const participant = await DAL.getOneParticipant(partKey)
               let studyArray = participant.studies
               studyArray = studyArray.filter(
                 (study) => study.studyKey !== teamStudies[i]._key
               )
               participant.studies = studyArray
-              await DAO.replaceParticipant(partKey, participant)
+              await DAL.replaceParticipant(partKey, participant)
             }
-            await DAO.deleteAnswersByStudy(teamStudies[i]._key)
-            await DAO.deleteHealthStoreByStudy(teamStudies[i]._key)
-            await DAO.deleteQCSTDataByStudy(teamStudies[i]._key)
-            await DAO.deleteSmwtByStudy(teamStudies[i]._key)
-            await DAO.deleteMiband3DataByStudy(teamStudies[i]._key)
-            await DAO.deletePO60DataByStudy(teamStudies[i]._key)
-            await DAO.deletePeakFlowDataByStudy(teamStudies[i]._key)
-            await DAO.deletePositionsByStudy(teamStudies[i]._key)
-            await DAO.deleteFingerTappingsByStudy(teamStudies[i]._key)
-            await DAO.deleteTugtByStudy(teamStudies[i]._key)
-            await DAO.deleteHoldPhoneByStudy(teamStudies[i]._key)
+            await DAL.deleteAnswersByStudy(teamStudies[i]._key)
+            await DAL.deleteHealthStoreByStudy(teamStudies[i]._key)
+            await DAL.deleteQCSTDataByStudy(teamStudies[i]._key)
+            await DAL.deleteSmwtByStudy(teamStudies[i]._key)
+            await DAL.deleteMiband3DataByStudy(teamStudies[i]._key)
+            await DAL.deletePO60DataByStudy(teamStudies[i]._key)
+            await DAL.deletePeakFlowDataByStudy(teamStudies[i]._key)
+            await DAL.deletePositionsByStudy(teamStudies[i]._key)
+            await DAL.deleteFingerTappingsByStudy(teamStudies[i]._key)
+            await DAL.deleteTugtByStudy(teamStudies[i]._key)
+            await DAL.deleteHoldPhoneByStudy(teamStudies[i]._key)
 
             // Delete the study
-            await DAO.deleteStudy(teamStudies[i]._key)
+            await DAL.deleteStudy(teamStudies[i]._key)
           }
-          await DAO.removeTeam(teamkey)
+          await DAL.removeTeam(teamkey)
           res.sendStatus(200)
           applogger.info({ teamKey: teamkey }, 'Team deleted')
           auditLogger.log(

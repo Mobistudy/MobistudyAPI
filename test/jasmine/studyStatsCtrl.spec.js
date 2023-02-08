@@ -1,12 +1,12 @@
 import studyStatsCtrl from '../../src/controllers/studyStatsCtrl.mjs'
-import { DAO } from '../../src/DAO/DAO.mjs'
+import { DAL } from '../../src/DAL/DAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
 import { MockResponse } from '../mocks/MockResponse.mjs'
 import { mockObject } from '../mocks/mocker.mjs'
 
 // mock app logger
 mockObject(applogger)
-mockObject(DAO)
+mockObject(DAL)
 
 let SSCTRL
 
@@ -14,17 +14,17 @@ describe('Testing studies stats controller,', () => {
 
   beforeAll(async () => {
     SSCTRL = studyStatsCtrl
-    DAO.getOneStudy = function () {
+    DAL.getOneStudy = function () {
       return {
         _key: 'fake'
       }
     }
 
-    DAO.getAllTeams = function () {
+    DAL.getAllTeams = function () {
       return [{}]
     }
 
-    DAO.getLastTasksSummary = function () {
+    DAL.getLastTasksSummary = function () {
       return [{
         userKey: '1122',
         name: 'Dario',

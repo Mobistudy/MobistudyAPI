@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * Sets-up the authentication strategy.
 */
@@ -9,7 +7,7 @@ import PassportJWT from 'passport-jwt'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { applogger } from './logger.mjs'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import getConfig from './config.mjs'
 
 export default async function () {
@@ -18,9 +16,9 @@ export default async function () {
   if (config.auth.adminEmail) {
     // generate admin user from config if not already existing
     try {
-      const admin = await DAO.findUser(config.auth.adminEmail)
+      const admin = await DAL.findUserByEmail(config.auth.adminEmail)
       if (!admin) {
-        await DAO.createUser({
+        await DAL.createUser({
           email: config.auth.adminEmail,
           hashedPassword: bcrypt.hashSync(config.auth.adminPassword, 8),
           role: 'admin'
@@ -40,7 +38,7 @@ export default async function () {
     usernameField: 'email',
     passwordField: 'password'
   }, async function (email, password, done) {
-    const user = await DAO.findUser(email)
+    const user = await DAL.findUserByEmail(email)
     if (!user) {
       applogger.trace(email + ' is trying to login, but is not registered')
       return done(null, false, { message: 'Incorrect email or password.' })

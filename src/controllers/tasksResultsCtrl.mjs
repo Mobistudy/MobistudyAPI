@@ -1,7 +1,7 @@
 /**
  * This provides the API endpoints for all tasks results.
  */
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getAttachmentWriter } from '../services/attachments.mjs'
@@ -150,13 +150,13 @@ export default {
           applogger.warn(errmess)
           return res.status(400).send(errmess)
         }
-        const team = await DAO.getAllTeams(req.user._key, req.query.studyKey)
+        const team = await DAL.getAllTeams(req.user._key, req.query.studyKey)
         if (team.length === 0) {
           const errmess = 'Researcher cannot request tasks results for a study (s)he is not involved in'
           applogger.warn(errmess)
           return res.status(403).send(errmess)
         } else {
-          const resultsData = await DAO.getTasksResultsByStudy(req.query.studyKey)
+          const resultsData = await DAL.getTasksResultsByStudy(req.query.studyKey)
           res.send(resultsData)
         }
       } else if (req.user.role === 'participant') {
@@ -164,15 +164,15 @@ export default {
         let resultsData
         if (req.query && req.query.studyKey) {
           // results for a given study
-          resultsData = await DAO.getTasksResultsByUserAndStudy(req.user._key, req.query.studyKey)
+          resultsData = await DAL.getTasksResultsByUserAndStudy(req.user._key, req.query.studyKey)
         } else {
           // results for all studies
-          resultsData = await DAO.getTasksResultsByUser(req.user._key)
+          resultsData = await DAL.getTasksResultsByUser(req.user._key)
         }
         res.send(resultsData)
       } else {
         // admin
-        const resultsData = await DAO.getAllTasksResults()
+        const resultsData = await DAL.getAllTasksResults()
         res.status(200).send(resultsData)
       }
     } catch (err) {
@@ -205,7 +205,7 @@ export default {
       newTasksResults.userKey = req.user._key
       if (!newTasksResults.createdTS) newTasksResults.createdTS = new Date()
 
-      const participant = await DAO.getParticipantByUserKey(req.user._key)
+      const participant = await DAL.getParticipantByUserKey(req.user._key)
       if (!participant) {
         const errmess = 'Tasks results sent for a non existing participant'
         applogger.warn(errmess)
@@ -233,10 +233,10 @@ export default {
         return res.status(400).send(errmess)
       }
 
-      trans = await DAO.startTransaction([DAO.tasksResultsTransaction(), DAO.participantsTransaction()])
+      trans = await DAL.startTransaction([DAL.tasksResultsTransaction(), DAL.participantsTransaction()])
 
       // store the database data
-      newTasksResults = await DAO.createTasksResults(newTasksResults, trans)
+      newTasksResults = await DAL.createTasksResults(newTasksResults, trans)
 
       if (newTasksResults.data) {
         // separate data from the object stored on the database
@@ -251,14 +251,14 @@ export default {
 
         // save the filename
         newTasksResults.attachments = [filename]
-        newTasksResults = await DAO.replaceTasksResults(newTasksResults._key, newTasksResults, trans)
+        newTasksResults = await DAL.replaceTasksResults(newTasksResults._key, newTasksResults, trans)
       }
 
       // also update task status
       taskItem.lastExecuted = newTasksResults.createdTS
-      await DAO.replaceParticipant(participant._key, participant, trans)
+      await DAL.replaceParticipant(participant._key, participant, trans)
 
-      DAO.endTransaction(trans)
+      DAL.endTransaction(trans)
 
       res.status(200).send({
         _key: newTasksResults._key
@@ -268,7 +268,7 @@ export default {
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new tasks results')
       res.sendStatus(500)
-      if (trans) DAO.abortTransaction(trans)
+      if (trans) DAL.abortTransaction(trans)
     }
   }
 }

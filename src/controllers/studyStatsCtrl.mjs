@@ -1,7 +1,7 @@
 /**
  * This provides the API endpoints for the study statistics.
  */
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 
 export default {
@@ -27,11 +27,11 @@ export default {
     }
 
     try {
-      const study = await DAO.getOneStudy(req.params.study_key)
+      const study = await DAL.getOneStudy(req.params.study_key)
       if (!study) return res.sendStatus(404)
 
       if (req.user.role === 'researcher') {
-        const team = await DAO.getAllTeams(req.user._key, studyKey)
+        const team = await DAL.getAllTeams(req.user._key, studyKey)
         if (team.length === 0) {
           const errmess = 'Researcher cannot request study statistics for a study (s)he is not involved in'
           applogger.warn(errmess)
@@ -43,7 +43,7 @@ export default {
         return res.status(403).send(errmess)
       }
 
-      const resultsData = await DAO.getLastTasksSummary(studyKey)
+      const resultsData = await DAL.getLastTasksSummary(studyKey)
       res.send(resultsData)
     } catch (err) {
       console.error(err)

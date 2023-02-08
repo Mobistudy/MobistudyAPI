@@ -1,7 +1,7 @@
 /**
 * This allows email to be structured and sent to participants wrt studies.
 */
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import i18n from '../i18n/i18n.mjs'
 
 // creates the email when a user registers
@@ -36,7 +36,7 @@ export function newPasswordCompose (language) {
 // Creates the content of an email to be sent to a user when the status of a study changes
 // returns { title: '...', content: '...'}
 export async function studyStatusUpdateCompose (studyKey, participant) {
-  const study = await DAO.getOneStudy(studyKey)
+  const study = await DAL.getOneStudy(studyKey)
   i18n.locale = participant.language
   const studyTitle = study.generalities.title[participant.language]
   let emailTitle = ''

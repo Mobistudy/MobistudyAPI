@@ -1,7 +1,7 @@
 /**
 * Audit log, uses the DB to log events.
 */
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 
 export default {
   /**
@@ -16,7 +16,7 @@ export default {
    * @param {*} data: actual data affected
    */
   async log (event, userKey, studyKey, taskId, message, refData, refKey, data) {
-    DAO.addAuditLog({
+    DAL.addAuditLog({
       timestamp: new Date(),
       event,
       userKey,

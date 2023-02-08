@@ -4,7 +4,7 @@
 import fs from 'fs'
 import archiver from 'archiver'
 import { applogger } from './logger.mjs'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { getAttachments } from '../../src/services/attachments.mjs'
 
 export default {
@@ -72,56 +72,18 @@ export default {
       })
 
       // users
-      DAO.getAllUsersByCriteria('participant', [studyKey], (u) => {
+
+      // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
+      DAL.getUsers(false, null, 'participant', [studyKey], null, null, null, (u) => {
         archive.append(JSON.stringify(u), { name: 'users/' + u._key + '.json' })
       }).then(() => {
         // participants
-        return DAO.getParticipantsByStudy(studyKey, null, (p) => {
+        return DAL.getParticipantsByStudy(studyKey, null, (p) => {
           archive.append(JSON.stringify(p), { name: 'participants/' + p._key + '.json' })
         })
       }).then(() => {
-        // answers
-        return DAO.getAnswersByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'answers/' + a._key + '.json' })
-        })
-      }).then(() => {
-        // healthstore
-        return DAO.getHealthStoreDataByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'healthstore/' + a._key + '.json' })
-        })
-      }).then(() => {
-        // miband
-        return DAO.getMiband3DataByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'miband3/' + a._key + '.json' })
-        })
-      }).then(() => {
-        // po60
-        return DAO.getPO60DataByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'po60/' + a._key + '.json' })
-        })
-      }).then(() => {
-        // qcst
-        return DAO.getQCSTDataByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'qcst/' + a._key + '.json' })
-        })
-      }).then(() => {
-        // smwt
-        return DAO.getSmwtsDataByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'smwt/' + a._key + '.json' })
-        })
-      }).then(() => {
-        // peakflow
-        return DAO.getPeakFlowsByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'peakflow/' + a._key + '.json' })
-        })
-      }).then(() => {
-        // position
-        return DAO.getPositionsByStudy(studyKey, (a) => {
-          archive.append(JSON.stringify(a), { name: 'position/' + a._key + '.json' })
-        })
-      }).then(() => {
         // tasks results
-        return DAO.getTasksResultsByStudy(studyKey, (a) => {
+        return DAL.getTasksResultsByStudy(studyKey, (a) => {
           archive.append(JSON.stringify(a), { name: 'taskresults/' + a._key + '.json' })
         })
       }).then(() => {
@@ -129,11 +91,54 @@ export default {
         return getAttachments(studyKey, (res) => {
           archive.append(res.content, { name: 'attachments/' + res.task + '/' + res.user + '/' + res.file })
         })
-      }).then(() => {
-        return archive.finalize()
-      }).catch((err) => {
-        reject(err)
       })
+        // will be removed when new version of app is fully rolled out
+        .then(() => {
+          // answers
+          return DAL.getAnswersByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'answers/' + a._key + '.json' })
+          })
+        }).then(() => {
+          // healthstore
+          return DAL.getHealthStoreDataByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'healthstore/' + a._key + '.json' })
+          })
+        }).then(() => {
+          // miband
+          return DAL.getMiband3DataByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'miband3/' + a._key + '.json' })
+          })
+        }).then(() => {
+          // po60
+          return DAL.getPO60DataByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'po60/' + a._key + '.json' })
+          })
+        }).then(() => {
+          // qcst
+          return DAL.getQCSTDataByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'qcst/' + a._key + '.json' })
+          })
+        }).then(() => {
+          // smwt
+          return DAL.getSmwtsDataByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'smwt/' + a._key + '.json' })
+          })
+        }).then(() => {
+          // peakflow
+          return DAL.getPeakFlowsByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'peakflow/' + a._key + '.json' })
+          })
+        }).then(() => {
+          // position
+          return DAL.getPositionsByStudy(studyKey, (a) => {
+            archive.append(JSON.stringify(a), { name: 'position/' + a._key + '.json' })
+          })
+        })
+        .then(() => {
+          return archive.finalize()
+        }).catch((err) => {
+          reject(err)
+        })
     })
   }
 }

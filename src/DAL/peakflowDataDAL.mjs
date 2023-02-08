@@ -1,0 +1,111 @@
+/**
+* This provides the data access for the Study PeakFlowData.
+*/
+
+import utils from './utils.mjs'
+import { applogger } from '../services/logger.mjs'
+
+const COLLECTIONNAME = 'peakFlows'
+
+let collection, db
+
+/**
+ * Initializes the database by creating the needed collection.
+ */
+const init = async function (DB) {
+  db = DB
+  collection = await utils.getCollection(db, COLLECTIONNAME)
+  collection.ensureIndex({ type: 'persistent', fields: ['userKey'] })
+  collection.ensureIndex({ type: 'persistent', fields: ['studyKey'] })
+  collection.ensureIndex({ type: 'persistent', fields: ['taskId'] })
+}
+
+const DAL = {
+  async getAllPeakFlows (dataCallback) {
+    const filter = ''
+    const query = 'FOR data IN peakFlows ' + filter + ' RETURN data'
+    applogger.trace('Querying "' + query + '"')
+    const cursor = await db.query(query)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else return cursor.all()
+  },
+
+  async getPeakFlowsByUser (userKey, dataCallback) {
+    const query = 'FOR data IN peakFlows FILTER data.userKey == @userKey RETURN data'
+    const bindings = { userKey: userKey }
+    applogger.trace(bindings, 'Querying "' + query + '"')
+    const cursor = await db.query(query, bindings)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else return cursor.all()
+  },
+
+  async getPeakFlowsByUserAndStudy (userKey, studyKey, dataCallback) {
+    const query = 'FOR data IN peakFlows FILTER data.userKey == @userKey AND data.studyKey == @studyKey RETURN data'
+    const bindings = { userKey: userKey, studyKey: studyKey }
+    applogger.trace(bindings, 'Querying "' + query + '"')
+    const cursor = await db.query(query, bindings)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else return cursor.all()
+  },
+
+  async getPeakFlowsByStudy (studyKey, dataCallback) {
+    const query = 'FOR data IN peakFlows FILTER data.studyKey == @studyKey RETURN data'
+    const bindings = { studyKey: studyKey }
+    applogger.trace(bindings, 'Querying "' + query + '"')
+    const cursor = await db.query(query, bindings)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else return cursor.all()
+  },
+
+  async createPeakFlow (newPeakFlowData) {
+    const meta = await collection.save(newPeakFlowData)
+    newPeakFlowData._key = meta._key
+    return newPeakFlowData
+  },
+
+  async getOnePeakFlowData (_key) {
+    const peakflowData = await collection.document(_key)
+    return peakflowData
+  },
+
+  // deletes PeakFlowData
+  async deletePeakFlowData (_key) {
+    await collection.remove(_key)
+    return true
+  },
+
+  // deletes all data based on study
+  async deletePeakFlowDataByStudy (studyKey) {
+    const peakflowData = await this.getPeakFlowsByStudy(studyKey)
+    for (let i = 0; i < peakflowData.length; i++) {
+      await this.deletePeakFlowData(peakflowData[i]._key)
+    }
+  },
+
+  // deletes all data based on user
+  async deletePeakFlowDataByUser (userKey) {
+    const peakflowData = await this.getPeakFlowsByUser(userKey)
+    for (let i = 0; i < peakflowData.length; i++) {
+      await this.deletePeakFlowData(peakflowData[i]._key)
+    }
+  }
+}
+
+export { init, DAL }
+

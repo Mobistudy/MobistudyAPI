@@ -5,7 +5,7 @@
 import express from 'express'
 import passport from 'passport'
 import { getAttachmentWriter } from '../services/attachments.mjs'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 
 const router = express.Router()
 
@@ -17,7 +17,7 @@ export default async function () {
     const taskId = parseInt(req.params.taskId)
     const userKey = req.user._key
     // check that the user participates into the study
-    const participant = await DAO.getParticipantByUserKey(userKey)
+    const participant = await DAL.getParticipantByUserKey(userKey)
     if (!participant) return res.sendStatus(404)
     const study = participant.studies.find((s) => {
       return s.studyKey === studyKey

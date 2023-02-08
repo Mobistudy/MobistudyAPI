@@ -5,7 +5,7 @@
 import express from 'express'
 import passport from 'passport'
 import dataZipper from '../services/dataZipper.mjs'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 
 const router = express.Router()
@@ -37,7 +37,7 @@ export default function (app) {
   //                 try {
   //                     // extract study key from file name:
   //                     let studyKey = req.path.substring(1).split('.zip')[0]
-  //                     let teams = await DAO.getAllTeams(req.user._key, studyKey)
+  //                     let teams = await DAL.getAllTeams(req.user._key, studyKey)
   //                     if (teams.length === 0) res.sendStatus(403)
   //                 } catch (e) {
   //                     res.sendStatus(403)
@@ -57,7 +57,7 @@ export default function (app) {
     } else {
       // Researcher: a study must be specified and the researcher has to be allowed to see that study
       if (req.user.role === 'researcher') {
-        const teams = await DAO.getAllTeams(req.user._key, req.query.studyKey)
+        const teams = await DAL.getAllTeams(req.user._key, req.query.studyKey)
         if (teams.length === 0) return res.sendStatus(403)
       }
       applogger.debug({ user: req.user._key }, 'User requested data download for study ' + req.params.studyKey)

@@ -1,12 +1,10 @@
-'use strict'
-
 /**
  * This provides the API endpoints for the study descriptions.
  */
 
 import express from 'express'
 import passport from 'passport'
-import { DAO } from '../DAO/DAO.mjs'
+import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { deleteAttachmentsByStudy } from '../services/attachments.mjs'
@@ -24,7 +22,7 @@ export default async function () {
         res.sendStatus(403)
       } else {
         try {
-          const result = await DAO.getStudies(
+          const result = await DAL.getStudies(
             false,
             req.query.after,
             req.query.before,
@@ -53,7 +51,7 @@ export default async function () {
         res.sendStatus(403)
       } else {
         try {
-          const result = await DAO.getStudies(
+          const result = await DAL.getStudies(
             true,
             req.query.after,
             req.query.before,
@@ -81,28 +79,28 @@ export default async function () {
         let studies = []
         if (req.user.role === 'researcher') {
           if (req.query.teamKey) {
-            const team = await DAO.getOneTeam(req.query.teamKey)
+            const team = await DAL.getOneTeam(req.query.teamKey)
             if (!team.researchersKeys.includes(req.user._key)) {
               return res.sendStatus(403)
             }
-            studies = await DAO.getAllTeamStudies(req.query.teamKey)
+            studies = await DAL.getAllTeamStudies(req.query.teamKey)
           } else {
             // limit the studies to the teams the user belongs to
-            const teams = await DAO.getAllTeams(req.user._key)
+            const teams = await DAL.getAllTeams(req.user._key)
             for (let i = 0; i < teams.lenght; i++) {
-              const studies = await DAO.getAllTeamStudies(teams[i]._key)
+              const studies = await DAL.getAllTeamStudies(teams[i]._key)
               studies.push(studies)
             }
           }
         } else if (req.user.role === 'admin') {
           if (req.query.teamKey) {
-            studies = await DAO.getAllTeamStudies(req.query.teamKey)
+            studies = await DAL.getAllTeamStudies(req.query.teamKey)
           } else {
-            studies = await DAO.getAllStudies()
+            studies = await DAL.getAllStudies()
           }
         } else if (req.user.role === 'participant') {
-          const part = await DAO.getParticipantByUserKey(req.user._key)
-          studies = await DAO.getAllParticipantStudies(part._key)
+          const part = await DAL.getParticipantByUserKey(req.user._key)
+          studies = await DAL.getAllParticipantStudies(part._key)
         }
 
         res.send(studies)
@@ -119,7 +117,7 @@ export default async function () {
     passport.authenticate('jwt', { session: false }),
     async function (req, res) {
       try {
-        const study = await DAO.getOneStudy(req.params.study_key)
+        const study = await DAL.getOneStudy(req.params.study_key)
         if (!study) res.sendStatus(404)
         else res.json(study)
       } catch (err) {
@@ -141,7 +139,7 @@ export default async function () {
       newstudy.createdTS = new Date()
       try {
         // TODO: do some access control, check the user is a researcher and that he belongs to the team
-        newstudy = await DAO.createStudy(newstudy)
+        newstudy = await DAL.createStudy(newstudy)
         res.send(newstudy)
 
         applogger.info(newstudy, 'New study description added')
@@ -171,7 +169,7 @@ export default async function () {
       newstudy.updatedTS = new Date()
       try {
         // TODO: do some access control
-        newstudy = await DAO.replaceStudy(req.params.study_key, newstudy)
+        newstudy = await DAL.replaceStudy(req.params.study_key, newstudy)
         res.send(newstudy)
         applogger.info(newstudy, 'Study replaced')
         auditLogger.log(
@@ -203,7 +201,7 @@ export default async function () {
       newstudy.updatedTS = new Date()
       try {
         // TODO: do some access control
-        newstudy = await DAO.updateStudy(req.params.study_key, newstudy)
+        newstudy = await DAL.updateStudy(req.params.study_key, newstudy)
         res.send(newstudy)
         applogger.info(newstudy, 'Study updated')
         auditLogger.log(
@@ -238,11 +236,11 @@ export default async function () {
       if (req.user.role === 'researcher') {
         try {
           // Get Team Key of Study
-          const study = await DAO.getOneStudy(studykey)
+          const study = await DAL.getOneStudy(studykey)
           const teamKeyOfStudy = study.teamKey
           // Get Team Key of User
           const userKey = req.user._key
-          const team = await DAO.getAllTeams(userKey, studykey)
+          const team = await DAL.getAllTeams(userKey, studykey)
           // Validate they are the same
           if (teamKeyOfStudy === team[0]._key) permissionToDelete = true
         } catch (error) {
@@ -259,34 +257,34 @@ export default async function () {
       ) {
         try {
           // Search participants for study
-          const parts = await DAO.getParticipantsByStudy(studykey)
+          const parts = await DAL.getParticipantsByStudy(studykey)
           if (parts) {
             for (let i = 0; i < parts.length; i++) {
               const partKey = parts[i]
               // For Each participant, delete the study key from accepted studies
-              const participant = await DAO.getOneParticipant(partKey)
+              const participant = await DAL.getOneParticipant(partKey)
               let studyArray = participant.studies
               studyArray = studyArray.filter(
                 (study) => study.studyKey !== studykey
               )
               participant.studies = studyArray
-              await DAO.replaceParticipant(partKey, participant)
+              await DAL.replaceParticipant(partKey, participant)
             }
           }
           // Data needs to be deleted before the study
-          await DAO.deleteAnswersByStudy(studykey)
-          await DAO.deleteHealthStoreByStudy(studykey)
-          await DAO.deleteQCSTDataByStudy(studykey)
-          await DAO.deleteSmwtByStudy(studykey)
-          await DAO.deleteMiband3DataByStudy(studykey)
-          await DAO.deletePO60DataByStudy(studykey)
-          await DAO.deletePeakFlowDataByStudy(studykey)
-          await DAO.deletePositionsByStudy(studykey)
-          await DAO.deleteTasksResultsByStudy(studykey)
+          await DAL.deleteAnswersByStudy(studykey)
+          await DAL.deleteHealthStoreByStudy(studykey)
+          await DAL.deleteQCSTDataByStudy(studykey)
+          await DAL.deleteSmwtByStudy(studykey)
+          await DAL.deleteMiband3DataByStudy(studykey)
+          await DAL.deletePO60DataByStudy(studykey)
+          await DAL.deletePeakFlowDataByStudy(studykey)
+          await DAL.deletePositionsByStudy(studykey)
+          await DAL.deleteTasksResultsByStudy(studykey)
           await deleteAttachmentsByStudy(studykey)
 
           // Deleting the study
-          await DAO.deleteStudy(studykey)
+          await DAL.deleteStudy(studykey)
 
           res.sendStatus(200)
           applogger.info({ studyKey: studykey }, 'Study deleted')
@@ -318,7 +316,7 @@ export default async function () {
     async function (req, res) {
       try {
         if (req.user.role !== 'participant') return res.sendStatus(403)
-        const studies = await DAO.getMatchedNewStudies(req.user._key)
+        const studies = await DAL.getMatchedNewStudies(req.user._key)
         res.send(studies)
       } catch (err) {
         applogger.error({ error: err }, 'Cannot retrieve studies')
@@ -333,7 +331,7 @@ export default async function () {
     async function (req, res) {
       try {
         if (req.user.role !== 'researcher') return res.sendStatus(403)
-        const studyCode = await DAO.getNewInvitationCode()
+        const studyCode = await DAL.getNewInvitationCode()
         applogger.info(
           { studyCode: studyCode },
           'Study code sending back from server'
@@ -355,7 +353,7 @@ export default async function () {
     async function (req, res) {
       try {
         const invitationalCode = req.params.invitationalCode
-        const study = await DAO.getInvitationalStudy(invitationalCode)
+        const study = await DAL.getInvitationalStudy(invitationalCode)
         if (!study) throw new Error('Cannot find study based on code.')
         res.send(study)
       } catch (err) {
