@@ -14,7 +14,7 @@ RUN npm install --production
 COPY . /usr/src/app
 
 # https://snyk.io/blog/choosing-the-best-node-js-docker-image/
-FROM node:16.18.1-bullseye-slim
+FROM node:gallium-bullseye-slim
 
 COPY --from=build /usr/src/app /usr/src/app
 
