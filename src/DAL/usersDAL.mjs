@@ -21,7 +21,7 @@ let collection, db
 const init = async function (DB) {
   db = DB
   // create collection if not exists and set indexes
-  const collection = await utils.getCollection(db, COLLECTION_NAME)
+  collection = await utils.getCollection(db, COLLECTION_NAME)
   collection.ensureIndex({ type: 'persistent', fields: ['email'] })
 }
 
@@ -61,8 +61,8 @@ const DAL = {
    * @returns a promise that passes a user object
    */
   getOneUser: async function (userkey) {
-    const user = await collection.document(userkey)
-    applogger.trace('Searching for user "' + user._key)
+    const user = await collection.document(userkey, { graceful: true })
+    applogger.trace('Searching for user "' + userkey)
     return user
   },
 
@@ -100,7 +100,7 @@ const DAL = {
         queryString += ' FILTER user.role == "participant" '
         if (studyKeys) {
           queryString += ' FOR team in teams FOR study in studies '
-          queryString += ' FILTER user._key IN team.researchersKeys AND  study.teamKey == team._key AND study._key IN ["4590699"]  '
+          queryString += ' FILTER user._key IN team.researchersKeys AND  study.teamKey == team._key AND study._key IN @studyKeys '
           bindings.studyKeys = studyKeys
         }
       }
@@ -163,16 +163,12 @@ const DAL = {
   // udpates a user, we assume the _key is the correct one
   updateUser: async function (_key, newuser) {
     const newval = await collection.update(_key, newuser, { keepNull: false, mergeObjects: true, returnNew: true })
-    return newval
+    return newval.new
   },
 
-  // remove a user (Assumption: userKey is the correct one)
+  // remove a user by Key
   removeUser: async function (userKey) {
-    const bindings = { usrKey: userKey }
-    const query = 'REMOVE { _key:@usrKey } IN users'
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    return cursor.all()
+    return collection.remove(userKey)
   }
 }
 export { init, DAL }
