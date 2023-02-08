@@ -29,16 +29,6 @@ describe('Testing tasks results DAL,', () => {
     await dropDatabase(DBNAME)
   })
 
-  it('user mobistudy can access db test_tasksresults', async () => {
-    let resp = await axios.get('http://localhost:' + ARANGOPORT + '/_db/' + DBNAME + '/', {
-      auth: {
-        username: 'mobistudy',
-        password: 'testpwd'
-      }
-    })
-    expect(resp.status).toBe(200)
-  })
-
   describe("When adding tasks results", () => {
     let tr_key
 

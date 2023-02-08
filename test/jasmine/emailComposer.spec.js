@@ -1,14 +1,19 @@
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { studyStatusUpdateCompose, passwordRecoveryCompose } from '../../src/services/emailComposer.mjs'
+import { mockObject } from '../mocks/mocker.mjs'
 
 let DALretVal = {}
 
 describe('when composing an email', () => {
 
-  beforeAll(() => {
-    DAL.getOneStudy = function () {
-      return DALretVal
-    }
+  beforeAll(async () => {
+    // extend the DAL object and mock it
+    await DAL.extendDAL()
+    mockObject(DAL)
+  })
+
+  afterEach(async () => {
+    DAL.resetMock()
   })
 
   it('the email password recovery is correct', async () => {
@@ -26,7 +31,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a completed study is correct', async () => {
-    DALretVal = {
+    DAL.nextReturnedValue = {
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -52,7 +57,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a withdrawn study is correct', async () => {
-    DALretVal = {
+    DAL.nextReturnedValue = {
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -75,7 +80,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for an accepted study is correct', async () => {
-    DALretVal = {
+    DAL.nextReturnedValue = {
       generalities: {
         languages: ['en', 'it'],
         title: {

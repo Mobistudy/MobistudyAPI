@@ -4,46 +4,25 @@ import { applogger } from '../../src/services/logger.mjs'
 import { MockResponse } from '../mocks/MockResponse.mjs'
 import { mockObject } from '../mocks/mocker.mjs'
 
-// mock app logger
-mockObject(applogger)
-mockObject(DAL)
-
-let SSCTRL
-
 describe('Testing studies stats controller,', () => {
 
   beforeAll(async () => {
-    SSCTRL = studyStatsCtrl
-    DAL.getOneStudy = function () {
-      return {
-        _key: 'fake'
-      }
-    }
+    // extend the DAL object
+    await DAL.extendDAL()
 
-    DAL.getAllTeams = function () {
-      return [{}]
-    }
+    // mock app logger
+    mockObject(applogger)
+    mockObject(DAL)
 
-    DAL.getLastTasksSummary = function () {
-      return [{
-        userKey: '1122',
-        name: 'Dario',
-        surname: 'Salvi',
-        DOB: '1994-06-04',
-        status: 'accepted',
-        lastTaskDate: null,
-        lastTaskType: null
-      }]
-    }
-  }, 1000)
+  }, 100)
 
-  afterAll(async () => {
-
+  afterEach(() => {
+    DAL.resetMock()
   })
 
   it('no study key no party', async () => {
     let res = new MockResponse()
-    await SSCTRL.getLastTasksSummary({
+    await studyStatsCtrl.getLastTasksSummary({
       user: {
         role: 'researcher'
       },
@@ -54,8 +33,11 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('participants cannot access study stats', async () => {
+    DAL.nextReturnedValue = {
+      _key: 'fake'
+    }
     let res = new MockResponse()
-    await SSCTRL.getLastTasksSummary({
+    await studyStatsCtrl.getLastTasksSummary({
       user: {
         role: 'participant'
       },
@@ -68,13 +50,31 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('researchers can access their studies stats', async () => {
+    DAL.nextReturnedValuesSequence = [
+      // study
+      {
+        _key: 'fake'
+      },
+      // teams
+      [{}],
+      // stats
+      [{
+        userKey: '1122',
+        name: 'Dario',
+        surname: 'Salvi',
+        DOB: '1994-06-04',
+        status: 'accepted',
+        lastTaskDate: null,
+        lastTaskType: null
+      }]
+    ]
     let res = new MockResponse()
-    await SSCTRL.getLastTasksSummary({
+    await studyStatsCtrl.getLastTasksSummary({
       user: {
         role: 'researcher'
       },
       params: {
-        study_key: '1978'
+        study_key: 'fake'
       }
     }, res)
 
