@@ -26,7 +26,6 @@ import auditLogRouter from './routes/auditLog.mjs'
 import testerRouter from './routes/tester.mjs'
 import vocabularyRouter from './routes/vocabulary.mjs'
 import Miband3Router from './routes/miband3.mjs'
-import PO60Router from './routes/po60.mjs'
 import PeakFlowRouter from './routes/peakflow.mjs'
 import PositionsRouter from './routes/positions.mjs'
 import mSafetyRouter from './routes/mSafety.mjs'
@@ -80,7 +79,6 @@ export default async function () {
   app.use(apiPrefix, await testerRouter())
   app.use(apiPrefix, await vocabularyRouter())
   app.use(apiPrefix, await Miband3Router())
-  app.use(apiPrefix, await PO60Router())
   app.use(apiPrefix, await PeakFlowRouter())
   app.use(apiPrefix, await PositionsRouter())
   app.use(apiPrefix, await attachmentsRouter())
