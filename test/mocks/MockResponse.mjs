@@ -5,7 +5,7 @@ function MockResponse () {
   this.status = (s) => {
     this.code = s
     this.data = ''
-    return new MockResponse()
+    return this
   }
 
   this.send = (d) => {
