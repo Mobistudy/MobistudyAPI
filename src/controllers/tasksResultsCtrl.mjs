@@ -169,7 +169,7 @@ export default {
           // results for all studies
           resultsData = await DAL.getTasksResultsByUser(req.user._key)
         }
-        res.send(resultsData)
+        res.status(200).send(resultsData)
       } else {
         // admin
         const resultsData = await DAL.getAllTasksResults()
@@ -192,11 +192,12 @@ export default {
    */
   async createNew (req, res) {
     let trans
+    let newTasksResults = req.body
+    if (req.user.role !== 'participant') return res.sendStatus(403)
+
+    if (!newTasksResults.studyKey) return res.sendStatus(400)
 
     try {
-      let newTasksResults = req.body
-      if (req.user.role !== 'participant') return res.sendStatus(403)
-
       const valid = this.validate(newTasksResults)
       if (!valid) {
         applogger.error({ errors: this.validate.errors }, 'Tasks results does not validate against schema')
@@ -235,14 +236,19 @@ export default {
 
       trans = await DAL.startTransaction([DAL.tasksResultsTransaction(), DAL.participantsTransaction()])
 
-      // store the database data
-      newTasksResults = await DAL.createTasksResults(newTasksResults, trans)
+      // store the results on the database
 
+      // strip data first
+      let resultsData = false
       if (newTasksResults.data) {
         // separate data from the object stored on the database
-        const resultsData = newTasksResults.data
+        resultsData = newTasksResults.data
         delete newTasksResults.data
+      }
+      newTasksResults = await DAL.createTasksResults(newTasksResults, trans)
 
+      // save the data on file and add attachments
+      if (resultsData) {
         // save the attachment
         const filename = newTasksResults._key + '.json'
         const writer = await getAttachmentWriter(newTasksResults.userKey, newTasksResults.studyKey, newTasksResults.taskId, filename)
@@ -266,6 +272,7 @@ export default {
       applogger.info({ userKey: req.user._key, taskId: newTasksResults.taskId, studyKey: newTasksResults.studyKey }, 'Participant has sent tasks results for task ' + newTasksResults.type)
       auditLogger.log('tasksResultsCreated', req.user._key, newTasksResults.studyKey, newTasksResults.taskId, 'Results received for ' + newTasksResults.type + ' task, task id ' + newTasksResults.taskId + ', by participant ' + participant._key + ' for study ' + newTasksResults.studyKey, 'tasksResults', newTasksResults._key, newTasksResults)
     } catch (err) {
+      console.error(err)
       applogger.error({ error: err }, 'Cannot store new tasks results')
       res.sendStatus(500)
       if (trans) DAL.abortTransaction(trans)
