@@ -39,5 +39,11 @@
     "eslint-plugin-promise": "^5.1.0",
     "jasmine": "^4.5.0",
     "nodemon": "^2.0.19"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "tmp/**",
+      "tasksuploads/**"
+    ]
   }
 }
