@@ -4,30 +4,30 @@ import { getWeather, getPollution, getPostcode, getAllergenes } from '../../src/
 
 describe('when searching for environment', () => {
 
-  test('you can retrieve weather', async () => {
+  it('you can retrieve weather', async () => {
     let weather = await getWeather(55.6028859, 13.019894299999999)
     expect(weather).not.toBeUndefined()
     expect(weather.location === 'Malmo' || weather.location === 'Gamla Staden').toBeTruthy()
   })
 
-  test('you can retrieve pollution', async () => {
+  it('you can retrieve pollution', async () => {
     let aq = await getPollution(55.6028859, 13.019894299999999)
     expect(aq).not.toBeUndefined()
     expect(aq.aqi).not.toBeUndefined()
   })
 
-  test('you can retrieve postcode', async () => {
+  it('you can retrieve postcode', async () => {
     let pc = await getPostcode(51.751985, -1.257609)
     expect(pc).not.toBeUndefined()
     expect(pc.postcode).toBe('OX1 4DS')
   })
 
-  test('you sometimes cannot retrieve postcode', async () => {
+  it('you sometimes cannot retrieve postcode', async () => {
     let pc = await getPostcode(55.6028859, 13.019894299999999)
     expect(pc).toBeUndefined()
   })
 
-  test('you can retrieve pollen', async () => {
+  it('you can retrieve pollen', async () => {
     let pol = await getAllergenes(55.6028859, 13.019894299999999)
     expect(pol).not.toBeUndefined()
   })
