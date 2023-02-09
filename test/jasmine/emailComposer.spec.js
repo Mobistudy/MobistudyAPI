@@ -2,8 +2,6 @@ import { DAL } from '../../src/DAL/DAL.mjs'
 import { studyStatusUpdateCompose, passwordRecoveryCompose } from '../../src/services/emailComposer.mjs'
 import { mockObject } from '../mocks/mocker.mjs'
 
-let DALretVal = {}
-
 describe('when composing an email', () => {
 
   beforeAll(async () => {

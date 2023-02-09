@@ -72,8 +72,7 @@ export default {
       })
 
       // users
-
-      // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
+      // query params: countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
       DAL.getUsers(false, null, 'participant', [studyKey], null, null, null, (u) => {
         archive.append(JSON.stringify(u), { name: 'users/' + u._key + '.json' })
       }).then(() => {

@@ -70,7 +70,7 @@ export default {
         language = part.language
       }
       const msg = passwordRecoveryCompose(serverlink, token, language)
-      sendEmail(email, msg.title, msg.content)
+      await sendEmail(email, msg.title, msg.content)
       res.sendStatus(200)
       applogger.info({ email: req.body.email }, 'Reset password email sent')
       auditLogger.log('resetPasswordEmail', existing._key, undefined, undefined, 'User ' + email + ' has requested a reset password email', 'users', existing._key, undefined)
@@ -120,6 +120,8 @@ export default {
   },
 
   createUser: async (req, res) => {
+    if (!req.body.password || !req.body.email || !req.body.role) return res.status(400).send('Need email, role and password')
+
     const user = req.body
     const password = user.password
     if (!pwdCheck(user.email, password)) return res.status(400).send('Password too weak')
@@ -192,7 +194,6 @@ export default {
 
   getUsers: async function (req, res) {
     if (req.user.role !== 'admin') {
-      console.log('not an admin')
       res.sendStatus(403)
     } else {
       try {
