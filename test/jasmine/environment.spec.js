@@ -2,7 +2,9 @@ import { getWeather, getPollution, getPostcode, getAllergenes } from '../../src/
 
 // Warning: for this test to work, a proper configuration file with API keys must be given!
 
-describe('when searching for environment', () => {
+// tests deactivated to avoid spamming public APIs
+// REMOVE THE x TO ACTIVATE THE TESTS
+xdescribe('when searching for environment', () => {
 
   it('you can retrieve weather', async () => {
     let weather = await getWeather(55.6028859, 13.019894299999999)

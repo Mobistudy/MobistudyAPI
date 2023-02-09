@@ -1,6 +1,8 @@
 import { getTerm } from '../../src/services/vocabulary.mjs'
 
-describe('when searching for a medical term', () => {
+// tests deactivated to avoid spamming public APIs
+// REMOVE THE x TO ACTIVATE THE TESTS
+xdescribe('when searching for a medical term', () => {
 
   it('you can retrieve heart failure in english', async () => {
     let concepts = await getTerm('heart failure', 'disorder', 'en', 10)
