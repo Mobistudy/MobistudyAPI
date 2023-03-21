@@ -11,7 +11,7 @@ export default async function (app) {
 
   await usersCtrl.init()
 
-  app.get(API_PREFIX + '/login', passport.authenticate('local', { session: false }), usersCtrl.login.bind(usersCtrl))
+  app.post(API_PREFIX + '/login', passport.authenticate('local', { session: false }), usersCtrl.login.bind(usersCtrl))
   app.post(API_PREFIX + '/sendResetPasswordEmail', usersCtrl.sendPasswordResetEmail.bind(usersCtrl))
   app.post(API_PREFIX + '/resetPassword', usersCtrl.resetPassword.bind(usersCtrl))
   app.post(API_PREFIX + '/users', passport.authenticate('local', { session: false }), usersCtrl.createUser.bind(usersCtrl))
