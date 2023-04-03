@@ -19,8 +19,8 @@ FROM node:16.19.1-bullseye-slim
 COPY --from=build /usr/src/app /usr/src/app
 
 WORKDIR /usr/src/app
-ENV WEB_PORT=8080
+ENV WEB_PORT=3000
 ENV NODE_ENV=production
 CMD ["npm", "start"]
 
-EXPOSE 8080
+EXPOSE 3000
