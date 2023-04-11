@@ -28,7 +28,7 @@ const init = async function (DB) {
 
 const DAL = {
   async createTeam (newTeam) {
-    let meta = await teamsCollection.save(newTeam)
+    let meta = await collection.save(newTeam)
     newTeam._key = meta._key
     return newTeam
   },
@@ -79,7 +79,7 @@ const DAL = {
 
   // udpates a team (Assumption: _key is the correct one)
   async replaceTeam (_key, team) {
-    let meta = await teamsCollection.replace(_key, team)
+    let meta = await collection.replace(_key, team)
     team._key = meta._key
     return team
   },
