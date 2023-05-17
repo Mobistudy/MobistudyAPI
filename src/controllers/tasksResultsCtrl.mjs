@@ -18,6 +18,13 @@ export default {
    * Initialises the controller.
    */
   async init () {
+    const accelerationSampleSchema = JSON.parse(
+      await readFile('./models/accelerationSample.json')
+    )
+    const orientationSampleSchema = JSON.parse(
+      await readFile('./models/orientationSample.json')
+    )
+
     const tasksResultsSchema = JSON.parse(
       await readFile('./models/taskResults.json')
     )
@@ -103,6 +110,8 @@ export default {
 
     const ajv = new Ajv({
       schemas: [
+        accelerationSampleSchema,
+        orientationSampleSchema,
         tasksResultsSchema,
         answersSummarySchema,
         answersDataSchema,
