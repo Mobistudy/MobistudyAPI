@@ -34,6 +34,7 @@
       }
     },
     "steps": {
+      "description": "Number of steps as detected by the phone",
       "type": "array",
       "items": {
         "type": "object",
@@ -45,6 +46,26 @@
         "required": [
           "numberOfSteps"
         ]
+      }
+    },
+    "inertial": {
+      "description": "Intertial data such as acceleration and rotation rate",
+      "type": "object",
+      "properties": {
+        "motion": {
+          "description": "Intertial data such as acceleration and rotation rate",
+          "type": "array",
+          "items": {
+            "$ref": "https://mobistudy.org/models/accelerationSample.json"
+          }
+        },
+        "orientation": {
+          "description": "Orientation of the phone",
+          "type": "array",
+          "items": {
+            "$ref": "https://mobistudy.org/models/orientationSample.json"
+          }
+        }
       }
     }
   },
