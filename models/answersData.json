@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "https://mobistudy.org/models/answersData.json",
   "title": "Answers",
-  "description": "Detailed answers give to a form",
+  "description": "Detailed answers given to a form",
   "type": "array",
   "items": {
     "type": "object",
