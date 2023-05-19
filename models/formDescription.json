@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/formDescription.json",
+  "title": "Form description",
+  "description": "Configuration for a complete form or questionnaire",
+  "type": "object",
+  "properties": {
+    "teamKey": {
+      "description": "Database key of the team that has produced the form",
+      "type": "string"
+    },
+    "name": {
+      "description": "Name of the form, in all the supported languages",
+      "type": "object"
+    },
+    "description": {
+      "description": "Longer description test of the form, in all the supported languages",
+      "type": "object"
+    },
+    "summaryFunction": {
+      "description": "Javascript code that computes a summary of the form. The function takes an argument called 'answers' in the form of the array produced as result of the task, and should return an object with one or more properties, that is added to the summary object.",
+      "type": "string"
+    },
+    "questions": {
+      "description": "Array of questions",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Identifier of the question, usually in the form of Qn, where n is a counter",
+            "type": "string"
+          },
+          "type": {
+            "description": "Type of question",
+            "type": "string",
+            "enum": [
+              "singleChoice",
+              "multiChoice",
+              "slider",
+              "freetext",
+              "number",
+              "photo",
+              "textOnly",
+              "time"
+            ]
+          },
+          "text": {
+            "description": "Text of the question, in different languages",
+            "type": "object"
+          },
+          "helper": {
+            "description": "Additional helper text, in different languages",
+            "type": "object"
+          },
+          "footer": {
+            "description": "Footer text, in different languages",
+            "type": "object"
+          },
+          "nextDefaultId": {
+            "description": "Identifier of the question that goes after this question. Use ENDFORM to end the form after this question",
+            "type": "string"
+          },
+          "min": {
+            "description": "Minimum value allowed in numeric answers",
+            "type": "number"
+          },
+          "max": {
+            "description": "Maximum value allowed in numeric answers",
+            "type": "number"
+          },
+          "answerChoices": {
+            "description": "Array of possible answer choices",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Identifier of the choice, typically in the form of qnAm where n is the question number and m is the choice number",
+                  "type": "string"
+                },
+                "text": {
+                  "description": "Text displayed for the choice, in multiple languages",
+                  "type": "object"
+                },
+                "includeFreeText": {
+                  "description": "If true, the choice also includes a free text area, like in 'Other, specify:...'",
+                  "type": "boolean"
+                },
+                "nextQuestionId": {
+                  "description": "If specified and if the question is of type singleChoice, identifier of the question that goes after this question if this choice is selected. Allows branching and logic in questionnaires. Use ENDFORM to end the form after this question.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "text"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "text"
+        ]
+      }
+    }
+  },
+  "required": [
+    "teamKey",
+    "name",
+    "description",
+    "questions"
+  ]
+}
