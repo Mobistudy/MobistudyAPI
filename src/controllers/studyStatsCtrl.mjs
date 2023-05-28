@@ -19,7 +19,7 @@ export default {
    * @returns a promise
    */
   async getLastTasksSummary (req, res) {
-    const studyKey = req.params.study_key
+    const studyKey = req.query.studyKey
     if (!studyKey) {
       const errmess = 'Cannot request study statistics without specifying a study'
       applogger.warn(errmess)
@@ -27,7 +27,7 @@ export default {
     }
 
     try {
-      const study = await DAL.getOneStudy(req.params.study_key)
+      const study = await DAL.getOneStudy(studyKey)
       if (!study) return res.sendStatus(404)
 
       if (req.user.role === 'researcher') {
@@ -42,9 +42,13 @@ export default {
         applogger.warn(errmess)
         return res.status(403).send(errmess)
       }
-
-      const resultsData = await DAL.getLastTasksSummary(studyKey)
-      res.send(resultsData)
+      let participants = []
+      participants = await DAL.getLastTasksSummary(
+        req.query.studyKey,
+        req.query.participantName,
+        req.query.statusType
+        )
+      res.json(participants)
     } catch (err) {
       console.error(err)
       applogger.error({ error: err }, 'Cannot retrieve tasks results')
