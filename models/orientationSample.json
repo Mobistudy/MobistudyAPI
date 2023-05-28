@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/orientationSample.json",
+  "title": "Orientation sample",
+  "description": "Sample holding data about phone's orientation",
+  "type": "object",
+  "properties": {
+    "msFromStart": {
+      "description": "Millis from when the data capture was started",
+      "type": "integer"
+    },
+    "abs": {
+      "type": "boolean"
+    },
+    "alpha": {
+      "type": "number"
+    },
+    "beta": {
+      "type": "number"
+    },
+    "gamma": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "msFromStart"
+  ]
+}

@@ -126,16 +126,16 @@ export default {
     const password = user.password
     if (!pwdCheck(user.email, password)) return res.status(400).send('Password too weak')
 
-    // // get the language from the browser, at this stage the user preferences are unknown
-    // const language = getLanguageFromAcceptedList(req.acceptsLanguages())
-    // try {
-    //   const msg = userRegistrationCompose(language)
-    //   await sendEmail(user.email, msg.title, msg.content)
-    // } catch (err) {
-    //   res.status(400).send('Cannot send confirmation email')
-    //   applogger.warn({ error: err }, 'Cannot send new user confirmation email')
-    //   return
-    // }
+    // get the language from the browser, at this stage the user preferences are unknown
+    const language = getLanguageFromAcceptedList(req.acceptsLanguages())
+    try {
+      const msg = userRegistrationCompose(language)
+      await sendEmail(user.email, msg.title, msg.content)
+    } catch (err) {
+      res.status(400).send('Cannot send confirmation email')
+      applogger.warn({ error: err }, 'Cannot send new user confirmation email')
+      return
+    }
 
     const hashedPassword = bcrypt.hashSync(password, 8)
     delete user.password

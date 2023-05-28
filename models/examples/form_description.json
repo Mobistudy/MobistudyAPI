@@ -1,5 +1,6 @@
 {
   "created": "2018-10-25T10:09:53.222Z",
+  "teamKey": "12345",
   "name": {
     "en": "Preference questionnaire",
     "it": "Questionario sulle preferenze"
@@ -8,11 +9,7 @@
     "en": "What do you prefer?",
     "it": "Cosa preferisci?"
   },
-  "teamKey": 12345,
-  "languages": [
-    "en",
-    "it"
-  ],
+  "summaryFunction": "return { value: answers[1].answer };",
   "questions": [
     {
       "id": "Q1",

@@ -14,13 +14,13 @@ RUN npm install --production
 COPY . /usr/src/app
 
 # https://snyk.io/blog/choosing-the-best-node-js-docker-image/
-FROM node:16.19.1-bullseye-slim
+FROM node:16.20-bullseye-slim
 
 COPY --from=build /usr/src/app /usr/src/app
 
 WORKDIR /usr/src/app
-ENV WEB_PORT=3000
+ENV WEB_PORT=8080
 ENV NODE_ENV=production
 CMD ["npm", "start"]
 
-EXPOSE 3000
+EXPOSE 8080

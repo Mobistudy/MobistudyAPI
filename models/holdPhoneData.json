@@ -21,94 +21,6 @@
     "kinetic"
   ],
   "$defs": {
-    "accSample": {
-      "description": "Sample holding data about phone's acceleration",
-      "type": "object",
-      "properties": {
-        "msFromStart": {
-          "description": "Millis from when the data capture was started",
-          "type": "integer"
-        },
-        "interval": {
-          "type": "number"
-        },
-        "acc": {
-          "description": "Triaxial acceleration without gravity",
-          "type": "object",
-          "properties": {
-            "x": {
-              "type": "number"
-            },
-            "y": {
-              "type": "number"
-            },
-            "z": {
-              "type": "number"
-            }
-          }
-        },
-        "accG": {
-          "description": "Triaxial acceleration with gravity",
-          "type": "object",
-          "properties": {
-            "x": {
-              "type": "number"
-            },
-            "y": {
-              "type": "number"
-            },
-            "z": {
-              "type": "number"
-            }
-          }
-        },
-        "rotRate": {
-          "description": "Triaxial rotation rate",
-          "type": "object",
-          "properties": {
-            "alpha": {
-              "type": "number"
-            },
-            "beta": {
-              "type": "number"
-            },
-            "gamma": {
-              "type": "number"
-            }
-          }
-        }
-      },
-      "required": [
-        "msFromStart",
-        "acc",
-        "accG"
-      ]
-    },
-    "orientSample": {
-      "description": "Sample holding data about phone's orientation",
-      "type": "object",
-      "properties": {
-        "msFromStart": {
-          "description": "Millis from when the data capture was started",
-          "type": "integer"
-        },
-        "abs": {
-          "type": "boolean"
-        },
-        "alpha": {
-          "type": "number"
-        },
-        "beta": {
-          "type": "number"
-        },
-        "gamma": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "msFromStart"
-      ]
-    },
     "handData": {
       "type": "object",
       "properties": {
@@ -121,13 +33,13 @@
         "motion": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/accSample"
+            "$ref": "https://mobistudy.org/models/accelerationSample.json"
           }
         },
         "orientation": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/orientSample"
+            "$ref": "https://mobistudy.org/models/orientationSample.json"
           }
         }
       }
