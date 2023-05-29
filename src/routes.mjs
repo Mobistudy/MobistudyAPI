@@ -14,7 +14,7 @@ export default async function (app) {
   app.post(API_PREFIX + '/login', passport.authenticate('local', { session: false }), usersCtrl.login.bind(usersCtrl))
   app.post(API_PREFIX + '/sendResetPasswordEmail', usersCtrl.sendPasswordResetEmail.bind(usersCtrl))
   app.post(API_PREFIX + '/resetPassword', usersCtrl.resetPassword.bind(usersCtrl))
-  app.post(API_PREFIX + '/users', passport.authenticate('local', { session: false }), usersCtrl.createUser.bind(usersCtrl))
+  app.post(API_PREFIX + '/users', usersCtrl.createUser.bind(usersCtrl))
   app.get(API_PREFIX + '/users/renewToken', passport.authenticate('local', { session: false }), usersCtrl.renewToken.bind(usersCtrl))
   app.patch(API_PREFIX + '/users/:userKey', passport.authenticate('local', { session: false }), usersCtrl.updateUser.bind(usersCtrl))
   app.get(API_PREFIX + '/users', passport.authenticate('local', { session: false }), usersCtrl.getUsers.bind(usersCtrl))
@@ -28,5 +28,5 @@ export default async function (app) {
   app.post(API_PREFIX + '/tasksResults', passport.authenticate('jwt', { session: false }), tasksResultsCtrl.createNew.bind(tasksResultsCtrl))
 
   await studyStatsCtrl.init()
-  app.get(API_PREFIX + '/studyStats/:study_key', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
+  app.get(API_PREFIX + '/studyStats', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
 }
