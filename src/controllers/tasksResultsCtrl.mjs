@@ -159,6 +159,10 @@ export default {
           applogger.warn(errmess)
           return res.status(400).send(errmess)
         }
+        if (req.query.userKey) {
+          const resultsData = await DAL.getTasksResultsByUserAndStudy(req.query.userKey, req.query.studyKey)
+          return res.send(resultsData)
+        }
         const team = await DAL.getAllTeams(req.user._key, req.query.studyKey)
         if (team.length === 0) {
           const errmess = 'Researcher cannot request tasks results for a study (s)he is not involved in'
