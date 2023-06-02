@@ -1,24 +1,43 @@
-function MockResponse () {
-  this.code = 0
-  this.data = ''
+import stream from 'stream'
 
-  this.status = (s) => {
+/**
+ * Mocked response, implements the writeable stream as the real response object
+ */
+class MockResponse extends stream.Writable {
+
+  _write (chunk, enc, next) {
+    this.chunks.push(Buffer.from(chunk))
+    next()
+  }
+
+  constructor() {
+    super()
+    this.code = 0
+    this.data = ''
+    this.chunks = []
+  }
+
+  status (s) {
     this.code = s
     this.data = ''
     return this
   }
 
-  this.send = (d) => {
+  send (d) {
     this.data = d
   }
 
-  this.json = (d) => {
+  json (d) {
     this.data = d
   }
 
-  this.sendStatus = (s) => {
+  sendStatus (s) {
     this.data = ''
     this.code = s
+  }
+
+  readChunks () {
+    return Buffer.concat(this.chunks).toString('utf8')
   }
 }
 
