@@ -23,28 +23,28 @@ export default {
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const studyKey = req.query.studyKey
+    const studyKey = req.params.studyKey
 
     if (!req.params || !req.params.userkey) {
       const errmess = 'Cannot request attachment without specifying a user key'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    let userkey = req.query.userkey
+    let userkey = req.params.userkey
 
     if (!req.params || !req.params.taskId) {
       const errmess = 'Cannot request attachment without specifying a taskId'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const taskId = req.query.taskId
+    const taskId = req.params.taskId
 
     if (!req.params || !req.params.fileName) {
       const errmess = 'Cannot request attachment without specifying a fileName'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const fileName = req.query.fileName
+    const fileName = req.params.fileName
 
     try {
       // verify if study exists
