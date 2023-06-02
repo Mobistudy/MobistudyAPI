@@ -60,6 +60,39 @@ export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) 
   return writer
 }
 
+/**
+ * Gets a single file attachment, given its name.
+ * @param {string} studyKey key of the study
+ * @param {string} userKey key of the user
+ * @param {string} filename name of the file, as found in the tasksResults
+ * @param {boolean} reader optional. If true (default), the promise passes a readStream, else the whole content
+ * @returns a Promise with either the content or a readStream passed as parameter
+ */
+export async function getAttachment (studyKey, userKey, filename, reader = true) {
+  const filePath = UPLOADSDIR + '/' + studyKey + '/' + userKey + '/' + filename
+  // gracefully return if no directory is found
+  try {
+    await fsStat(filePath)
+  } catch (err) {
+    return
+  }
+
+  let filehandle
+  try {
+    filehandle = await fsOpen(filePath)
+
+    if (reader) {
+      return filehandle.createReadStream()
+    } else {
+      return filehandle.readFile()
+    }
+
+  } finally {
+    if (filehandle) await filehandle.close()
+  }
+
+}
+
 export async function getAttachments (studyKey, cbk) {
   if (!cbk) throw new Error('Callback must be specified')
   const studyPath = UPLOADSDIR + '/' + studyKey + '/'
