@@ -48,7 +48,7 @@ const DAL = {
       RETURN {createdTS : t.createdTS, taskType: t.taskType }
     )
     RETURN {
-      _key: p.userKey,
+      userKey: p.userKey,
       name: p.name,
       surname: p.surname,
       DOB: p.dateOfBirth,
