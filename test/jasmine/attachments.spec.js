@@ -1,4 +1,4 @@
-import { getAttachmentWriter, getAttachments, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
+import { getAttachmentWriter, getAttachments, getAttachmentReader, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
 import { stat as fsStat, rm as fsRm } from 'fs/promises'
 import { applogger } from '../../src/services/logger.mjs'
 import { mockObject } from '../mocks/mocker.mjs'
@@ -48,6 +48,31 @@ describe('When saving an attachment', () => {
     expect(study).toBe(studyKey)
     expect(task).toBe(task)
     expect(user).toBe(user)
+    expect(text).toBe('text1 text2')
+  })
+
+  it('one file can be read as reader', async () => {
+    let userKey = '123'
+    let studyKey = '456'
+    let taskId = '7'
+    let fileName = '90.txt'
+    let writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
+    await writer.write('text1 ')
+    await writer.write('text2')
+    await writer.end()
+
+    let reader = await getAttachmentReader(studyKey, userKey, taskId, fileName)
+
+    function streamToString (stream) {
+      const chunks = []
+      return new Promise((resolve, reject) => {
+        stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
+        stream.on('error', (err) => reject(err))
+        stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
+      })
+    }
+
+    const text = await streamToString(reader)
     expect(text).toBe('text1 text2')
   })
 
