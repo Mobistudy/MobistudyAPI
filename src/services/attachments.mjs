@@ -1,5 +1,5 @@
 // helps saving files for a study and task
-import { open as fsOpen, lstat as fsStat, mkdir as fsMkdir, readdir as fsReaddir, rmdir as fsRmdir } from 'fs/promises'
+import { open as fsOpen, lstat as fsStat, mkdir as fsMkdir, readdir as fsReaddir, rm as fsRm } from 'fs/promises'
 import { applogger } from '../services/logger.mjs'
 
 const UPLOADSDIR = 'tasksuploads'
@@ -70,7 +70,7 @@ export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) 
  */
 export async function getAttachment (studyKey, userKey, filename, reader = true) {
   const filePath = UPLOADSDIR + '/' + studyKey + '/' + userKey + '/' + filename
-  // gracefully return if no directory is found
+  // gracefully return if no directoty / file is found
   try {
     await fsStat(filePath)
   } catch (err) {
@@ -155,7 +155,7 @@ export async function deleteAttachmentsByStudy (studyKey) {
   } catch (err) {
     return
   }
-  return fsRmdir(studyDir, { recursive: true })
+  return fsRm(studyDir, { recursive: true })
 }
 
 export async function deleteAttachmentsByUser (userKey) {
@@ -178,7 +178,7 @@ export async function deleteAttachmentsByUser (userKey) {
         }
         if (stat.isDirectory()) {
           if (userDir == userKey) {
-            await fsRmdir(UPLOADSDIR + '/' + studyDir + '/' + userDir + '/', { recursive: true })
+            await fsRm(UPLOADSDIR + '/' + studyDir + '/' + userDir + '/', { recursive: true })
           }
         }
       }
