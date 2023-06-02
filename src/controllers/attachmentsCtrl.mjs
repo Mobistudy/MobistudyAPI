@@ -25,12 +25,12 @@ export default {
     }
     const studyKey = req.params.studyKey
 
-    if (!req.params || !req.params.userkey) {
+    if (!req.params || !req.params.userKey) {
       const errmess = 'Cannot request attachment without specifying a user key'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    let userkey = req.params.userkey
+    let userKey = req.params.userKey
 
     if (!req.params || !req.params.taskId) {
       const errmess = 'Cannot request attachment without specifying a taskId'
@@ -61,7 +61,7 @@ export default {
         }
       } else if (req.user.role === 'participant') {
         // participants can only access their own data, just ignore any userKey in the URL and use login key instead
-        userkey = req.user._key
+        userKey = req.user._key
       }
 
       // TODO: get the reader
