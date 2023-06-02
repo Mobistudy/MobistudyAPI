@@ -12,6 +12,10 @@ function MockResponse () {
     this.data = d
   }
 
+  this.json = (d) => {
+    this.data = d
+  }
+
   this.sendStatus = (s) => {
     this.data = ''
     this.code = s

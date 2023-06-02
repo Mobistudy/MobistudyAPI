@@ -41,8 +41,8 @@ describe('Testing studies stats controller,', () => {
       user: {
         role: 'participant'
       },
-      params: {
-        study_key: '1978'
+      query: {
+        studyKey: '1978'
       }
     }, res)
 
@@ -63,7 +63,9 @@ describe('Testing studies stats controller,', () => {
         name: 'Dario',
         surname: 'Salvi',
         DOB: '1994-06-04',
+        userEmail: 'dario@test.test',
         status: 'accepted',
+        taskResultCount: 3,
         lastTaskDate: null,
         lastTaskType: null
       }]
@@ -73,8 +75,8 @@ describe('Testing studies stats controller,', () => {
       user: {
         role: 'researcher'
       },
-      params: {
-        study_key: 'fake'
+      query: {
+        studyKey: 'fake'
       }
     }, res)
 

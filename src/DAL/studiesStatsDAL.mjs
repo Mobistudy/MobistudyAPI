@@ -14,7 +14,7 @@ const init = async function (DB) {
 }
 
 const DAL = {
-  async getLastTasksSummary (studyKey, participantName, statusType,  dataCallback) {
+  async getLastTasksSummary (studyKey, participantName, statusType, dataCallback) {
 
     const bindings = {
       studyKey,
@@ -25,15 +25,15 @@ const DAL = {
     FOR p IN participants
       FOR s IN p.studies
         FILTER s.studyKey == @studyKey `
-    if (statusType){
+    if (statusType) {
       queryString += `&& s.currentStatus == @statusType `
     }
-    if (participantName){
+    if (participantName) {
       const fullname = participantName.split(" ")
-      if(fullname[1]){
+      if (fullname[1]) {
         queryString += `FILTER LIKE(p.name, CONCAT('%', '${fullname[0]}', '%'), true) `
         queryString += `FILTER LIKE(p.surname, CONCAT('%','${fullname[1]}', '%'), true) `
-      }else{
+      } else {
         queryString += `FILTER LIKE(p.name, CONCAT('%', '${fullname[0]}', '%'), true) `
       }
     }
@@ -48,7 +48,7 @@ const DAL = {
       RETURN {createdTS : t.createdTS, taskType: t.taskType }
     )
     RETURN {
-      _key: p.userKey,
+      userKey: p.userKey,
       name: p.name,
       surname: p.surname,
       DOB: p.dateOfBirth,
