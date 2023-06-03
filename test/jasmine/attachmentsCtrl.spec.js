@@ -48,11 +48,12 @@ describe('Testing attachments controller,', () => {
 
   describe('when adding a file', () => {
     let userKey = '123'
-    let studyKey = '456'
+    let studyKey = '555'
     let taskId = '7'
     let fileName = '89.txt'
 
     beforeAll(async () => {
+      // write the file
       let writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
       await writer.write('text1 ')
       await writer.write('text2')
@@ -60,7 +61,8 @@ describe('Testing attachments controller,', () => {
     }, 1000)
 
     afterEach(async () => {
-      await fsRm('tasksuploads/456/', { recursive: true })
+      // delete the file
+      await fsRm('tasksuploads/555/', { recursive: true })
     })
 
     it('a researcher can access a single file', async () => {
@@ -78,14 +80,18 @@ describe('Testing attachments controller,', () => {
           role: 'researcher'
         },
         params: {
-          studyKey: '456',
-          userKey: '123',
-          taskId: '7',
-          fileName: '89.txt'
+          studyKey,
+          userKey,
+          taskId,
+          fileName
         }
       }, res)
 
-      // TODO: make sure this work!
+      // stop the test until the write stream is closed
+      await new Promise((resolve, reject) => {
+        res.on('error', reject)
+        res.on('close', resolve)
+      })
 
       // read the response from writer
       let fileContent = res.readChunks()

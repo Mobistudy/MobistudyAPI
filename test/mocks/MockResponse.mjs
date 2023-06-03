@@ -5,6 +5,7 @@ import stream from 'stream'
  */
 class MockResponse extends stream.Writable {
 
+  // dummy writer, only appends data into a buffer
   _write (chunk, enc, next) {
     this.chunks.push(Buffer.from(chunk))
     next()

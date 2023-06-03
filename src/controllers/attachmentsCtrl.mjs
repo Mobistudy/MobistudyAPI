@@ -3,6 +3,7 @@
  */
 import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
+import { getAttachmentReader } from '../services/attachments.mjs'
 
 export default {
   /**
@@ -12,7 +13,7 @@ export default {
   },
 
   /**
-   * Get a single attachment. StudyKey, userKey, taskId and filename must be passed as URL params.
+   * Get a single attachment. StudyKey, userKey, taskId and fileName must be passed as URL params.
    * @param {object} req: express request object
    * @param {object} res: express response object
    * @returns a promise
@@ -64,11 +65,15 @@ export default {
         userKey = req.user._key
       }
 
-      // TODO: get the reader
-      let readStream = null
+      // get the reader
+      let readStream = await getAttachmentReader(studyKey, userKey, taskId, fileName)
 
       // attach it to pipe of response
       readStream.pipe(res)
+
+      readStream.on('error', err => {
+        next(err)
+      })
     } catch (err) {
       console.error(err)
       applogger.error({ error: err }, 'Cannot read attachment')
