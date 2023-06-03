@@ -1,23 +1,20 @@
-import { getAttachmentWriter, getAttachments, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
-import { open as fsOpen, stat as fsStat, rmdir as fsRmdir } from 'fs/promises'
+import { getAttachmentWriter, getAttachments, getAttachmentReader, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
+import { stat as fsStat, rm as fsRm } from 'fs/promises'
+import { applogger } from '../../src/services/logger.mjs'
+import { mockObject } from '../mocks/mocker.mjs'
 
-jest.mock('../../src/services/logger', () => ({
-  applogger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    trace: jest.fn()
-  }
-}))
+// mock app logger
+mockObject(applogger)
 
-describe('when saving an attachment', () => {
+describe('When saving an attachment', () => {
 
   afterAll(async () => {
-    await fsRmdir('tasksuploads/456/', { recursive: true })
-    await fsRmdir('tasksuploads/678/', { recursive: true })
+    await fsRm('tasksuploads/456/', { recursive: true })
+    await fsRm('tasksuploads/678/', { recursive: true })
   })
 
 
-  test('the file is saved', async () => {
+  it('the file is saved', async () => {
     let userKey = '123'
     let studyKey = '456'
     let taskId = '7'
@@ -30,7 +27,7 @@ describe('when saving an attachment', () => {
     await fsStat(filePath)
   })
 
-  test('files can be read', async () => {
+  it('files can be read', async () => {
     let userKey = '123'
     let studyKey = '456'
     let taskId = '7'
@@ -54,7 +51,32 @@ describe('when saving an attachment', () => {
     expect(text).toBe('text1 text2')
   })
 
-  test('users data are deleted', async () => {
+  it('one file can be read as reader', async () => {
+    let userKey = '123'
+    let studyKey = '456'
+    let taskId = '7'
+    let fileName = '90.txt'
+    let writer = await getAttachmentWriter(userKey, studyKey, taskId, fileName)
+    await writer.write('text1 ')
+    await writer.write('text2')
+    await writer.end()
+
+    let reader = await getAttachmentReader(studyKey, userKey, taskId, fileName)
+
+    function streamToString (stream) {
+      const chunks = []
+      return new Promise((resolve, reject) => {
+        stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)))
+        stream.on('error', (err) => reject(err))
+        stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
+      })
+    }
+
+    const text = await streamToString(reader)
+    expect(text).toBe('text1 text2')
+  })
+
+  it('users data are deleted', async () => {
     let userKey = '123'
     let studyKey = '456'
     let taskId = '1'

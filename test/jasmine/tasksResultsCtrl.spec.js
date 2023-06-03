@@ -26,7 +26,7 @@ describe('Testing tasks results controller,', () => {
     // tasksResultsCtrl.validate = () => {return true}
 
     await tasksResultsCtrl.init()
-  }, 100)
+  }, 1000)
 
   afterEach(() => {
     DAL.resetMock()
@@ -37,73 +37,6 @@ describe('Testing tasks results controller,', () => {
     afterEach(() => {
       DAL.resetMock()
     })
-
-    // let study1Key, researcher1Key, team1Key, user1Key, participant1Key;
-    // beforeAll(async () => {
-    //   // feed with some initial data
-    //   researcher1Key = await addDataToCollection("users", {
-    //     email: "reseacher1@uni1.edu",
-    //     hashedPasswor: "xxxxxxxx",
-    //     role: "researcher",
-    //   })
-
-    //   team1Key = await addDataToCollection("teams", {
-    //     name: "team1",
-    //     createdTS: "2018-11-12T16:40:07.542Z",
-    //     researchersKeys: [researcher1Key],
-    //     invitationCode: "xxxx",
-    //     invitationExpiry: "2018-11-26T10:13:08.386Z",
-    //   })
-
-    //   study1Key = await addDataToCollection("studies", {
-    //     createdTS: "2019-02-27T12:46:07.294Z",
-    //     updatedTS: "2019-02-27T12:46:07.294Z",
-    //     teamKey: team1Key,
-    //     generalities: {
-    //       title: {
-    //         en: "study1"
-    //       }
-    //     },
-    //     tasks: [
-    //       {
-    //         id: 1,
-    //         type: 'form'
-    //       }
-    //     ]
-    //   })
-
-    //   user1Key = await addDataToCollection("users", {
-    //     email: "participant1@company1.com",
-    //     hashedPasswor: "xxxxxxxx",
-    //     role: "participant",
-    //   })
-
-    //   participant1Key = await addDataToCollection("participants", {
-    //     userKey: user1Key,
-    //     studies: [
-    //       {
-    //         studyKey: study1Key,
-    //         currentStatus: "accepted",
-    //         acceptedTS: "2019-02-27T12:46:07.294Z",
-    //         taskItemsConsent: [
-    //           {
-    //             taskId: 1,
-    //             consented: true,
-    //             lastExecuted: "2019-02-27T12:46:07.294Z"
-    //           }
-    //         ]
-    //       }
-    //     ]
-    //   })
-    // }, 5000)
-
-    // afterAll(async () => {
-    //   await removeFromCollection("users", researcher1Key)
-    //   await removeFromCollection("teams", team1Key)
-    //   await removeFromCollection("teams", participant1Key)
-    //   await removeFromCollection("studies", study1Key)
-    //   await fsRmdir('tasksuploads/' + study1Key + '/', { recursive: true })
-    // })
 
     it("researchers cannot send results", async () => {
       let res = new MockResponse()

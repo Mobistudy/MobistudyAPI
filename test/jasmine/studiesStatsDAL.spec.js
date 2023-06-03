@@ -34,11 +34,15 @@ describe('Testing studies stats DA integrated in Arango,', () => {
   })
 
   describe("when adding one participant and no results", () => {
-    let part_key, taskr_key
+    let user_key, part_key, taskr_key
 
     beforeAll(async () => {
+      user_key = await addDataToCollection('users', {
+        email: 'dario@test.test',
+        role: 'participant'
+      })
       part_key = await addDataToCollection('participants', {
-        userKey: '1234',
+        userKey: user_key,
         name: 'Dario',
         surname: 'Salvi',
         dateOfBirth: '1976-03-14',
@@ -76,18 +80,22 @@ describe('Testing studies stats DA integrated in Arango,', () => {
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()
       expect(summary.length).toBe(1)
-      expect(summary[0].userKey).toBe('1234')
+      expect(summary[0].userKey).toBe(user_key)
       expect(summary[0].lastTaskDate).toBeNull()
       expect(summary[0].lastTaskType).toBeNull()
     })
   })
 
   describe("when adding some participants and some results,", () => {
-    let part1_key, part2_key, taskr1_1_key, taskr1_2_key, taskr2_1_key, taskr2_2_key
+    let user1_key, user2_key, part1_key, part2_key, taskr1_1_key, taskr1_2_key, taskr2_1_key, taskr2_2_key
 
     beforeAll(async () => {
+      user1_key = await addDataToCollection('users', {
+        email: 'dario@test.test',
+        role: 'participant'
+      })
       part1_key = await addDataToCollection('participants', {
-        userKey: '1234',
+        userKey: user1_key,
         name: 'Dario',
         surname: 'Salvi',
         dateOfBirth: '1976-03-14',
@@ -106,20 +114,25 @@ describe('Testing studies stats DA integrated in Arango,', () => {
         ]
       })
       taskr1_1_key = await addDataToCollection('tasksResults', {
-        userKey: '1234',
+        userKey: user1_key,
         studyKey: 'abc',
         createdTS: '2023-02-05T13:55:03',
         taskType: 'form'
       })
       taskr1_2_key = await addDataToCollection('tasksResults', {
-        userKey: '1234',
+        userKey: user1_key,
         studyKey: 'abc',
         createdTS: '2023-02-05T14:02:00',
         taskType: 'tugt'
       })
 
+      user2_key = await addDataToCollection('users', {
+        email: 'gent@test.test',
+        role: 'participant'
+      })
+
       part2_key = await addDataToCollection('participants', {
-        userKey: '6789',
+        userKey: user2_key,
         name: 'Gent',
         surname: 'Ymeri',
         dateOfBirth: '1992-01-12',
@@ -138,13 +151,13 @@ describe('Testing studies stats DA integrated in Arango,', () => {
         ]
       })
       taskr2_1_key = await addDataToCollection('tasksResults', {
-        userKey: '6789',
+        userKey: user2_key,
         studyKey: 'abc',
         createdTS: '2023-02-27T10:30:30',
         taskType: 'form'
       })
       taskr2_2_key = await addDataToCollection('tasksResults', {
-        userKey: '6789',
+        userKey: user2_key,
         studyKey: 'abc',
         createdTS: '2023-02-28T11:20:20',
         taskType: '6mwt'
@@ -167,10 +180,10 @@ describe('Testing studies stats DA integrated in Arango,', () => {
       expect(summary).not.toBeNull()
       expect(summary).toBeDefined()
       expect(summary.length).toBe(2)
-      expect(summary[0].userKey).toBe('1234')
+      expect(summary[0].userKey).toBe(user1_key)
       expect(summary[0].lastTaskDate).toBe('2023-02-05T14:02:00')
       expect(summary[0].lastTaskType).toBe('tugt')
-      expect(summary[1].userKey).toBe('6789')
+      expect(summary[1].userKey).toBe(user2_key)
       expect(summary[1].lastTaskDate).toBe('2023-02-28T11:20:20')
       expect(summary[1].lastTaskType).toBe('6mwt')
     })

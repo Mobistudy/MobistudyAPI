@@ -1,5 +1,5 @@
 // helps saving files for a study and task
-import { open as fsOpen, lstat as fsStat, mkdir as fsMkdir, readdir as fsReaddir, rmdir as fsRmdir } from 'fs/promises'
+import { open as fsOpen, lstat as fsStat, mkdir as fsMkdir, readdir as fsReaddir, rm as fsRm } from 'fs/promises'
 import { applogger } from '../services/logger.mjs'
 
 const UPLOADSDIR = 'tasksuploads'
@@ -64,33 +64,15 @@ export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) 
  * Gets a single file attachment, given its name.
  * @param {string} studyKey key of the study
  * @param {string} userKey key of the user
+ * @param {number} taskId id of the task
  * @param {string} filename name of the file, as found in the tasksResults
- * @param {boolean} reader optional. If true (default), the promise passes a readStream, else the whole content
  * @returns a Promise with either the content or a readStream passed as parameter
  */
-export async function getAttachment (studyKey, userKey, filename, reader = true) {
-  const filePath = UPLOADSDIR + '/' + studyKey + '/' + userKey + '/' + filename
-  // gracefully return if no directory is found
-  try {
-    await fsStat(filePath)
-  } catch (err) {
-    return
-  }
+export async function getAttachmentReader (studyKey, userKey, taskId, filename) {
+  const filePath = UPLOADSDIR + '/' + studyKey + '/' + userKey + '/' + taskId + '/' + filename
 
-  let filehandle
-  try {
-    filehandle = await fsOpen(filePath)
-
-    if (reader) {
-      return filehandle.createReadStream()
-    } else {
-      return filehandle.readFile()
-    }
-
-  } finally {
-    if (filehandle) await filehandle.close()
-  }
-
+  let filehandle = await fsOpen(filePath)
+  return filehandle.createReadStream()
 }
 
 export async function getAttachments (studyKey, cbk) {
@@ -155,7 +137,7 @@ export async function deleteAttachmentsByStudy (studyKey) {
   } catch (err) {
     return
   }
-  return fsRmdir(studyDir, { recursive: true })
+  return fsRm(studyDir, { recursive: true })
 }
 
 export async function deleteAttachmentsByUser (userKey) {
@@ -178,7 +160,7 @@ export async function deleteAttachmentsByUser (userKey) {
         }
         if (stat.isDirectory()) {
           if (userDir == userKey) {
-            await fsRmdir(UPLOADSDIR + '/' + studyDir + '/' + userDir + '/', { recursive: true })
+            await fsRm(UPLOADSDIR + '/' + studyDir + '/' + userDir + '/', { recursive: true })
           }
         }
       }
