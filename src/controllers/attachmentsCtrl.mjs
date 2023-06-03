@@ -3,6 +3,7 @@
  */
 import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
+import { getAttachmentReader} from '../services/attachments.mjs'
 
 export default {
   /**
@@ -18,33 +19,33 @@ export default {
    * @returns a promise
    */
   async getAttachment (req, res) {
-    if (!req.params || !req.params.studyKey) {
+    if (!req.query || !req.query.studyKey) {
       const errmess = 'Cannot request attachment without specifying a study'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const studyKey = req.params.studyKey
+    const studyKey = req.query.studyKey
 
-    if (!req.params || !req.params.userKey) {
+    if (!req.query || !req.query.userKey) {
       const errmess = 'Cannot request attachment without specifying a user key'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    let userKey = req.params.userKey
+    let userKey = req.query.userKey
 
-    if (!req.params || !req.params.taskId) {
+    if (!req.query || !req.query.taskId) {
       const errmess = 'Cannot request attachment without specifying a taskId'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const taskId = req.params.taskId
+    const taskId = req.query.taskId
 
-    if (!req.params || !req.params.fileName) {
+    if (!req.query || !req.query.fileName) {
       const errmess = 'Cannot request attachment without specifying a fileName'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const fileName = req.params.fileName
+    const fileName = req.query.fileName
 
     try {
       // verify if study exists
@@ -64,8 +65,7 @@ export default {
         userKey = req.user._key
       }
 
-      // TODO: get the reader
-      let readStream = null
+      let readStream = await getAttachmentReader(studyKey, userKey, taskId, fileName)
 
       // attach it to pipe of response
       readStream.pipe(res)
