@@ -87,12 +87,13 @@ const DAL = {
       FILTER @researcherKey IN team.researchersKeys
       FOR study IN studies
       FILTER study.teamKey == team._key
-      FOR participant IN participants`
+      FOR participant IN participants
+      FILTER study._key IN participant.studies[*].studyKey`
     if (currentStatus) {
       bindings.currentStatus = currentStatus
       query += ' FILTER @currentStatus IN participant.studies[* FILTER CURRENT.studyKey == study._key].currentStatus '
     }
-    query += `FILTER study._key IN participant.studies[*].studyKey
+    query += `
       LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey == study._key]
       LET retval = UNSET(participant, 'studies')
       RETURN MERGE_RECURSIVE(retval, { studies: filteredStudies })`
