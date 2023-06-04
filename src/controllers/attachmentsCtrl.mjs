@@ -3,11 +3,7 @@
  */
 import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
-<<<<<<< HEAD
-import { getAttachmentReader} from '../services/attachments.mjs'
-=======
 import { getAttachmentReader } from '../services/attachments.mjs'
->>>>>>> master
 
 export default {
   /**
@@ -69,10 +65,7 @@ export default {
         userKey = req.user._key
       }
 
-<<<<<<< HEAD
-=======
       // get the reader
->>>>>>> master
       let readStream = await getAttachmentReader(studyKey, userKey, taskId, fileName)
 
       // attach it to pipe of response
