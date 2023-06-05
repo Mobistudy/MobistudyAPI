@@ -87,7 +87,7 @@ export default async function () {
       await DAL.replaceParticipant(participant._key, participant)
       res.sendStatus(200)
       applogger.info({ userKey: req.user._key, taskId: newPeakFlowData.taskId, studyKey: newPeakFlowData.studyKey }, 'Participant has sent peak flow')
-      auditLogger.log('PeakFlowCreated', req.user._key, newPeakFlowData.studyKey, newPeakFlowData.taskId, 'peak flow created by participant with key ' + participant._key + ' for study with key ' + newPeakFlowData.studyKey, 'PeakFlowData', newPeakFlowData._key, newPeakFlowData)
+      auditLogger.log('PeakFlowCreated', req.user._key, newPeakFlowData.studyKey, newPeakFlowData.taskId, 'peak flow created by participant with key ' + participant._key + ' for study with key ' + newPeakFlowData.studyKey, 'PeakFlowData', newPeakFlowData._key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new peak flow Data')
       res.sendStatus(500)

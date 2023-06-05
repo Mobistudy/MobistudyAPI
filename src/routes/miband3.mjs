@@ -111,7 +111,7 @@ export default async function () {
 
       res.sendStatus(200)
       applogger.info({ userKey: req.user._key, taskId: newMiband3Data.taskId, studyKey: newMiband3Data.studyKey }, 'Participant has sent miband data')
-      auditLogger.log('Miband3DataCreated', req.user._key, newMiband3Data.studyKey, newMiband3Data.taskId, 'Miband3Data data created by participant with key ' + participant._key + ' for study with key ' + newMiband3Data.studyKey, 'Miband3Data', newMiband3Data._key, newMiband3Data)
+      auditLogger.log('Miband3DataCreated', req.user._key, newMiband3Data.studyKey, newMiband3Data.taskId, 'Miband3Data data created by participant with key ' + participant._key + ' for study with key ' + newMiband3Data.studyKey, 'Miband3Data', newMiband3Data._key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new Miband3Data Data')
       res.sendStatus(500)

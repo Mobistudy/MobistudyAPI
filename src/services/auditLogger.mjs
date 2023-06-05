@@ -5,7 +5,7 @@ import { DAL } from '../DAL/DAL.mjs'
 
 export default {
   /**
-   *
+   * Log an event on the audit log
    * @param {*} event: event name
    * @param {*} userKey: identifier of the user
    * @param {*} studyKey: identifier of the study
@@ -13,7 +13,6 @@ export default {
    * @param {*} message: textual description of what is happening
    * @param {*} refData: name of the data that has been affected (if any)
    * @param {*} refKey: key of the data that has been affected (if any)
-   * @param {*} data: actual data affected
    */
   async log (event, userKey, studyKey, taskId, message, refData, refKey, data) {
     DAL.addAuditLog({
@@ -24,8 +23,7 @@ export default {
       taskId,
       message,
       refData,
-      refKey,
-      data
+      refKey
     })
   }
 }

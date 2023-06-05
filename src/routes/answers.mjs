@@ -73,7 +73,7 @@ export default async function () {
       res.send(newanswer)
 
       applogger.info({ userKey: req.user._key, taskId: newanswer.taskId, studyKey: newanswer.studyKey }, 'Participant has sent answers to a form')
-      auditLogger.log('answersCreated', req.user._key, newanswer.studyKey, newanswer.taskId, 'Form answers created by participant with key ' + participant._key + ' for study with key ' + newanswer.studyKey, 'answers', newanswer._key, newanswer)
+      auditLogger.log('answersCreated', req.user._key, newanswer.studyKey, newanswer.taskId, 'Form answers created by participant with key ' + participant._key + ' for study with key ' + newanswer.studyKey, 'answers', newanswer._key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new answer')
       res.sendStatus(500)

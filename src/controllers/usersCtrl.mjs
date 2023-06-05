@@ -47,7 +47,7 @@ export default {
 
   login: function (req, res) {
     res.send(req.user)
-    auditLogger.log('login', req.user._key, undefined, undefined, 'User ' + req.user.email + ' has logged in', 'users', req.user._key, undefined)
+    auditLogger.log('login', req.user._key, undefined, undefined, 'User ' + req.user.email + ' has logged in', 'users', req.user._key)
   },
 
   sendPasswordResetEmail: async function (req, res) {
@@ -73,7 +73,7 @@ export default {
       await sendEmail(email, msg.title, msg.content)
       res.sendStatus(200)
       applogger.info({ email: req.body.email }, 'Reset password email sent')
-      auditLogger.log('resetPasswordEmail', existing._key, undefined, undefined, 'User ' + email + ' has requested a reset password email', 'users', existing._key, undefined)
+      auditLogger.log('resetPasswordEmail', existing._key, undefined, undefined, 'User ' + email + ' has requested a reset password email', 'users', existing._key)
     } else res.sendStatus(400)
   },
 
@@ -114,7 +114,7 @@ export default {
 
         res.sendStatus(200)
         applogger.info({ email: email }, 'User has changed the password')
-        auditLogger.log('resetPassword', existing._key, undefined, undefined, 'User ' + email + ' has changed the password', 'users', existing._key, undefined)
+        auditLogger.log('resetPassword', existing._key, undefined, undefined, 'User ' + email + ' has changed the password', 'users', existing._key)
       }
     } else res.sendStatus(400)
   },
@@ -148,7 +148,7 @@ export default {
       newuser.createdTS = new Date()
       res.sendStatus(200)
       applogger.info({ email: newuser.email }, 'New user created')
-      auditLogger.log('userCreated', newuser._key, undefined, undefined, 'New user created with email ' + newuser.email, 'users', newuser._key, undefined)
+      auditLogger.log('userCreated', newuser._key, undefined, undefined, 'New user created with email ' + newuser.email, 'users', newuser._key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new user')
       res.sendStatus(500)
@@ -274,7 +274,7 @@ export default {
         res.sendStatus(200)
 
         applogger.info({ email: user.email }, 'User deleted')
-        auditLogger.log('userDeleted', userKey, undefined, undefined, 'User with email ' + user.email + ' deleted', 'users', userKey, undefined)
+        auditLogger.log('userDeleted', userKey, undefined, undefined, 'User with email ' + user.email + ' deleted', 'users', userKey)
       } else res.sendStatus(403)
     } catch (err) {
       // respond to request with error
