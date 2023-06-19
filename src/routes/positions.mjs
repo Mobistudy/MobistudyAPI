@@ -177,8 +177,7 @@ export default async function () {
           ' for study with key ' +
           newpos.studyKey,
           'positions',
-          newpos._key,
-          newpos
+          newpos._key
         )
       } catch (err) {
         applogger.error({ error: err }, 'Cannot store new position')

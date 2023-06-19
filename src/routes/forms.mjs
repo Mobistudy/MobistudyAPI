@@ -48,7 +48,7 @@ export default async function () {
       newform = await DAL.createForm(newform)
       res.send(newform)
       applogger.info(newform, 'New form created')
-      auditLogger.log('formCreated', req.user._key, undefined, undefined, 'New form created', 'forms', newform._key, newform)
+      auditLogger.log('formCreated', req.user._key, undefined, undefined, 'New form created', 'forms', newform._key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new form')
       res.sendStatus(500)
@@ -62,7 +62,7 @@ export default async function () {
       newform = await DAL.replaceForm(req.params.form_key, newform)
       res.send(newform)
       applogger.info(newform, 'Form has been replaced')
-      auditLogger.log('formReplaced', req.user._key, undefined, undefined, 'Form has been replaced', 'forms', newform._key, newform)
+      auditLogger.log('formReplaced', req.user._key, undefined, undefined, 'Form has been replaced', 'forms', newform._key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot replace form with _key ' + req.params.form_key)
       res.sendStatus(500)
@@ -76,7 +76,7 @@ export default async function () {
       newform = await DAL.updateForm(req.params.form_key, newform)
       res.send(newform)
       applogger.info(newform, 'Form has been updated')
-      auditLogger.log('formUpdate', req.user._key, undefined, undefined, 'Form has been updated', 'forms', newform._key, newform)
+      auditLogger.log('formUpdate', req.user._key, undefined, undefined, 'Form has been updated', 'forms', newform._key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot update form with _key ' + req.params.form_key)
       res.sendStatus(500)
@@ -89,7 +89,7 @@ export default async function () {
       await DAL.deleteForm(req.params.form_key)
       res.sendStatus(200)
       applogger.info({ formKey: req.params.form_key }, 'Form has been deleted')
-      auditLogger.log('formUpdate', req.user._key, undefined, undefined, 'Form with key ' + req.params.form_key + ' has been deleted', 'forms', req.params.form_key, undefined)
+      auditLogger.log('formUpdate', req.user._key, undefined, undefined, 'Form with key ' + req.params.form_key + ' has been deleted', 'forms', req.params.form_key)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot delete form with _key ' + req.params.form_key)
       res.sendStatus(500)

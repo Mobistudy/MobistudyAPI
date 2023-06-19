@@ -2,6 +2,7 @@
 * This provides the data access for the audit log.
 * Example of an audit log:
 * {
+    "_key": "2121212",
 *   "timestamp": "2019-02-27T12:46:07.294Z",
 *   "event": "userRegistered",
 *   "userKey": "12123132",
@@ -34,12 +35,14 @@ const DAL = {
     newLog._key = meta._key
     return newLog
   },
+
   async getLogEventTypes () {
     let query = 'FOR log IN auditlogs RETURN DISTINCT log.event'
     applogger.trace('Querying "' + query + '"')
     let cursor = await db.query(query)
     return cursor.all()
   },
+
   async getAuditLogs (countOnly, after, before, eventType, studyKey, taskId, userEmail, sortDirection, offset, rowsPerPage) {
     let queryString = ''
     if (countOnly) {
@@ -103,8 +106,7 @@ const DAL = {
           userEmail: user.email,
           message: log.message,
           refData: log.refData,
-          refKey: log.refKey,
-          data: log.data
+          refKey: log.refKey
         }`
     }
     applogger.trace(bindings, 'Querying "' + queryString + '"')

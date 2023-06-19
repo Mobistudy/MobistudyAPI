@@ -150,8 +150,7 @@ export default async function () {
           undefined,
           'New study description added',
           'studies',
-          newstudy._key,
-          newstudy
+          newstudy._key
         )
       } catch (err) {
         applogger.error({ error: err }, 'Cannot store new study')
@@ -179,8 +178,7 @@ export default async function () {
           undefined,
           'Study description replaced',
           'studies',
-          newstudy._key,
-          newstudy
+          newstudy._key
         )
       } catch (err) {
         applogger.error(
@@ -211,8 +209,7 @@ export default async function () {
           undefined,
           'Study description updated',
           'studies',
-          newstudy._key,
-          newstudy
+          newstudy._key
         )
       } catch (err) {
         applogger.error(
@@ -296,8 +293,7 @@ export default async function () {
             undefined,
             'Study description with key ' + studykey + ' deleted',
             'studies',
-            studykey,
-            undefined
+            studykey
           )
         } catch (err) {
           applogger.error(

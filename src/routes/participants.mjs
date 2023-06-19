@@ -141,8 +141,7 @@ export default async function () {
             undefined,
             'New participant created',
             'participants',
-            newparticipant._key,
-            newparticipant
+            newparticipant._key
           )
         } else res.sendStatus(403)
       } catch (err) {
@@ -216,8 +215,7 @@ export default async function () {
           undefined,
           'Participant deleted',
           'participants',
-          participant._key,
-          undefined
+          participant._key
         )
       } catch (err) {
         // respond to request with error
@@ -285,8 +283,7 @@ export default async function () {
           undefined,
           'Participant deleted',
           'participants',
-          partKey,
-          undefined
+          partKey
         )
       } catch (err) {
         // respond to request with error
@@ -370,8 +367,7 @@ export default async function () {
           undefined,
           'Participant updated',
           'participants',
-          participant._key,
-          newparticipant
+          participant._key
         )
       } catch (err) {
         applogger.error(
@@ -477,8 +473,7 @@ export default async function () {
           participant._key +
           ' has changed studies status',
           'participants',
-          participant._key,
-          payload
+          participant._key
         )
         res.sendStatus(200)
 
@@ -560,8 +555,7 @@ export default async function () {
           participant._key +
           ' has changed task item consent status',
           'participants',
-          participant._key,
-          payload
+          participant._key
         )
       } catch (err) {
         applogger.error(

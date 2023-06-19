@@ -81,8 +81,7 @@ export default async function () {
             undefined,
             'New team created ' + newteam.name,
             'teams',
-            newteam._key,
-            newteam
+            newteam._key
           )
         } catch (err) {
           applogger.error({ error: err }, 'Cannot store new study')
@@ -176,8 +175,7 @@ export default async function () {
                 ' added to team ' +
                 selTeam.name,
                 'teams',
-                selTeam._key,
-                selTeam
+                selTeam._key
               )
             }
           } else {
@@ -224,8 +222,7 @@ export default async function () {
             ' removed from team ' +
             selTeam.name,
             'teams',
-            selTeam._key,
-            selTeam
+            selTeam._key
           )
         } catch (err) {
           applogger.error({ error: err }, 'Cannot remove user from study')
@@ -289,8 +286,7 @@ export default async function () {
             undefined,
             'Team with key ' + teamkey + ' deleted',
             'teams',
-            teamkey,
-            undefined
+            teamkey
           )
         } else res.sendStatus(403)
       } catch (err) {
