@@ -8,7 +8,7 @@ import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { studyStatusUpdateCompose } from '../services/emailComposer.mjs'
-import { sendEmail } from '../services/mailSender.mjs'
+import mailsender from '../services/mailSender.mjs'
 import { deleteAttachmentsByUser } from '../services/attachments.mjs'
 
 const router = express.Router()
@@ -480,7 +480,7 @@ export default async function () {
         try {
           if (updatedCurrentStatus !== currentStatus) {
             const em = await studyStatusUpdateCompose(studyKey, participant)
-            await sendEmail(req.user.email, em.title, em.content)
+            await mailSender.sendEmail(req.user.email, em.title, em.content)
           }
         } catch (err) {
           applogger.error(

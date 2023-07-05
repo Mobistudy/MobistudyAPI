@@ -9,7 +9,7 @@ import { DAL } from '../DAL/DAL.mjs'
 import getConfig from '../services/config.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
-import { sendEmail } from '../services/mailSender.mjs'
+import mailSender from '../services/mailSender.mjs'
 import { userRegistrationCompose, passwordRecoveryCompose, newPasswordCompose } from '../services/emailComposer.mjs'
 import { getLanguageFromAcceptedList } from '../i18n/i18n.mjs'
 
@@ -70,7 +70,7 @@ export default {
         language = part.language
       }
       const msg = passwordRecoveryCompose(serverlink, token, language)
-      await sendEmail(email, msg.title, msg.content)
+      await mailSender.sendEmail(email, msg.title, msg.content)
       res.sendStatus(200)
       applogger.info({ email: req.body.email }, 'Reset password email sent')
       auditLogger.log('resetPasswordEmail', existing._key, undefined, undefined, 'User ' + email + ' has requested a reset password email', 'users', existing._key)
@@ -106,7 +106,7 @@ export default {
           language = part.language
         }
         const msg = newPasswordCompose(language)
-        await sendEmail(email, msg.title, msg.content)
+        await mailSender.sendEmail(email, msg.title, msg.content)
 
         await DAL.updateUser(existing._key, {
           hashedPassword: hashedPassword
@@ -130,7 +130,7 @@ export default {
     const language = getLanguageFromAcceptedList(req.acceptsLanguages())
     try {
       const msg = userRegistrationCompose(language)
-      await sendEmail(user.email, msg.title, msg.content)
+      await mailSender.sendEmail(user.email, msg.title, msg.content)
     } catch (err) {
       res.status(400).send('Cannot send confirmation email')
       applogger.warn({ error: err }, 'Cannot send new user confirmation email')
