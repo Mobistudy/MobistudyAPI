@@ -30,7 +30,7 @@ The "logs" part is for setting up the logging system. Inside "folder" you can us
 
 The part under "db" is important and is linked to how you configure Arango.
 Your Arango instance should have a user and a database dedicated to Mobsitudy.
-Once Arango is started, open the interface at http://localhost:8529, then login using the root user. If you used used ARANGO_NO_AUTH, no password should be needed.
+Once Arango is started, open the interface at http://127.0.0.1:8529, then login using the root user. If you used used ARANGO_NO_AUTH, no password should be needed.
 
 Once inside, create a new user (you can call it “mobistudy”) and a new database (you can also call it “mobistudy”) and associate the new database to the new user. These details (database name, user name and the user password) are the same that you need to specify in the config file under “db”.
 
