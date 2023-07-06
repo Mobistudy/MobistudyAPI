@@ -46,7 +46,7 @@ describe('Testing attachments controller,', () => {
     expect(res.code).toBe(400)
   })
 
-  describe('when adding a file', () => {
+  describe('when adding a file,', () => {
     let userKey = '123'
     let studyKey = '555'
     let taskId = '7'
