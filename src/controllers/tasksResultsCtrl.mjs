@@ -145,7 +145,7 @@ export default {
 
   /**
    * Get all tasks results
-   * optional query param: studyKey to filter by study
+   * optional query params: studyKey to filter by study, userKey to filter also by user
    * @param {object} req: express request object
    * @param {object} res: express response object
    * @returns a promise
@@ -159,18 +159,20 @@ export default {
           applogger.warn(errmess)
           return res.status(400).send(errmess)
         }
-        if (req.query.userKey) {
-          const resultsData = await DAL.getTasksResultsByUserAndStudy(req.query.userKey, req.query.studyKey)
-          return res.send(resultsData)
-        }
+        // check if researcher can access study
         const team = await DAL.getAllTeams(req.user._key, req.query.studyKey)
         if (team.length === 0) {
           const errmess = 'Researcher cannot request tasks results for a study (s)he is not involved in'
           applogger.warn(errmess)
           return res.status(403).send(errmess)
         } else {
-          const resultsData = await DAL.getTasksResultsByStudy(req.query.studyKey)
-          res.send(resultsData)
+          if (req.query.userKey) { // study and user
+            const resultsData = await DAL.getTasksResultsByUserAndStudy(req.query.userKey, req.query.studyKey)
+            return res.send(resultsData)
+          } else { // study only
+            const resultsData = await DAL.getTasksResultsByStudy(req.query.studyKey)
+            return res.send(resultsData)
+          }
         }
       } else if (req.user.role === 'participant') {
         // participant requests tasks results
