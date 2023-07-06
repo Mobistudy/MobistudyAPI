@@ -73,11 +73,17 @@ export let DAL = {
       console.error('Configuration is missing some critical parameters', config)
       throw new Error('Configuration is missing some critical parameters')
     }
-    this.db = new Database({
-      url: 'http://' + config.db.host + ':' + config.db.port,
-      databaseName: config.db.name,
-      auth: { username: config.db.user, password: config.db.password }
-    })
+    try {
+      this.db = new Database({
+        url: 'http://' + config.db.host + ':' + config.db.port,
+        databaseName: config.db.name,
+        auth: { username: config.db.user, password: config.db.password }
+      })
+    }
+    catch (err) {
+      applogger.fatal(err, 'Cannot connect to database')
+      throw err
+    }
 
     applogger.debug('Connected to database')
 
