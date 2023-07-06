@@ -19,33 +19,33 @@ export default {
    * @returns a promise
    */
   async getAttachment (req, res) {
-    if (!req.query || !req.query.studyKey) {
+    if (!req.params || !req.params.studyKey) {
       const errmess = 'Cannot request attachment without specifying a study'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const studyKey = req.query.studyKey
+    const studyKey = req.params.studyKey
 
-    if (!req.query || !req.query.userKey) {
+    if (!req.params || !req.params.userKey) {
       const errmess = 'Cannot request attachment without specifying a user key'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    let userKey = req.query.userKey
+    let userKey = req.params.userKey
 
-    if (!req.query || !req.query.taskId) {
+    if (!req.params || !req.params.taskId) {
       const errmess = 'Cannot request attachment without specifying a taskId'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const taskId = req.query.taskId
+    const taskId = req.params.taskId
 
-    if (!req.query || !req.query.fileName) {
+    if (!req.params || !req.params.fileName) {
       const errmess = 'Cannot request attachment without specifying a fileName'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const fileName = req.query.fileName
+    const fileName = req.params.fileName
 
     try {
       // verify if study exists
