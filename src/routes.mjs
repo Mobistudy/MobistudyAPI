@@ -27,7 +27,7 @@ export default async function (app) {
   app.post(API_PREFIX + '/tasksResults', passport.authenticate('jwt', { session: false }), tasksResultsCtrl.createNew.bind(tasksResultsCtrl))
 
   await attachmentsCtrl.init()
-  app.post(API_PREFIX + '/tasksResults/attachments/:studyKey/:userKey/:taskId/:fileName', passport.authenticate('jwt', { session: false }), attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
+  app.get(API_PREFIX + '/tasksResults/attachments', passport.authenticate('jwt', { session: false }), attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
 
   await studyStatsCtrl.init()
   app.get(API_PREFIX + '/studyStats', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))

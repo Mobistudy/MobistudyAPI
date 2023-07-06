@@ -308,7 +308,9 @@ export default async function () {
         const allowedParts = await DAL.getParticipantsByResearcher(
           req.user._key
         )
-        if (!allowedParts.includes(req.params.user)) return res.sendStatus(403)
+        if (!allowedParts.some(participant => participant.userKey === req.params.userKey)) {
+          return res.sendStatus(403)
+        }
       }
       try {
         const participant = await DAL.getParticipantByUserKey(
