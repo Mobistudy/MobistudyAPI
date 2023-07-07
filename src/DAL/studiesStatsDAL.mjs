@@ -23,6 +23,7 @@ const DAL = {
 
     let queryString = `
     FOR p IN participants
+      FILTER HAS( p, "studies")
       FOR s IN p.studies
         FILTER s.studyKey == @studyKey `
     if (statusType) {
