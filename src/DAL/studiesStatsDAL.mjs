@@ -95,6 +95,8 @@ const DAL = {
           totalCount: cursor.extra.stats.fullCount,
           subset: await cursor.all()
         }
+      } else {
+        return cursor.all()
       }
     }
   }
