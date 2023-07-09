@@ -14,6 +14,7 @@ export default {
   /**
    * Get a summary of the last tasks performed by participants in a study.
    * mandatory query param: studyKey to filter by study
+   * optional query params: participantName, statusType, offset, count
    * @param {object} req: express request object
    * @param {object} res: express response object
    * @returns a promise
@@ -46,7 +47,9 @@ export default {
       participants = await DAL.getLastTasksSummary(
         req.query.studyKey,
         req.query.participantName,
-        req.query.statusType
+        req.query.statusType,
+        req.query.offset,
+        req.query.count
       )
       res.json(participants)
     } catch (err) {
