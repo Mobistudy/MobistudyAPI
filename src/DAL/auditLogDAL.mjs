@@ -102,6 +102,7 @@ const DAL = {
       bindings.userEmail = userEmail
     }
     if (!sortDirection) sortDirection = 'DESC'
+    else if (sortDirection.toLowerCase() === 'asc') sortDirection = 'ASC'
     queryString += `SORT log.timestamp @sortDirection `
     bindings.sortDirection = sortDirection
 
