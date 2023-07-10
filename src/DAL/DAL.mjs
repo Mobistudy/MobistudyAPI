@@ -61,32 +61,33 @@ export let DAL = {
   },
 
   async init () {
-    const config = getConfig()
+    if (!this.db) {
+      const config = getConfig()
 
-    if (!config) throw new Error('a configuration must be passed')
-    if (
-      !config.db.host ||
-      !config.db.port ||
-      !config.db.user ||
-      !config.db.password
-    ) {
-      console.error('Configuration is missing some critical parameters', config)
-      throw new Error('Configuration is missing some critical parameters')
-    }
-    try {
-      this.db = new Database({
-        url: 'http://' + config.db.host + ':' + config.db.port,
-        databaseName: config.db.name,
-        auth: { username: config.db.user, password: config.db.password }
-      })
-    }
-    catch (err) {
-      applogger.fatal(err, 'Cannot connect to database')
-      throw err
-    }
+      if (!config) throw new Error('a configuration must be passed')
+      if (
+        !config.db.host ||
+        !config.db.port ||
+        !config.db.user ||
+        !config.db.password
+      ) {
+        console.error('Configuration is missing some critical parameters', config)
+        throw new Error('Configuration is missing some critical parameters')
+      }
+      try {
+        this.db = new Database({
+          url: 'http://' + config.db.host + ':' + config.db.port,
+          databaseName: config.db.name,
+          auth: { username: config.db.user, password: config.db.password }
+        })
+      }
+      catch (err) {
+        applogger.fatal(err, 'Cannot connect to database')
+        throw err
+      }
 
-    applogger.debug('Connected to database')
-
+      applogger.debug('Connected to database')
+    }
 
     // init all parts of the DAL
     await users.init(this.db)
