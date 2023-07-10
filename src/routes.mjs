@@ -4,6 +4,7 @@ import usersCtrl from './controllers/usersCtrl.mjs'
 import tasksResultsCtrl from './controllers/tasksResultsCtrl.mjs'
 import attachmentsCtrl from './controllers/attachmentsCtrl.mjs'
 import studyStatsCtrl from './controllers/studyStatsCtrl.mjs'
+import vocabularyCtrl from './controllers/vocabularyCtrl.mjs'
 
 const API_PREFIX = '/api'
 
@@ -31,4 +32,7 @@ export default async function (app) {
 
   await studyStatsCtrl.init()
   app.get(API_PREFIX + '/studyStats', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
+
+  await vocabularyCtrl.init()
+  app.get(API_PREFIX + '/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabularyCtrl))
 }

@@ -23,7 +23,6 @@ import answersRouter from './routes/answers.mjs'
 import healthStoreDataRouter from './routes/healthStoreData.mjs'
 import auditLogRouter from './routes/auditLog.mjs'
 import testerRouter from './routes/tester.mjs'
-import vocabularyRouter from './routes/vocabulary.mjs'
 import Miband3Router from './routes/miband3.mjs'
 import PeakFlowRouter from './routes/peakflow.mjs'
 import PositionsRouter from './routes/positions.mjs'
@@ -75,7 +74,6 @@ export default async function () {
   app.use(apiPrefix, await healthStoreDataRouter())
   app.use(apiPrefix, await auditLogRouter())
   app.use(apiPrefix, await testerRouter())
-  app.use(apiPrefix, await vocabularyRouter())
   app.use(apiPrefix, await Miband3Router())
   app.use(apiPrefix, await PeakFlowRouter())
   app.use(apiPrefix, await PositionsRouter())
