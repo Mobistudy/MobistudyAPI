@@ -6,6 +6,7 @@
 *   "timestamp": "2019-02-27T12:46:07.294Z",
 *   "event": "userRegistered",
 *   "userKey": "12123132",
+*   "userEmail": "dario@test.test"
 *   "studyKey": "44555333",
 *   "taskId": 1,
 *   "message": "A new user has registered",
@@ -16,6 +17,8 @@
 import utils from './utils.mjs'
 import { applogger } from '../services/logger.mjs'
 
+const COLLECTION_NAME = 'auditlogs'
+
 let collection, db
 
 /**
@@ -23,7 +26,7 @@ let collection, db
  */
 const init = async function (DB) {
   db = DB
-  collection = await utils.getCollection(db, 'auditlogs')
+  collection = await utils.getCollection(db, COLLECTION_NAME)
   collection.ensureIndex({ type: 'persistent', fields: ['userKey'] })
   collection.ensureIndex({ type: 'persistent', fields: ['studyKey'] })
   collection.ensureIndex({ type: 'persistent', fields: ['event'] })
@@ -37,7 +40,7 @@ const DAL = {
   },
 
   async getLogEventTypes () {
-    let query = 'FOR log IN auditlogs RETURN DISTINCT log.event'
+    let query = 'FOR log IN ' + COLLECTION_NAME + ' RETURN DISTINCT log.event'
     applogger.trace('Querying "' + query + '"')
     let cursor = await db.query(query)
     return cursor.all()
@@ -64,11 +67,9 @@ const DAL = {
     let bindings = {}
     let queryOptions = {}
 
-    console.log(arguments)
-
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
-    queryString += `FOR log IN auditlogs `
+    queryString += `FOR log IN ${COLLECTION_NAME} `
     queryString += ` FOR user IN users
         FILTER user._key == log.userKey `
 
@@ -145,7 +146,7 @@ const DAL = {
 
   async getLogsByUser (userKey) {
     let bindings = { 'userKey': userKey }
-    let query = 'FOR log IN auditlogs FILTER log.userKey == @userKey RETURN log'
+    let query = 'FOR log IN ' + COLLECTION_NAME + ' FILTER log.userKey == @userKey RETURN log'
     applogger.trace('Querying "' + query + '"')
     let cursor = await db.query(query, bindings)
     return cursor.all()
@@ -159,7 +160,7 @@ const DAL = {
 
   async deleteLogsByUser (userKey) {
     let bindings = { 'userKey': userKey }
-    let query = 'FOR log IN auditlogs FILTER log.userKey == @userKey REMOVE log IN auditlogs'
+    let query = 'FOR log IN ' + COLLECTION_NAME + ' FILTER log.userKey == @userKey REMOVE log IN auditlogs'
     applogger.trace('Querying "' + query + '"')
     return db.query(query, bindings)
   }
