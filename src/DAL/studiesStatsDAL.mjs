@@ -35,7 +35,7 @@ const DAL = {
       studyKey
     }
 
-    const hasPaging = typeof (offset) !== 'undefied' && offset != null && typeof (count) !== 'undefied' && count != null
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
     let queryString = ''
     queryString += `
