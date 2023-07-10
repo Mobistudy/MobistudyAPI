@@ -2,7 +2,6 @@ import studyStatsCtrl from '../../src/controllers/studyStatsCtrl.mjs'
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
 import { MockResponse } from '../mocks/MockResponse.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
 
 describe('Testing studies stats controller,', () => {
 
@@ -11,14 +10,8 @@ describe('Testing studies stats controller,', () => {
     await DAL.extendDAL()
 
     // mock app logger
-    mockObject(applogger)
-    mockObject(DAL)
-
+    spyOnAllFunctions(applogger)
   }, 100)
-
-  afterEach(() => {
-    DAL.resetMock()
-  })
 
   it('no study key no party', async () => {
     let res = new MockResponse()
@@ -33,9 +26,9 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('participants cannot access study stats', async () => {
-    DAL.nextReturnedValue = {
+    spyOn(DAL, 'getOneStudy').and.returnValue({
       _key: 'fake'
-    }
+    })
     let res = new MockResponse()
     await studyStatsCtrl.getLastTasksSummary({
       user: {
@@ -50,26 +43,22 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('researchers can access their studies stats', async () => {
-    DAL.nextReturnedValuesSequence = [
-      // study
-      {
-        _key: 'fake'
-      },
-      // teams
-      [{}],
-      // stats
-      [{
-        userKey: '1122',
-        name: 'Dario',
-        surname: 'Salvi',
-        DOB: '1994-06-04',
-        userEmail: 'dario@test.test',
-        status: 'accepted',
-        taskResultCount: 3,
-        lastTaskDate: null,
-        lastTaskType: null
-      }]
-    ]
+    spyOn(DAL, 'getOneStudy').and.returnValue({
+      _key: 'fake'
+    })
+    spyOn(DAL, 'getAllTeams').and.returnValue([{}])
+    spyOn(DAL, 'getLastTasksSummary').and.returnValue([{
+      userKey: '1122',
+      name: 'Dario',
+      surname: 'Salvi',
+      DOB: '1994-06-04',
+      userEmail: 'dario@test.test',
+      status: 'accepted',
+      taskResultCount: 3,
+      lastTaskDate: null,
+      lastTaskType: null
+    }])
+
     let res = new MockResponse()
     await studyStatsCtrl.getLastTasksSummary({
       user: {
@@ -87,26 +76,22 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('researchers can filter by name', async () => {
-    DAL.nextReturnedValuesSequence = [
-      // study
-      {
-        _key: 'fake'
-      },
-      // teams
-      [{}],
-      // stats
-      [{
-        userKey: '1122',
-        name: 'Dario',
-        surname: 'Salvi',
-        DOB: '1994-06-04',
-        userEmail: 'dario@test.test',
-        status: 'accepted',
-        taskResultCount: 3,
-        lastTaskDate: null,
-        lastTaskType: null
-      }]
-    ]
+    spyOn(DAL, 'getOneStudy').and.returnValue({
+      _key: 'fake'
+    })
+    spyOn(DAL, 'getAllTeams').and.returnValue([{}])
+    spyOn(DAL, 'getLastTasksSummary').and.returnValue([{
+      userKey: '1122',
+      name: 'Dario',
+      surname: 'Salvi',
+      DOB: '1994-06-04',
+      userEmail: 'dario@test.test',
+      status: 'accepted',
+      taskResultCount: 3,
+      lastTaskDate: null,
+      lastTaskType: null
+    }])
+
     let res = new MockResponse()
     await studyStatsCtrl.getLastTasksSummary({
       user: {
@@ -123,9 +108,6 @@ describe('Testing studies stats controller,', () => {
     expect(res.data.length).toBe(1)
     expect(res.data[0].userKey).toBe('1122')
 
-    expect(DAL.lastCalledFunction).toBe('getLastTasksSummary')
-    expect(DAL.lastCalledArguments.length).toBe(5)
-    expect(DAL.lastCalledArguments[0]).toBe('fake')
-    expect(DAL.lastCalledArguments[1]).toBe('dar')
+    expect(DAL.getLastTasksSummary).toHaveBeenCalledOnceWith('fake', 'dar', undefined, undefined, undefined)
   })
 })
