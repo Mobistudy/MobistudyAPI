@@ -8,8 +8,6 @@ export default {
   sendEmail: async (contact, subject, message) => {
     return new Promise((resolve, reject) => {
 
-      console.log('config', config.outlook)
-
       const transporter = nodemailer.createTransport({
         host: 'smtp-mail.outlook.com', // hostname
         secureConnection: false, // TLS requires secureConnection to be false

@@ -10,7 +10,6 @@ import { DAL } from '../DAL/DAL.mjs'
 const router = express.Router()
 
 export default async function () {
-  // webhook for mSafety data
   router.post('/attachments/:studyKey/:taskId', passport.authenticate('jwt', { session: false }), async function (req, res) {
     if (req.user.role !== 'participant') return res.sendStatus(403)
     const studyKey = req.params.studyKey

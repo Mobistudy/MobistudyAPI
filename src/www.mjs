@@ -1,5 +1,3 @@
-'use strict'
-
 /**
 * Mobistudy REST API. This is the main application file.
 * This loads the actual application and initalises the environment.
