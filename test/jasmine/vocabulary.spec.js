@@ -2,7 +2,7 @@ import vocabulary from '../../src/services/vocabulary.mjs'
 
 // tests deactivated to avoid spamming public APIs
 // REMOVE THE x TO ACTIVATE THE TESTS
-describe('when searching for a medical term', () => {
+xdescribe('when searching for a medical term', () => {
 
   it('you can retrieve heart failure in english', async () => {
     expect(vocabulary.mocked).toBeFalsy()

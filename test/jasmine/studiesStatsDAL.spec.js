@@ -6,10 +6,6 @@ import * as participants from '../../src/DAL/participantsDAL.mjs'
 import * as tasksResults from '../../src/DAL/tasksResultsDAL.mjs'
 import * as studystats from '../../src/DAL/studiesStatsDAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
-
-// mock app logger
-mockObject(applogger)
 
 // Storage module used for testing
 let testDAL = {}
@@ -19,6 +15,9 @@ describe('Testing studies stats DA integrated in Arango,', () => {
   const DBNAME = 'test_studiestats'
 
   beforeAll(async () => {
+    // mock app logger
+    spyOnAllFunctions(applogger)
+
     let db = await connectToDatabase(DBNAME)
     testDAL.db = db
     await participants.init(db)

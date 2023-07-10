@@ -4,7 +4,6 @@ import { getAttachmentWriter } from '../../src/services/attachments.mjs'
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
 import { MockResponse } from '../mocks/MockResponse.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
 
 describe('Testing attachments controller,', () => {
 
@@ -12,14 +11,9 @@ describe('Testing attachments controller,', () => {
     // extend the DAL object
     await DAL.extendDAL()
 
-    // mock app logger and DAL
-    mockObject(applogger)
-    mockObject(DAL)
+    // mock app logger
+    spyOnAllFunctions(applogger)
   }, 1000)
-
-  afterEach(() => {
-    DAL.resetMock()
-  })
 
   it('no study key no party', async () => {
     let res = new MockResponse()
@@ -66,14 +60,11 @@ describe('Testing attachments controller,', () => {
     })
 
     it('a researcher can access a single file', async () => {
-      DAL.nextReturnedValuesSequence = [
-        // study
-        {
-          _key: 'fake'
-        },
-        // teams
-        [{}]
-      ]
+      spyOn(DAL, 'getOneStudy').and.returnValue({
+        _key: 'fake'
+      })
+      spyOn(DAL, 'getAllTeams').and.returnValue([{}])
+
       let res = new MockResponse()
       await attachmentsCtrl.getAttachment({
         user: {

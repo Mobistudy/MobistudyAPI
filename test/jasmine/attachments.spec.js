@@ -1,12 +1,14 @@
 import { getAttachmentWriter, getAttachments, getAttachmentReader, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
 import { stat as fsStat, rm as fsRm } from 'fs/promises'
 import { applogger } from '../../src/services/logger.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
 
-// mock app logger
-mockObject(applogger)
 
 describe('When saving an attachment', () => {
+
+  beforeAll(async () => {
+    // mock app logger
+    spyOnAllFunctions(applogger)
+  })
 
   afterAll(async () => {
     await fsRm('tasksuploads/456/', { recursive: true })

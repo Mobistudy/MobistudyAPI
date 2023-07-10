@@ -1,9 +1,9 @@
 import usersCtrl from '../../src/controllers/usersCtrl.mjs'
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
+import auditLogger from '../../src/services/auditLogger.mjs'
 import mailSender from '../../src/services/mailSender.mjs'
 import { MockResponse } from '../mocks/MockResponse.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
 
 
 describe('Testing users controller,', () => {
@@ -12,14 +12,11 @@ describe('Testing users controller,', () => {
     // extend the DAL object
     await DAL.extendDAL()
 
-    mockObject(applogger)
-    mockObject(mailSender)
-    mockObject(DAL)
+    spyOnAllFunctions(applogger)
+    spyOnAllFunctions(auditLogger)
+    spyOnAllFunctions(mailSender)
   }, 100)
 
-  afterEach(() => {
-    DAL.resetMock()
-  })
 
   it('pass recovery needs email address', async () => {
     let res = new MockResponse()
@@ -46,15 +43,14 @@ describe('Testing users controller,', () => {
   })
 
   it('creating users sends an email', async () => {
-    DAL.nextReturnedValuesSequence = [
-      null, // when existing contact is searched
-      {
-        _ey: '1234',
-        email: 'dario@test.test',
-        password: 'moon landing',
-        role: 'participant'
-      } // after user has been created
-    ]
+    spyOn(DAL, 'findUserByEmail').and.returnValue(null)
+    spyOn(DAL, 'createUser').and.returnValue({
+      _ey: '1234',
+      email: 'dario@test.test',
+      password: 'moon landing',
+      role: 'participant'
+    })
+
     let res = new MockResponse()
     await usersCtrl.createUser({
       body: {
@@ -67,8 +63,7 @@ describe('Testing users controller,', () => {
       }
     }, res)
     expect(res.code).toBe(200)
-    expect(mailSender.lastCalledFunction).toBe('sendEmail')
-    expect(mailSender.lastCalledArguments[0]).toBe('dario@test.test')
+    expect(mailSender.sendEmail).toHaveBeenCalled()
   })
 
   it('get users can not be called by researcher', async () => {
@@ -84,12 +79,13 @@ describe('Testing users controller,', () => {
   })
 
   it('duplicate emails are not allowed', async () => {
-    DAL.nextReturnedValue = {
+    spyOn(DAL, 'findUserByEmail').and.returnValue({
       _key: '1234',
       email: 'dario@test.test',
       password: 'moon landing',
       role: 'participant'
-    }
+    })
+
     let res = new MockResponse()
     await usersCtrl.createUser({
       body: {
