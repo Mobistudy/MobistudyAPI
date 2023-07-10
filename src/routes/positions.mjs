@@ -1,5 +1,6 @@
 /**
  * This provides the API endpoints for the position data of the participant.
+ * TODO: REMOVE, SUBSTITUTED BY TASKSRESULTS
  */
 
 import express from 'express'
