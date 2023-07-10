@@ -3,13 +3,8 @@ import {
   connectToDatabase, dropDatabase,
   addDataToCollection, removeFromCollection
 } from '../arangoTools.mjs'
-import axios from 'axios'
 import * as tasksResults from '../../src/DAL/tasksResultsDAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
-
-// mock app logger
-mockObject(applogger)
 
 // Storage module used for testing
 let testDAL = {}
@@ -19,6 +14,9 @@ describe('Testing tasks results DAL,', () => {
   const DBNAME = 'test_tasksresults'
 
   beforeAll(async () => {
+    // mock app logger
+    spyOnAllFunctions(applogger)
+
     let db = await connectToDatabase(DBNAME)
     testDAL.db = db
     await tasksResults.init(db)

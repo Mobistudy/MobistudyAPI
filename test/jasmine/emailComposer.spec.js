@@ -1,17 +1,11 @@
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { studyStatusUpdateCompose, passwordRecoveryCompose } from '../../src/services/emailComposer.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
 
 describe('when composing an email', () => {
 
   beforeAll(async () => {
-    // extend the DAL object and mock it
+    // extend the DAL object
     await DAL.extendDAL()
-    mockObject(DAL)
-  })
-
-  afterEach(async () => {
-    DAL.resetMock()
   })
 
   it('the email password recovery is correct', async () => {
@@ -29,7 +23,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a completed study is correct', async () => {
-    DAL.nextReturnedValue = {
+    spyOn(DAL, 'getOneStudy').and.returnValue({
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -41,7 +35,7 @@ describe('when composing an email', () => {
         taskItems: [],
         extraItems: []
       }
-    }
+    })
 
     let email = await studyStatusUpdateCompose('1', {
       language: 'en',
@@ -55,7 +49,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a withdrawn study is correct', async () => {
-    DAL.nextReturnedValue = {
+    spyOn(DAL, 'getOneStudy').and.returnValue({
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -64,7 +58,7 @@ describe('when composing an email', () => {
         }
       },
       consent: { taskItems: [], extraItems: [] }
-    }
+    })
 
     let email = await studyStatusUpdateCompose('1', {
       language: 'en',
@@ -78,7 +72,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for an accepted study is correct', async () => {
-    DAL.nextReturnedValue = {
+    spyOn(DAL, 'getOneStudy').and.returnValue({
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -101,7 +95,7 @@ describe('when composing an email', () => {
           }
         }]
       }
-    }
+    })
 
     let email = await studyStatusUpdateCompose('1', {
       language: 'en',

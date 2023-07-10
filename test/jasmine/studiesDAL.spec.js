@@ -4,10 +4,6 @@ import {
 } from '../arangoTools.mjs'
 import * as studies from '../../src/DAL/studiesDAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-import { mockObject } from '../mocks/mocker.mjs'
-
-// mock app logger
-mockObject(applogger)
 
 // Storage module used for testing
 let testDAL = {}
@@ -26,6 +22,9 @@ describe("when arangodb is running,", () => {
   const DBNAME = "test_studiesDAL";
 
   beforeAll(async () => {
+    // mock app logger
+    spyOnAllFunctions(applogger)
+
     let db = await connectToDatabase(DBNAME)
     testDAL.db = db
     await studies.init(db)
