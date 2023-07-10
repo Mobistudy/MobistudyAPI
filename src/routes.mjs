@@ -5,6 +5,7 @@ import tasksResultsCtrl from './controllers/tasksResultsCtrl.mjs'
 import attachmentsCtrl from './controllers/attachmentsCtrl.mjs'
 import studyStatsCtrl from './controllers/studyStatsCtrl.mjs'
 import vocabularyCtrl from './controllers/vocabularyCtrl.mjs'
+import techadminCtrl from './controllers/techadminCtrl.mjs'
 
 const API_PREFIX = '/api'
 
@@ -35,4 +36,7 @@ export default async function (app) {
 
   await vocabularyCtrl.init()
   app.get(API_PREFIX + '/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabularyCtrl))
+
+  await techadminCtrl.init()
+  app.post('/techadmin/sendemail/', passport.authenticate('jwt', { session: false }), techadminCtrl.sendOneEmail.bind(techadminCtrl))
 }

@@ -15,8 +15,6 @@ export default {
   // lang can be 'en' or 'sv'
   // type can be 'substance' or 'disorder'
   // example: /vocabulary/en/disorder/search?term=heart&limit=10
-
-
   async getTerm (req, res) {
     try {
       const lang = req.params?.lang
