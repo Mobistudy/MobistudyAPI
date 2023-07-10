@@ -21,7 +21,6 @@ import participantsRouter from './routes/participants.mjs'
 import teamsRouter from './routes/teams.mjs'
 import answersRouter from './routes/answers.mjs'
 import healthStoreDataRouter from './routes/healthStoreData.mjs'
-import auditLogRouter from './routes/auditLog.mjs'
 import Miband3Router from './routes/miband3.mjs'
 import PeakFlowRouter from './routes/peakflow.mjs'
 import PositionsRouter from './routes/positions.mjs'
@@ -71,7 +70,6 @@ export default async function () {
   app.use(apiPrefix, await teamsRouter())
   app.use(apiPrefix, await answersRouter())
   app.use(apiPrefix, await healthStoreDataRouter())
-  app.use(apiPrefix, await auditLogRouter())
   app.use(apiPrefix, await Miband3Router())
   app.use(apiPrefix, await PeakFlowRouter())
   app.use(apiPrefix, await PositionsRouter())

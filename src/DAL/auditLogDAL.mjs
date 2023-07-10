@@ -43,17 +43,35 @@ const DAL = {
     return cursor.all()
   },
 
-  async getAuditLogs (countOnly, after, before, eventType, studyKey, taskId, userEmail, sortDirection, offset, rowsPerPage) {
+  /**
+   * Gets the audit logs
+   * @param {Date} after optional, date after which we want the logs
+   * @param {Date} before optional, date before which we want the logs
+   * @param {string} eventType optional, filter log by type
+   * @param {string} studyKey optional, filter logs by study key
+   * @param {integer} taskId optional, filter logs by taskId
+   * @param {string} userEmail optional, filter logs by user email
+   * @param {string} sortDirection optional, sort logs by date, asc or desc
+   * @param {integer} offset optional, used for paging
+   * @param {integer} count optional, used for paging
+   * @param {function} dataCallback optional when each element is sent via callback
+   * @returns a Promise with the data (if dataCallback is not specified).
+   * The data is either the array for each participant, or, if paging is specified (and no callback used),
+   * it's an object containing the total count (including filters) in `totalCount` and the paged data in `subset`
+   */
+  async getAuditLogs (after, before, eventType, studyKey, taskId, userEmail, sortDirection, offset, count, dataCallback) {
     let queryString = ''
-    if (countOnly) {
-      queryString = 'RETURN COUNT ( '
-    }
     let bindings = {}
+    let queryOptions = {}
+
+    console.log(arguments)
+
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
+
     queryString += `FOR log IN auditlogs `
-    if (!countOnly || userEmail) {
-      queryString += ` FOR user IN users
+    queryString += ` FOR user IN users
         FILTER user._key == log.userKey `
-    }
+
     if (after && before) {
       queryString += `FILTER DATE_DIFF(log.timestamp, @after, 's') <=0 AND DATE_DIFF(log.timestamp, @before, 's') >=0 `
       bindings.after = after
@@ -83,23 +101,18 @@ const DAL = {
       queryString += ` FILTER LIKE(user.email, CONCAT('%', @userEmail, '%'), true) `
       bindings.userEmail = userEmail
     }
-    if (!countOnly) {
-      if (!sortDirection) {
-        sortDirection = 'DESC'
-      }
-      queryString += `SORT log.timestamp @sortDirection `
-      bindings.sortDirection = sortDirection
-      if (!!offset && !!rowsPerPage) {
-        queryString += `LIMIT @offset, @rowsPerPage `
-        bindings.offset = parseInt(offset)
-        bindings.rowsPerPage = parseInt(rowsPerPage)
-      }
+    if (!sortDirection) sortDirection = 'DESC'
+    queryString += `SORT log.timestamp @sortDirection `
+    bindings.sortDirection = sortDirection
+
+    if (hasPaging) {
+      queryString += `LIMIT @offset, @count `
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
     }
 
-    if (countOnly) {
-      queryString += ' RETURN 1 )'
-    } else {
-      queryString += ` RETURN {
+    queryString += ` RETURN {
           _key: log._key,
           timestamp: log.timestamp,
           event: log.event,
@@ -108,14 +121,25 @@ const DAL = {
           refData: log.refData,
           refKey: log.refKey
         }`
-    }
+
     applogger.trace(bindings, 'Querying "' + queryString + '"')
-    let cursor = await db.query(queryString, bindings)
-    if (countOnly) {
-      let counts = await cursor.all()
-      if (counts.length) return '' + counts[0]
-      else return undefined
-    } else return cursor.all()
+    const cursor = await db.query(queryString, bindings, queryOptions)
+
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else {
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
+        }
+      } else {
+        return cursor.all()
+      }
+    }
   },
 
   async getLogsByUser (userKey) {

@@ -1,6 +1,7 @@
 import passport from 'passport'
 
 import usersCtrl from './controllers/usersCtrl.mjs'
+import auditLogCtrl from './controllers/auditLogCtrl.mjs'
 import tasksResultsCtrl from './controllers/tasksResultsCtrl.mjs'
 import attachmentsCtrl from './controllers/attachmentsCtrl.mjs'
 import studyStatsCtrl from './controllers/studyStatsCtrl.mjs'
@@ -23,6 +24,10 @@ export default async function (app) {
   app.get(API_PREFIX + '/users/count', passport.authenticate('local', { session: false }), usersCtrl.getUsersCount.bind(usersCtrl))
   app.get(API_PREFIX + '/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.getUserByKey.bind(usersCtrl))
   app.delete(API_PREFIX + '/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.removeUser.bind(usersCtrl))
+
+  await auditLogCtrl.init()
+  app.get(API_PREFIX + '/auditlog/eventTypes', passport.authenticate('jwt', { session: false }), auditLogCtrl.getEventTypes.bind(auditLogCtrl))
+  app.get(API_PREFIX + '/auditlog', passport.authenticate('jwt', { session: false }), auditLogCtrl.getAuditLogs.bind(auditLogCtrl))
 
   await tasksResultsCtrl.init()
   app.get(API_PREFIX + '/tasksResults', passport.authenticate('jwt', { session: false }), tasksResultsCtrl.getAll.bind(tasksResultsCtrl))
