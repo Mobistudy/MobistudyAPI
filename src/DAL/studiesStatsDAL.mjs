@@ -32,9 +32,10 @@ const DAL = {
 
     const queryOptions = {}
     const bindings = {
-      studyKey,
-      statusType
+      studyKey
     }
+
+    const hasPaging = typeof (offset) !== 'undefied' && offset != null && typeof (count) !== 'undefied' && count != null
 
     let queryString = ''
     queryString += `
@@ -44,9 +45,10 @@ const DAL = {
         FILTER s.studyKey == @studyKey `
     if (statusType) {
       queryString += `&& s.currentStatus == @statusType `
+      bindings.statusType = statusType
     }
     if (participantName) {
-      bindings.partname = names[0]
+      bindings.partname = participantName
       queryString += `FILTER LIKE(p.name, CONCAT('%', @partname, '%'), true) OR  LIKE(p.surname, CONCAT('%', @partname, '%'), true)`
     }
     queryString += `
@@ -61,7 +63,7 @@ const DAL = {
         RETURN {createdTS : t.createdTS, taskType: t.taskType }
       )`
 
-    if (!!offset && !!count) {
+    if (hasPaging) {
       queryString += `LIMIT @offset, @count `
       bindings.offset = parseInt(offset)
       bindings.count = parseInt(count)
@@ -90,7 +92,7 @@ const DAL = {
         dataCallback(a)
       }
     } else {
-      if (!!offset && !!count) {
+      if (hasPaging) {
         return {
           totalCount: cursor.extra.stats.fullCount,
           subset: await cursor.all()

@@ -85,4 +85,47 @@ describe('Testing studies stats controller,', () => {
     expect(res.data.length).toBe(1)
     expect(res.data[0].userKey).toBe('1122')
   })
+
+  it('researchers can filter by name', async () => {
+    DAL.nextReturnedValuesSequence = [
+      // study
+      {
+        _key: 'fake'
+      },
+      // teams
+      [{}],
+      // stats
+      [{
+        userKey: '1122',
+        name: 'Dario',
+        surname: 'Salvi',
+        DOB: '1994-06-04',
+        userEmail: 'dario@test.test',
+        status: 'accepted',
+        taskResultCount: 3,
+        lastTaskDate: null,
+        lastTaskType: null
+      }]
+    ]
+    let res = new MockResponse()
+    await studyStatsCtrl.getLastTasksSummary({
+      user: {
+        role: 'researcher'
+      },
+      query: {
+        studyKey: 'fake',
+        participantName: 'dar'
+      }
+    }, res)
+
+    expect(res.data).not.toBeNull()
+    expect(res.data).not.toBeUndefined()
+    expect(res.data.length).toBe(1)
+    expect(res.data[0].userKey).toBe('1122')
+
+    expect(DAL.lastCalledFunction).toBe('getLastTasksSummary')
+    expect(DAL.lastCalledArguments.length).toBe(5)
+    expect(DAL.lastCalledArguments[0]).toBe('fake')
+    expect(DAL.lastCalledArguments[1]).toBe('dar')
+  })
 })

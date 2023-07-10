@@ -102,7 +102,7 @@ describe('Testing studies stats DA integrated in Arango,', () => {
         studies: [
           {
             studyKey: 'abc',
-            currentStatus: 'accepted',
+            currentStatus: 'completed',
             acceptedTS: "2023-02-05T12:46:07.294Z",
             taskItemsConsent: [
               {
@@ -186,6 +186,42 @@ describe('Testing studies stats DA integrated in Arango,', () => {
       expect(summary[1].userKey).toBe(user2_key)
       expect(summary[1].lastTaskDate).toBe('2023-02-28T11:20:20')
       expect(summary[1].lastTaskType).toBe('6mwt')
+    })
+
+    it('the LastTasksSummary statistics can be filtered by name', async () => {
+      let summary = await testDAL.getLastTasksSummary('abc', 'dar')
+
+      expect(summary).not.toBeNull()
+      expect(summary).toBeDefined()
+      expect(summary.length).toBe(1) // only one participant has that name
+      expect(summary[0].userKey).toBe(user1_key)
+      expect(summary[0].lastTaskDate).toBe('2023-02-05T14:02:00')
+      expect(summary[0].lastTaskType).toBe('tugt')
+    })
+
+    it('the LastTasksSummary statistics can be filtered by status type', async () => {
+      let summary = await testDAL.getLastTasksSummary('abc', null, 'completed')
+
+      expect(summary).not.toBeNull()
+      expect(summary).toBeDefined()
+      expect(summary.length).toBe(1) // only one participant is completed
+      expect(summary[0].userKey).toBe(user1_key)
+      expect(summary[0].lastTaskDate).toBe('2023-02-05T14:02:00')
+      expect(summary[0].lastTaskType).toBe('tugt')
+    })
+
+    it('the LastTasksSummary statistics can be paged', async () => {
+      let summary = await testDAL.getLastTasksSummary('abc', null, null, 0, 1)
+
+      expect(summary).not.toBeNull()
+      expect(summary).toBeDefined()
+      expect(summary.totalCount).toBeDefined()
+      expect(summary.totalCount).toBe(2)
+      expect(summary.subset).toBeDefined()
+      expect(summary.subset.length).toBe(1)
+      expect(summary.subset[0].userKey).toBe(user1_key)
+      expect(summary.subset[0].lastTaskDate).toBe('2023-02-05T14:02:00')
+      expect(summary.subset[0].lastTaskType).toBe('tugt')
     })
   })
 
