@@ -20,24 +20,56 @@ const init = async function (DB) {
 const DAL = {
 
   /**
+   * Creates a new study
+   * @param {Object} newstudy - study to be created
+   * @returns a Promise that passes the study just created, with its key
+   */
+  async createStudy (newstudy) {
+    const meta = await collection.save(newstudy)
+    newstudy._key = meta._key
+    return newstudy
+  },
+
+  /**
+   * Retrieves one study, by Key
+   * @param {Object} studyKey
+   * @returns a Promise passing the study
+   */
+  async getOneStudy (studyKey) {
+    const query = 'FOR study IN studies FILTER study._key == @studyKey RETURN study'
+    const bindings = { studyKey: studyKey }
+    applogger.trace(bindings, 'Querying "' + query + '"')
+    const cursor = await db.query(query, bindings)
+    const study = await cursor.next()
+    return study
+  },
+
+  /**
+   * Retrieves all study descriptions
+   * @returns a Promise with an array of studies
+   */
+  async getAllStudies () {
+    const query = 'FOR study in studies RETURN study'
+    applogger.trace('Querying "' + query + '"')
+    const cursor = await db.query(query)
+    return cursor.all()
+  },
+
+  /**
    * Gets the studies
    * @param {*} sortDirection - optional, sort direction referring to the creation time
    * @param {*} offset - optional, starting from result N, used for paging
    * @param {*} count - optional, number of results to be returned, used for paging
-   * @param {*} callback - optional, callback used when receiving data one by one (except when using pagination)
+   * @param {*} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
   * @returns a promise that passes the data as an array (or empty if dataCallback is specified)
    */
-  async getStudies (sortDirection, offset, count, callback) {
+  async getStudies (sortDirection, offset, count, dataCallback) {
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
     const bindings = {}
     let queryOptions = {}
     let queryString = 'FOR study IN studies '
 
-    if (studyTitle) {
-      queryString += ` FOR team IN teams
-        FILTER team._key == study.teamKey `
-    }
     if (!sortDirection) {
       sortDirection = 'DESC'
     }
@@ -57,16 +89,7 @@ const DAL = {
       bindings.count = parseInt(count)
     }
 
-    queryString += ` RETURN {
-          studykey: study._key,
-          studytitle: study.generalities.title,
-          createdTS: study.createdTS,
-          publishedTS: study.publishedTS,
-          teamkey: study.teamKey,
-          teamname: team.name,
-          startDate: study.generalities.startDate,
-          endDate: study.generalities.endDate
-        }`
+    queryString += ` RETURN study`
 
     applogger.trace(bindings, 'Querying "' + queryString + '"')
     const cursor = await db.query(queryString, bindings, queryOptions)
@@ -87,13 +110,6 @@ const DAL = {
     }
   },
 
-  async getAllStudies () {
-    const query = 'FOR study in studies RETURN study'
-    applogger.trace('Querying "' + query + '"')
-    const cursor = await db.query(query)
-    return cursor.all()
-  },
-
   async getAllTeamStudies (teamkey) {
     const query = 'FOR study in studies FILTER study.teamKey == @teamkey RETURN study'
     const bindings = { teamkey: teamkey }
@@ -112,21 +128,6 @@ const DAL = {
     applogger.trace(bindings, 'Querying "' + query + '"')
     const cursor = await db.query(query, bindings)
     return cursor.all()
-  },
-
-  async createStudy (newstudy) {
-    const meta = await collection.save(newstudy)
-    newstudy._key = meta._key
-    return newstudy
-  },
-
-  async getOneStudy (studyKey) {
-    const query = 'FOR study IN studies FILTER study._key == @studyKey RETURN study'
-    const bindings = { studyKey: studyKey }
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    const study = await cursor.next()
-    return study
   },
 
   // udpates a study, we assume the _key is the correct one
@@ -152,7 +153,10 @@ const DAL = {
     return true
   },
 
-  // gets an unused invitation code
+  /**
+   * Creates an unused invitation code
+   * @returns a Promise, passing the code
+   */
   async getNewInvitationCode () {
     let repeat = true
     let invitationCode
@@ -172,7 +176,11 @@ const DAL = {
     return invitationCode + ''
   },
 
-  // Gets the one study that matches the invitation code
+  /**
+   * Gets the one study that matches the invitation code
+   * @param {string} invitationCode
+   * @returns a Promise passing the study description
+   */
   async getInvitationalStudy (invitationCode) {
     const query = 'FOR study IN studies FILTER study.invitationCode == @invitationCode RETURN study'
     const bindings = { invitationCode: invitationCode }
