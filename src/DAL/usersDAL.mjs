@@ -122,7 +122,12 @@ const DAL = {
       queryOptions.fullCount = true
     }
 
-    queryString += ` RETURN user`
+    queryString += ` RETURN {
+          _key: user._key,
+          email: user.email,
+          role: user.role,
+          testUser: user.testUser
+        }`
 
     applogger.trace(bindings, 'Querying "' + queryString + '"')
     const cursor = await db.query(queryString, bindings, queryOptions)
