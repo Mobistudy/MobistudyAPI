@@ -7,41 +7,45 @@ import attachmentsCtrl from './controllers/attachmentsCtrl.mjs'
 import studyStatsCtrl from './controllers/studyStatsCtrl.mjs'
 import vocabularyCtrl from './controllers/vocabularyCtrl.mjs'
 import techadminCtrl from './controllers/techadminCtrl.mjs'
+import express from 'express'
 
-const API_PREFIX = '/api'
 
-// function that sets up the routes
-export default async function (app) {
+// sets up the routes
+const router = express.Router()
 
-  await usersCtrl.init()
-  app.post(API_PREFIX + '/login', passport.authenticate('local', { session: false }), usersCtrl.login.bind(usersCtrl))
-  app.post(API_PREFIX + '/sendResetPasswordEmail', usersCtrl.sendPasswordResetEmail.bind(usersCtrl))
-  app.post(API_PREFIX + '/resetPassword', usersCtrl.resetPassword.bind(usersCtrl))
-  app.post(API_PREFIX + '/users', usersCtrl.createUser.bind(usersCtrl))
-  app.get(API_PREFIX + '/users/renewToken', passport.authenticate('local', { session: false }), usersCtrl.renewToken.bind(usersCtrl))
-  app.patch(API_PREFIX + '/users/:userKey', passport.authenticate('local', { session: false }), usersCtrl.updateUser.bind(usersCtrl))
-  app.get(API_PREFIX + '/users', passport.authenticate('local', { session: false }), usersCtrl.getUsers.bind(usersCtrl))
-  app.get(API_PREFIX + '/users/count', passport.authenticate('local', { session: false }), usersCtrl.getUsersCount.bind(usersCtrl))
-  app.get(API_PREFIX + '/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.getUserByKey.bind(usersCtrl))
-  app.delete(API_PREFIX + '/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.removeUser.bind(usersCtrl))
+await usersCtrl.init()
+router.post('/login', passport.authenticate('local', { session: false }), usersCtrl.login.bind(usersCtrl))
+router.post('/sendResetPasswordEmail', usersCtrl.sendPasswordResetEmail.bind(usersCtrl))
+router.post('/resetPassword', usersCtrl.resetPassword.bind(usersCtrl))
 
-  await auditLogCtrl.init()
-  app.get(API_PREFIX + '/auditlog/eventTypes', passport.authenticate('jwt', { session: false }), auditLogCtrl.getEventTypes.bind(auditLogCtrl))
-  app.get(API_PREFIX + '/auditlog', passport.authenticate('jwt', { session: false }), auditLogCtrl.getAuditLogs.bind(auditLogCtrl))
+router.get('/users/renewToken', passport.authenticate('jwt', { session: false }), usersCtrl.renewToken.bind(usersCtrl))
+router.post('/users', usersCtrl.createUser.bind(usersCtrl))
+router.patch('/users/:userKey', passport.authenticate('local', { session: false }), usersCtrl.updateUser.bind(usersCtrl))
+router.delete('/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.removeUser.bind(usersCtrl))
+//TODO: remove the count route, currently not working and incompatible with standard paging
+router.get('/users/count', passport.authenticate('local', { session: false }), usersCtrl.getUsersCount.bind(usersCtrl))
+router.get('/users', passport.authenticate('local', { session: false }), usersCtrl.getUsers.bind(usersCtrl))
+router.get('/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.getUserByKey.bind(usersCtrl))
 
-  await tasksResultsCtrl.init()
-  app.get(API_PREFIX + '/tasksResults', passport.authenticate('jwt', { session: false }), tasksResultsCtrl.getAll.bind(tasksResultsCtrl))
-  app.post(API_PREFIX + '/tasksResults', passport.authenticate('jwt', { session: false }), tasksResultsCtrl.createNew.bind(tasksResultsCtrl))
 
-  await attachmentsCtrl.init()
-  app.get(API_PREFIX + '/tasksResults/attachments/:studyKey/:userKey/:taskId/:fileName', passport.authenticate('jwt', { session: false }), attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
+await auditLogCtrl.init()
+router.get('/auditlog/eventTypes', passport.authenticate('jwt', { session: false }), auditLogCtrl.getEventTypes.bind(auditLogCtrl))
+router.get('/auditlog', passport.authenticate('jwt', { session: false }), auditLogCtrl.getAuditLogs.bind(auditLogCtrl))
 
-  await studyStatsCtrl.init()
-  app.get(API_PREFIX + '/studyStats', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
+await tasksResultsCtrl.init()
+router.get('/tasksResults', passport.authenticate('jwt', { session: false }), tasksResultsCtrl.getAll.bind(tasksResultsCtrl))
+router.post('/tasksResults', passport.authenticate('jwt', { session: false }), tasksResultsCtrl.createNew.bind(tasksResultsCtrl))
 
-  await vocabularyCtrl.init()
-  app.get(API_PREFIX + '/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabularyCtrl))
+await attachmentsCtrl.init()
+router.get('/tasksResults/attachments/:studyKey/:userKey/:taskId/:fileName', passport.authenticate('jwt', { session: false }), attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
 
-  await techadminCtrl.init()
-  app.post('/techadmin/sendemail/', passport.authenticate('jwt', { session: false }), techadminCtrl.sendOneEmail.bind(techadminCtrl))
-}
+await studyStatsCtrl.init()
+router.get('/studyStats', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
+
+await vocabularyCtrl.init()
+router.get('/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabularyCtrl))
+
+await techadminCtrl.init()
+router.post('/techadmin/sendemail/', passport.authenticate('jwt', { session: false }), techadminCtrl.sendOneEmail.bind(techadminCtrl))
+
+export default router

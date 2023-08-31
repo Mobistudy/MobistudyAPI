@@ -11,7 +11,7 @@ import authConfig from './services/authSetup.mjs'
 
 import { DAL } from './DAL/DAL.mjs'
 
-import setupRoutes from './routes.mjs'
+import routes from './routes.mjs'
 
 import indexRouter from './routes/index.mjs'
 import studiesRouter from './routes/studies.mjs'
@@ -58,9 +58,9 @@ export default async function () {
 
   app.use(passport.initialize())
 
-  setupRoutes(app)
-
   const apiPrefix = '/api'
+
+  app.use(apiPrefix, routes)
 
   app.use(apiPrefix, await indexRouter())
   app.use(apiPrefix, await studiesRouter())
