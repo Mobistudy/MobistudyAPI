@@ -34,7 +34,7 @@ export default {
   // userEmail
   // sortDirection: ASC or DESC
   // offset: for pagination
-  // rowsPerPage: for pagination
+  // count: for pagination
   async getAuditLogs (req, res) {
     if (req.user.role !== 'admin' && req.user.role !== 'researcher') {
       res.sendStatus(403)

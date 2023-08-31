@@ -18,7 +18,7 @@ const init = async function (DB) {
 }
 
 const DAL = {
-  async getStudies (countOnly, after, before, studyTitle, sortDirection, offset, rowsPerPage) {
+  async getStudies (countOnly, after, before, studyTitle, sortDirection, offset, count) {
     let queryString = ''
 
     if (countOnly) {
@@ -53,10 +53,10 @@ const DAL = {
       }
       queryString += 'SORT study.generalities.title @sortDirection '
       bindings.sortDirection = sortDirection
-      if (!!offset && !!rowsPerPage) {
-        queryString += 'LIMIT @offset, @rowsPerPage '
+      if (!!offset && !!count) {
+        queryString += 'LIMIT @offset, @count '
         bindings.offset = parseInt(offset)
-        bindings.rowsPerPage = parseInt(rowsPerPage)
+        bindings.count = parseInt(count)
       }
     }
 

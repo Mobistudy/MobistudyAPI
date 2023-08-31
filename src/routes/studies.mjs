@@ -29,7 +29,7 @@ export default async function () {
             req.query.studyTitle,
             req.query.sortDirection,
             req.query.offset,
-            req.query.rowsPerPage
+            req.query.count
           )
           console.log('routes/studies.mjs RESULT:', result)
           res.send(result)
@@ -58,7 +58,7 @@ export default async function () {
             req.query.studyTitle,
             req.query.sortDirection,
             req.query.offset,
-            req.query.rowsPerPage
+            req.query.count
           )
           res.send(result)
         } catch (err) {
