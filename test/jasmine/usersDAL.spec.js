@@ -190,7 +190,7 @@ describe('Testing users DAL with Arango,', () => {
 
     it('the users can be queried by role', async () => {
       // userEmail, roleType, studyKeys, sortDirection, offset, count, dataCallback
-      let users = await testDAL.getUsers(false, null, 'participant')
+      let users = await testDAL.getUsers(null, 'participant')
 
       expect(users).not.toBeNull()
       expect(users).toHaveSize(3)
