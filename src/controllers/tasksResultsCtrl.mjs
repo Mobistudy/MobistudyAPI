@@ -215,7 +215,7 @@ export default {
     try {
       const valid = this.validate(newTasksResults)
       if (!valid) {
-        applogger.error({ errors: this.validate.errors }, 'Tasks results does not validate against schema')
+        applogger.error({ errors: this.validate.errors, input: newTasksResults }, 'Tasks results does not validate against schema')
         return res.status(400).send('tasks results does not validate against schema')
       }
       newTasksResults.userKey = req.user._key
