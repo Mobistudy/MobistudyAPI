@@ -198,6 +198,16 @@ export default {
     }
   },
 
+  // query parameters (optional):
+  // after: ISO timeStamp
+  // before: ISO timeStamp
+  // eventType: type of event
+  // studyKey
+  // taskId
+  // userEmail
+  // sortDirection: ASC or DESC
+  // offset: for pagination
+  // count: for pagination
   getUsers: async function (req, res) {
     if (req.user.role !== 'admin') {
       res.sendStatus(403)
@@ -208,32 +218,11 @@ export default {
           req.query.userEmail,
           req.query.sortDirection,
           req.query.offset,
-          req.query.rowsPerPage
+          req.query.count
         )
         res.send(result)
       } catch (err) {
         applogger.error({ error: err }, 'Cannot retrieve users')
-        res.sendStatus(500)
-      }
-    }
-  },
-
-  getUsersCount: async function (req, res) {
-    if (req.user.role !== 'admin') {
-      console.log('not an admin')
-      res.sendStatus(403)
-    } else {
-      try {
-        const result = await DAL.getUsers(true,
-          req.query.roleType,
-          req.query.userEmail,
-          req.query.sortDirection,
-          req.query.offset,
-          req.query.rowsPerPage
-        )
-        res.send(result)
-      } catch (err) {
-        applogger.error({ error: err }, 'Cannot retrieve users count')
         res.sendStatus(500)
       }
     }

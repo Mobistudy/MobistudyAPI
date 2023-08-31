@@ -18,7 +18,7 @@ describe('When testing the zipper', () => {
   describe('when a participant and some answers are stored', () => {
 
     beforeAll(async () => {
-      spyOn(DAL, 'getUsers').and.callFake(async (a1, a2, a3, a4, a5, a6, a7, cbk) => {
+      spyOn(DAL, 'getUsers').and.callFake(async (a1, a2, a3, a4, a5, a6, cbk) => {
         cbk({
           _key: '111111',
           email: 'dario.salvi@test.test'

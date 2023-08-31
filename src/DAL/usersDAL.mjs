@@ -68,27 +68,23 @@ const DAL = {
 
   /**
    * Gets users given some query parameters
-   * @param {boolean} countOnly optional, if true only gives the total number of users
-   * @param {string} userEmail optional, email address, even partial, of the user
-   * @param {string} roleType optional, type of user: participant, researcher, admin
-   * @param {string} studyKeys optional, array of study keys the user is involved in (either as participant or researcher), role must be specified
-   * @param {string} sortDirection optional, sorting email direction, can be 'asc' or 'desc'
-   * @param {number} offset optional, starting from result N, used for paging
-   * @param {number} maxResultsNumber optional, number of results to be returned, used for paging
-   * @param {function} dataCallback optional, callback used when receiving data one by one (except when countOnly is true)
+   * @param {string} userEmail - optional, email address, even partial, of the user
+   * @param {string} roleType - optional, type of user: participant, researcher, admin
+   * @param {string} studyKeys - optional, array of study keys the user is involved in (either as participant or researcher), role must be specified
+   * @param {string} sortDirection - optional, sorting email direction, can be 'asc' or 'desc'
+   * @param {number} offset - optional, starting from result N, used for paging
+   * @param {number} count - optional, number of results to be returned, used for paging
+   * @param {function} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
    * @returns a promise that passes the data as an array (or empty if dataCallback is specified)
    */
-  getUsers: async function (countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback) {
-    let queryString = ''
+  getUsers: async function (userEmail, roleType, studyKeys, sortDirection, offset, count, dataCallback) {
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
-    if (countOnly) {
-      queryString = 'RETURN COUNT ( '
-    }
     const bindings = {}
-    queryString += 'FOR user IN users '
+    let queryOptions = {}
+    let queryString = 'FOR user IN users '
 
     if (roleType) {
-
       if (roleType === 'participant') {
         queryString += ' FILTER user.role == "participant" '
         if (studyKeys) {
@@ -110,45 +106,45 @@ const DAL = {
       queryString += 'FILTER LIKE(user.email, CONCAT(\'%\', @userEmail, \'%\'), true) '
       bindings.userEmail = userEmail
     }
-    if (!countOnly) {
-      if (sortDirection && sortDirection.toLowerCase() == 'asc') {
-        sortDirection = 'ASC'
-      } else {
-        sortDirection = 'DESC' // default
-      }
-      queryString += 'SORT user.email @sortDirection '
-      bindings.sortDirection = sortDirection
-      if (!!offset && !!maxResultsNumber) {
-        queryString += 'LIMIT @offset, @maxResultsNumber '
-        bindings.offset = parseInt(offset)
-        bindings.maxResultsNumber = parseInt(maxResultsNumber)
-      }
+
+    if (sortDirection && sortDirection.toLowerCase() == 'asc') {
+      sortDirection = 'ASC'
+    } else {
+      sortDirection = 'DESC' // default
+    }
+    queryString += 'SORT user.email @sortDirection '
+    bindings.sortDirection = sortDirection
+
+    if (hasPaging) {
+      queryString += `LIMIT @offset, @count `
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
     }
 
-    if (countOnly) {
-      queryString += ' RETURN 1 )'
-    } else {
-      queryString += ` RETURN {
+    queryString += ` RETURN {
           userkey: user._key,
           email: user.email,
           role: user.role,
           testUser: user.testUser
         }`
-    }
 
     applogger.trace(bindings, 'Querying "' + queryString + '"')
-    const cursor = await db.query(queryString, bindings)
-    if (countOnly) {
-      const counts = await cursor.all()
-      if (counts.length) return counts[0]
-      else return undefined
+    const cursor = await db.query(queryString, bindings, queryOptions)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
     } else {
-      if (dataCallback) {
-        while (cursor.hasNext) {
-          const a = await cursor.next()
-          dataCallback(a)
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
         }
-      } else return cursor.all()
+      } else {
+        return cursor.all()
+      }
     }
   },
 

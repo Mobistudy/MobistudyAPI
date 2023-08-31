@@ -189,7 +189,7 @@ describe('Testing users DAL with Arango,', () => {
     })
 
     it('the users can be queried by role', async () => {
-      // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
+      // userEmail, roleType, studyKeys, sortDirection, offset, count, dataCallback
       let users = await testDAL.getUsers(false, null, 'participant')
 
       expect(users).not.toBeNull()
@@ -203,8 +203,8 @@ describe('Testing users DAL with Arango,', () => {
     })
 
     it('the users can be queried by role and email address', async () => {
-      // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
-      let users = await testDAL.getUsers(false, 'dario', 'participant')
+      // userEmail, roleType, studyKeys, sortDirection, offset, count, dataCallback
+      let users = await testDAL.getUsers('dario', 'participant')
 
       expect(users).not.toBeNull()
       expect(users).toHaveSize(1)
@@ -215,8 +215,8 @@ describe('Testing users DAL with Arango,', () => {
     })
 
     it('the users can be queried by role and study', async () => {
-      // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
-      let users = await testDAL.getUsers(false, null, 'participant', ['abc'])
+      // userEmail, roleType, studyKeys, sortDirection, offset, count, dataCallback
+      let users = await testDAL.getUsers(null, 'participant', ['abc'])
 
       expect(users).not.toBeNull()
       expect(users).toHaveSize(3)
@@ -229,11 +229,11 @@ describe('Testing users DAL with Arango,', () => {
     })
 
     it('the count of users can be got', async () => {
-      // countOnly, userEmail, roleType, studyKeys, sortDirection, offset, maxResultsNumber, dataCallback
-      let usersN = await testDAL.getUsers(true)
+      // userEmail, roleType, studyKeys, sortDirection, offset, count, dataCallback
+      let users = await testDAL.getUsers(null, null, null, null, 0, 10)
 
-      expect(usersN).not.toBeNull()
-      expect(usersN).toBe(3)
+      expect(users).not.toBeNull()
+      expect(users.totalCount).toBe(3)
     })
   })
 })
