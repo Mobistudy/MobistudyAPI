@@ -17,15 +17,14 @@ await usersCtrl.init()
 router.post('/login', passport.authenticate('local', { session: false }), usersCtrl.login.bind(usersCtrl))
 router.post('/sendResetPasswordEmail', usersCtrl.sendPasswordResetEmail.bind(usersCtrl))
 router.post('/resetPassword', usersCtrl.resetPassword.bind(usersCtrl))
-
 router.get('/users/renewToken', passport.authenticate('jwt', { session: false }), usersCtrl.renewToken.bind(usersCtrl))
 router.post('/users', usersCtrl.createUser.bind(usersCtrl))
-router.patch('/users/:userKey', passport.authenticate('local', { session: false }), usersCtrl.updateUser.bind(usersCtrl))
-router.delete('/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.removeUser.bind(usersCtrl))
 //TODO: remove the count route, currently not working and incompatible with standard paging
 router.get('/users/count', passport.authenticate('local', { session: false }), usersCtrl.getUsersCount.bind(usersCtrl))
 router.get('/users', passport.authenticate('local', { session: false }), usersCtrl.getUsers.bind(usersCtrl))
 router.get('/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.getUserByKey.bind(usersCtrl))
+router.patch('/users/:userKey', passport.authenticate('local', { session: false }), usersCtrl.updateUser.bind(usersCtrl))
+router.delete('/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.removeUser.bind(usersCtrl))
 
 
 await auditLogCtrl.init()
