@@ -18,52 +18,46 @@ const init = async function (DB) {
 }
 
 const DAL = {
-  async getStudies (countOnly, after, before, studyTitle, sortDirection, offset, count) {
-    let queryString = ''
 
-    if (countOnly) {
-      queryString = 'RETURN COUNT ( '
-    }
+  /**
+   * Gets the studies
+   * @param {*} sortDirection - optional, sort direction referring to the creation time
+   * @param {*} offset - optional, starting from result N, used for paging
+   * @param {*} count - optional, number of results to be returned, used for paging
+   * @param {*} callback - optional, callback used when receiving data one by one (except when using pagination)
+  * @returns a promise that passes the data as an array (or empty if dataCallback is specified)
+   */
+  async getStudies (sortDirection, offset, count, callback) {
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
+
     const bindings = {}
-    queryString += 'FOR study IN studies '
-    if (!countOnly || studyTitle) {
+    let queryOptions = {}
+    let queryString = 'FOR study IN studies '
+
+    if (studyTitle) {
       queryString += ` FOR team IN teams
         FILTER team._key == study.teamKey `
     }
-    if (after && before) {
-      queryString += 'FILTER DATE_DIFF(study.createdTS, @after, \'s\') <=0 AND DATE_DIFF(study.createdTS, @before, \'s\') >=0 '
-      bindings.after = after
-      bindings.before = before
+    if (!sortDirection) {
+      sortDirection = 'DESC'
     }
-    if (after && !before) {
-      queryString += 'FILTER DATE_DIFF(study.createdTS, @after, \'s\') <=0 '
-      bindings.after = after
-    }
-    if (!after && before) {
-      queryString += 'FILTER DATE_DIFF(study.createdTS, @before, \'s\') >=0 '
-      bindings.before = before
-    }
-    if (studyTitle) {
-      queryString += 'FILTER LIKE(study.generalities.title, CONCAT(\'%\', @studyTitle, \'%\'), true) '
-      bindings.studyTitle = studyTitle
-    }
-    if (!countOnly) {
-      if (!sortDirection) {
-        sortDirection = 'DESC'
-      }
-      queryString += 'SORT study.generalities.title @sortDirection '
-      bindings.sortDirection = sortDirection
-      if (!!offset && !!count) {
-        queryString += 'LIMIT @offset, @count '
-        bindings.offset = parseInt(offset)
-        bindings.count = parseInt(count)
-      }
+    queryString += 'SORT study.generalities.createdTS @sortDirection '
+    bindings.sortDirection = sortDirection
+
+    if (hasPaging) {
+      queryString += `LIMIT @offset, @count `
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
     }
 
-    if (countOnly) {
-      queryString += ' RETURN 1 )'
-    } else {
-      queryString += ` RETURN {
+    if (!!offset && !!count) {
+      queryString += 'LIMIT @offset, @count '
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+    }
+
+    queryString += ` RETURN {
           studykey: study._key,
           studytitle: study.generalities.title,
           createdTS: study.createdTS,
@@ -73,14 +67,24 @@ const DAL = {
           startDate: study.generalities.startDate,
           endDate: study.generalities.endDate
         }`
-    }
+
     applogger.trace(bindings, 'Querying "' + queryString + '"')
-    const cursor = await db.query(queryString, bindings)
-    if (countOnly) {
-      const counts = await cursor.all()
-      if (counts.length) return '' + counts[0]
-      else return undefined
-    } else return cursor.all()
+    const cursor = await db.query(queryString, bindings, queryOptions)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else {
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
+        }
+      } else {
+        return cursor.all()
+      }
+    }
   },
 
   async getAllStudies () {
