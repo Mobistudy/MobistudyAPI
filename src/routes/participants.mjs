@@ -14,6 +14,7 @@ import { deleteAttachmentsByUser } from '../services/attachments.mjs'
 const router = express.Router()
 
 export default async function () {
+
   // query parameters:
   // teamKey, studyKey, currentStatus
   router.get(

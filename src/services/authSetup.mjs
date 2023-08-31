@@ -69,6 +69,8 @@ export default async function () {
   opts.secretOrKey = config.auth.secret
   passport.use(new PassportJWT.Strategy(opts, function (jwtPayload, cb) {
     const user = jwtPayload
+    delete user.exp
+    delete user.iat
     return cb(null, user)
   }))
 }

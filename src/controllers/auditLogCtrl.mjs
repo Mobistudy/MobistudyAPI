@@ -37,7 +37,6 @@ export default {
   // rowsPerPage: for pagination
   async getAuditLogs (req, res) {
     if (req.user.role !== 'admin' && req.user.role !== 'researcher') {
-      console.log('not a researcher')
       res.sendStatus(403)
     } else {
       try {

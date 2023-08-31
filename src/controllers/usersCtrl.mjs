@@ -163,7 +163,7 @@ export default {
 
   renewToken: async (req, res) => {
     const user = req.user
-    applogger.debug(user.email + 'has requested a new token')
+    applogger.debug(user.email + ' has requested a new token')
 
     delete user.token
     delete user.exp
