@@ -4,4 +4,4 @@
 /tasksuploads
 config.json
 .DS_Store
-/path to logs
+/path to logs/**
