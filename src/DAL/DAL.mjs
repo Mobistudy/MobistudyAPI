@@ -13,7 +13,7 @@ import * as participants from './participantsDAL.mjs'
 import * as forms from './formsDAL.mjs'
 import * as tasksResults from './tasksResultsDAL.mjs'
 import * as studystats from './studiesStatsDAL.mjs'
-import * as researcher from './researchersDAL.mjs'
+import * as researchers from './researchersDAL.mjs'
 
 
 // will be removed:
@@ -52,7 +52,7 @@ export let DAL = {
     Object.assign(this, forms.DAL)
     Object.assign(this, tasksResults.DAL)
     Object.assign(this, studystats.DAL)
-    Object.assign(this, researcher.DAL)
+    Object.assign(this, researchers.DAL)
 
     // will be removed:
     Object.assign(this, answers.DAL)
@@ -100,7 +100,7 @@ export let DAL = {
     await forms.init(this.db)
     await tasksResults.init(this.db)
     await studystats.init(this.db)
-    await researcher.init(this.db)
+    await researchers.init(this.db)
 
     // will be removed
     await answers.init(this.db)
