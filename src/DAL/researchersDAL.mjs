@@ -35,10 +35,25 @@ const DAL = {
     else return undefined;
   },
 
-  async updatePreferedPatient (researcherKey, userKey, studyKey) {
-    const meta = await collection.upsert(researcherKey, userKey, studyKey)
-    return meta
-  }
+  async getIfPatientAlreadyInPreferences(researcherKey, studyKey, userKey) {
+    let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey };
+    var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study';
+    applogger.trace(bindings, 'Querying "' + query + '"');
+    let cursor = await db.query(query, bindings);
+    let researchers = await cursor.all();
+    
+    if (researchers.length) {
+      let studyPreferences = researchers[0];
+      if (studyPreferences.preferedPatients && studyPreferences.preferedPatients.includes(userKey)) {
+        return studyPreferences;
+      } else {
+        return undefined;
+      }
+    } else {
+      return undefined;
+    }
+  },  
+  
 }
 
 export { init, DAL }
