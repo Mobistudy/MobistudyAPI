@@ -43,15 +43,16 @@ export default async function () {
         try {
         const researcherKey = req.user._key
         const studyKey = req.body.studyKey
-        const userKey = req.body.userKey
-
-        console.log(researcherKey, studyKey, userKey);
+        const userKey = req.body.userKey.toString()
 
         const existingPreferedUser = await DAL.getIfPatientAlreadyInPreferences(researcherKey, studyKey, userKey)
 
         if (!existingPreferedUser) {
           await DAL.addPreferedPatient(researcherKey, studyKey, userKey)
-        } else {console.log('Patient is already in prefered patients')}
+        } 
+        else {
+            console.log('Patient is already in prefered patients')
+        }
         res.sendStatus(200)
         } catch (err) {
         applogger.error(

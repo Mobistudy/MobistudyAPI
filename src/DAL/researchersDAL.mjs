@@ -26,41 +26,56 @@ const init = async function (DB) {
 
 const DAL = {
   async getStudyPreferences (researcherKey, studyKey) {
-    let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey };
-    var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study';
-    applogger.trace(bindings, 'Querying "' + query + '"');
-    let cursor = await db.query(query, bindings);
-    let researchers = await cursor.all();
-    if (researchers.length) return researchers[0];
-    else return undefined;
+    let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey }
+    var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study'
+    applogger.trace(bindings, 'Querying "' + query + '"')
+    let cursor = await db.query(query, bindings)
+    let researchers = await cursor.all()
+    if (researchers.length) return researchers[0]
+    else return undefined
   },
 
   async getIfPatientAlreadyInPreferences(researcherKey, studyKey, userKey) {
-    let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey };
-    var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study';
-    applogger.trace(bindings, 'Querying "' + query + '"');
-    let cursor = await db.query(query, bindings);
-    let researchers = await cursor.all();
+    let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey }
+    var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study'
+    applogger.trace(bindings, 'Querying "' + query + '"')
+    let cursor = await db.query(query, bindings)
+    let researchers = await cursor.all()
     
     if (researchers.length) {
       let studyPreferences = researchers[0];
       if (studyPreferences.preferedPatients && studyPreferences.preferedPatients.includes(userKey.toString())) {
-        return studyPreferences.preferedPatients;
+        return studyPreferences.preferedPatients
       } else {
-        return undefined;
+        return undefined
       }
     } else {
-      return undefined;
+      return undefined
     }
-  },  
+  },
 
   async addPreferedPatient(researcherKey, studyKey, userKey) {
-    await collection.update(
-      { researcherKey, studyKey },
-      { $addToSet: { preferedPatients: userKey } }
-    );
-    console.log('User added to preferedPatients:', userKey);
-  } 
+    try {
+      const document = await this.getStudyPreferences(researcherKey, studyKey)
+  
+      if (document) {
+        const updatedDocument = {
+          ...document,
+          preferedPatients: [...document.preferedPatients, userKey],
+        };
+        await collection.update(document._id, updatedDocument)
+      } else {
+        const docHandle = String(researcherKey) + '-' + String(studyKey)
+        await collection.save({
+          _key: docHandle,
+          researcherKey,
+          studyKey,
+          preferedPatients: [userKey.toString()]
+        })
+      }
+    } catch (error) {
+    }
+}
 }
 
 export { init, DAL }
