@@ -37,41 +37,26 @@ export default async function () {
       )
 
     router.get(
-      '/teams/invitationCode/:teamKey',
-      passport.authenticate('jwt', { session: false }),
-      async function (req, res) {
-        if (req.user.role === 'admin') {
-          try {
-            const teamkey = req.params.teamKey
-  
-            const team = await DAL.getOneTeam(teamkey)
-            if (!team) return res.sendStatus(400)
-  
-            const weeksecs = 7 * 24 * 60 * 60
-            const token = jwt.sign(
-              {
-                teamKey: teamkey
-              },
-              config.auth.secret,
-              {
-                expiresIn: weeksecs
-              }
-            )
-            team.invitationCode = token
-            team.invitationExpiry = new Date(
-              new Date().getTime() + weeksecs * 1000
-            )
-            await DAL.replaceTeam(teamkey, team)
-            res.send(token)
-          } catch (err) {
-            applogger.error(
-              { error: err },
-              'Cannot generate invitation code for team ' + req.params.teamKey
-            )
-            res.sendStatus(500)
-          }
-        } else res.sendStatus(403)
-      }
+    '/researchers/:studyKey/:userKey',
+    passport.authenticate('jwt', { session: false }),
+    async function (req, res) {
+        try {
+        const reseacherKey = req.user._key
+        const studyKey = req.params.studyKey
+        const userKey = req.params.userKey
+        res.json({
+            researcher: reseacherKey,
+            study: studyKey,
+            userPref: userKey
+        })
+        } catch (err) {
+        applogger.error(
+            { error: err },
+            'Cannot retrieve team with _key ' + req.params
+        );
+        res.sendStatus(500)
+        }
+    }
     )
   
     // add a researcher to a team
