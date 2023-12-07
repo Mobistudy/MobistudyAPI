@@ -26,6 +26,7 @@ import PeakFlowRouter from './routes/peakflow.mjs'
 import PositionsRouter from './routes/positions.mjs'
 import mSafetyRouter from './routes/mSafety.mjs'
 import attachmentsRouter from './routes/attachments.mjs'
+import researchersRouter from './routes/researchers.mjs'
 
 export default async function () {
   await initLogs()
@@ -74,6 +75,7 @@ export default async function () {
   app.use(apiPrefix, await PeakFlowRouter())
   app.use(apiPrefix, await PositionsRouter())
   app.use(apiPrefix, await attachmentsRouter())
+  app.use(apiPrefix, await researchersRouter())
 
   app.use(apiPrefix, await mSafetyRouter())
 
