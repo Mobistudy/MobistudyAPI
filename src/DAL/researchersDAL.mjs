@@ -44,8 +44,8 @@ const DAL = {
     
     if (researchers.length) {
       let studyPreferences = researchers[0];
-      if (studyPreferences.preferedPatients && studyPreferences.preferedPatients.includes(userKey)) {
-        return studyPreferences;
+      if (studyPreferences.preferedPatients && studyPreferences.preferedPatients.includes(userKey.toString())) {
+        return studyPreferences.preferedPatients;
       } else {
         return undefined;
       }
@@ -53,7 +53,14 @@ const DAL = {
       return undefined;
     }
   },  
-  
+
+  async addPreferedPatient(researcherKey, studyKey, userKey) {
+    await collection.update(
+      { researcherKey, studyKey },
+      { $addToSet: { preferedPatients: userKey } }
+    );
+    console.log('User added to preferedPatients:', userKey);
+  } 
 }
 
 export { init, DAL }

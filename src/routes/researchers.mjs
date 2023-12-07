@@ -49,8 +49,10 @@ export default async function () {
 
         const existingPreferedUser = await DAL.getIfPatientAlreadyInPreferences(researcherKey, studyKey, userKey)
 
-        console.log(existingPreferedUser)
-
+        if (!existingPreferedUser) {
+          await DAL.addPreferedPatient(researcherKey, studyKey, userKey)
+        } else {console.log('Patient is already in prefered patients')}
+        res.sendStatus(200)
         } catch (err) {
         applogger.error(
             { error: err },
