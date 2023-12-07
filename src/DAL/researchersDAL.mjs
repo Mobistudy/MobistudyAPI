@@ -6,6 +6,7 @@ import utils from './utils.mjs'
 import { applogger } from '../services/logger.mjs'
 
 /**
+ * researcherKey: <keyOfTheResearcher>
  * studyKey: <keyOfTheStudy>
  * preferedPatients: [<userId>, <userId>...]
  */
@@ -24,27 +25,20 @@ const init = async function (DB) {
 }
 
 const DAL = {
-  async getStudyPreferences (studyKey) {
-    let bindings = { 'key': studyKey }
-    var query = 'FOR study in researchers FILTER study._key == @key RETURN study'
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    let cursor = await db.query(query, bindings)
-    let researchers = await cursor.all()
-    if (researchers.length) return researchers[0]
-    else return undefined
+  async getStudyPreferences (researcherKey, studyKey) {
+    let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey };
+    var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study';
+    applogger.trace(bindings, 'Querying "' + query + '"');
+    let cursor = await db.query(query, bindings);
+    let researchers = await cursor.all();
+    if (researchers.length) return researchers[0];
+    else return undefined;
   },
 
-  async addPreferedPatient (userKey, studyKey) {
-    const meta = await collection.save(userKey)
-    newuser._key = meta._key
+  async updatePreferedPatient (researcherKey, userKey, studyKey) {
+    const meta = await collection.upsert(researcherKey, userKey, studyKey)
     return meta
-  },
-
-  // async replaceTeam (_key, team) {
-  //  let meta = await collection.replace(_key, team)
-  //  team._key = meta._key
-  //  return team
-  // }
+  }
 }
 
 export { init, DAL }
