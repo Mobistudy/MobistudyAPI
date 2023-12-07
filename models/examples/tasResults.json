@@ -1,0 +1,22 @@
+{
+  "userKey": "218801",
+  "participantKey": "218839",
+  "studyKey": "1978",
+  "taskId": 9,
+  "taskType": "fingerTapping",
+  "createdTS": "2022-04-26T13:03:04.986Z",
+  "phone": {
+    "manufacturer": "Apple",
+    "model": "iPhone6,2",
+    "OSversion": "12.5.5"
+  },
+  "summary": {
+    "startedTS": "2022-04-26T13:02:44.968Z",
+    "completedTS": "2022-04-26T13:03:04.986Z",
+    "tappingCount": 60
+  },
+  "discarded": false,
+  "attachments": [
+    "23325376.json"
+  ]
+}
