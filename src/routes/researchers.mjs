@@ -25,7 +25,7 @@ export default async function () {
             const reseacherKey = req.user._key
             const studyKey = req.params.studyKey
             const preferedUsers = await DAL.getStudyPreferences(reseacherKey, studyKey)
-            res.send(preferedUsers)
+            res.send(preferedUsers.preferedPatients)
           } catch (err) {
             applogger.error(
               { error: err },
