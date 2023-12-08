@@ -10,6 +10,12 @@
     },
     "length": {
       "type": "number"
+    },
+    "firstDate": {
+      "type": "string"
+    },
+    "lastDate": {
+      "type": "string"
     }
   },
   "required": [
