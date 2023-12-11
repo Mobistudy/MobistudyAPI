@@ -25,7 +25,7 @@ const init = async function (DB) {
 }
 
 const DAL = {
-  async getStudyPreferences (researcherKey, studyKey) {
+  async getPreferredParticipans (researcherKey, studyKey) {
     let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey }
     var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study'
     applogger.trace(bindings, 'Querying "' + query + '"')
@@ -35,34 +35,28 @@ const DAL = {
     else return undefined
   },
 
-  async getIfPatientAlreadyInPreferences(researcherKey, studyKey, userKey) {
-    let bindings = { 'researcherKey': researcherKey, 'studyKey': studyKey }
-    var query = 'FOR study IN researchers FILTER study.researcherKey == @researcherKey && study.studyKey == @studyKey RETURN study'
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    let cursor = await db.query(query, bindings)
-    let researchers = await cursor.all()
-    
-    if (researchers.length) {
-      let studyPreferences = researchers[0];
-      if (studyPreferences.preferedPatients && studyPreferences.preferedPatients.includes(userKey.toString())) {
-        return studyPreferences.preferedPatients
-      } else {
-        return undefined
+  async getUpdatedDocument(researcherKey, studyKey, userKey) {
+    try {
+      const document = await this.getPreferredParticipans(researcherKey, studyKey)
+      const updatedDocument = {
+        ...document,
+        preferredParticipans: document.preferredParticipans.includes(userKey)
+        ? document.preferredParticipans.filter(key => key !== userKey)
+        : [...document.preferredParticipans, userKey],
       }
-    } else {
-      return undefined
+      console.log(updatedDocument)
+      return updatedDocument
+    } catch (err) {
+      console.error(err)
     }
   },
 
-  async addPreferedPatient(researcherKey, studyKey, userKey) {
+  async setPreferredParticipant(researcherKey, studyKey, userKey) {
     try {
-      const document = await this.getStudyPreferences(researcherKey, studyKey)
+      const document = await this.getPreferredParticipans(researcherKey, studyKey)
   
       if (document) {
-        const updatedDocument = {
-          ...document,
-          preferedPatients: [...document.preferedPatients, userKey],
-        };
+        const updatedDocument = await this.getUpdatedDocument(researcherKey, studyKey, userKey)
         await collection.update(document._id, updatedDocument)
       } else {
         const docHandle = String(researcherKey) + '-' + String(studyKey)
@@ -70,12 +64,12 @@ const DAL = {
           _key: docHandle,
           researcherKey,
           studyKey,
-          preferedPatients: [userKey.toString()]
+          preferredParticipans: [userKey.toString()]
         })
       }
-    } catch (error) {
+    } catch (err) {
+      console.error(err)
     }
+  }
 }
-}
-
 export { init, DAL }
