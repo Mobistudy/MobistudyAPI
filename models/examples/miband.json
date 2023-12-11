@@ -24,16 +24,14 @@
       "activityType": 98,
       "intensity": 6,
       "steps": 5,
-      "hr": 19,
-      "buffer": {}
+      "hr": 19
     },
     {
       "date": "2021-09-06T11:13:41.982Z",
       "activityType": 98,
       "intensity": 4,
       "steps": 19,
-      "hr": 92,
-      "buffer": {}
+      "hr": 92
     }
   ]
 }
