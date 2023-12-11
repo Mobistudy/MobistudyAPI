@@ -44,7 +44,6 @@ const DAL = {
         ? document.preferredParticipans.filter(key => key !== userKey)
         : [...document.preferredParticipans, userKey],
       }
-      console.log(updatedDocument)
       return updatedDocument
     } catch (err) {
       console.error(err)
