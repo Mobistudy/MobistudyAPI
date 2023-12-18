@@ -20,6 +20,8 @@ The object may contain also additional elements, which are form-specific, an exa
     "symptomsScore": 45
   }
 ```
+Hints for visualization: answered questions and any additional custom metric that may be present.
+
 
 Data query:
 ```json
@@ -34,6 +36,7 @@ Data query:
 ```
 first and last dates indicate the temporal period that the data covers.
 The object may contain additional properties, depending on the data type, but this has not been defined yet.
+Hints for visualization: dependent on case, hard to generalize
 
 
 Drawing:
@@ -46,6 +49,7 @@ Drawing:
   }
 ```
 TODO: these summary data will be changed when we get to understand which metrics are more clinically relevant.
+Hints for visualization: both variability indexes
 
 Finger tapping:
 ```json
@@ -56,6 +60,7 @@ Finger tapping:
   }
 ```
 TODO: we may add another metric that is clinically significative.
+Hints for visualization: count
 
 Hold the phone:
 ```json
@@ -107,6 +112,7 @@ Hold the phone:
   }
 ```
 TODO: variance will likely be substituted with another, more significative, metric
+Hints for visualization: accel variance, for each hand, and each test (6 in total)
 
 Miband3:
 ```json
@@ -129,6 +135,8 @@ Peakflow:
     "pefMax": 532
   }
 ```
+Hints for visualization: PEF max
+
 
 PO60:
 ```json
@@ -139,6 +147,8 @@ PO60:
     "hr": 82
   }
 ```
+Hints for visualization: spo2 and HR
+
 
 Position:
 ```json
@@ -151,6 +161,8 @@ Position:
     "temperature": 17
   }
 ```
+Hints for visualization: temperature and air quality (aqi)
+
 
 SMWT:
 ```json
@@ -162,6 +174,8 @@ SMWT:
     "steps": 800
   }
 ```
+Hints for visualization: distance
+
 
 TUGT:
 ```json
@@ -171,13 +185,35 @@ TUGT:
     "durationMs": 1200
   }
 ```
+Hints for visualization: duration
 
 
 Vocalization:
 ```json
  "summary": {
     "startedTS": "2022-04-26T13:02:44.968Z",
-    "completedTS": "2022-04-26T13:03:04.986Z"
-    TBD
+    "completedTS": "2022-04-26T13:03:04.986Z",
+    "phases": [
+      {
+        "vocal": "a",
+        "startedTS":  "2022-04-26T13:03:04.986Z",
+        "completedTS": "2022-04-26T13:03:04.986Z",
+        "filename": "1212312312.wav"
+      },
+       {
+        "vocal": "i",
+        "startedTS":  "2022-04-26T13:03:04.986Z",
+        "completedTS": "2022-04-26T13:03:04.986Z",
+        "filename": "1212312312.wav"
+      },
+       {
+        "vocal": "u",
+        "startedTS":  "2022-04-26T13:03:04.986Z",
+        "completedTS": "2022-04-26T13:03:04.986Z",
+        "filename": "1212312312.wav"
+      }
+    ]
   }
 ```
+TODO: add the actual duration of the fonation, when algorithm available
+Hints for visualization: for each vowel, the duration (end - start)
