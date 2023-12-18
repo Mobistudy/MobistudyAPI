@@ -104,6 +104,7 @@ Coordination: [Dario Salvi](https://github.com/dariosalvi78) and [Carl Magnus Ol
 
 Development:
 - [Dario Salvi](https://github.com/dariosalvi78)
+- [Lukas Jönsson](https://github.com/LukasJnsson)
 - [Arvind Goburdhun](https://github.com/arvgo)
 - [Elin Forsnor](https://github.com/elinforsnor)
 - [Felix Morau](https://github.com/femosc2)
