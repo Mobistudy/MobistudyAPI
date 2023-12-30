@@ -1,7 +1,6 @@
 /**
  * This provides the API endpoints for the study descriptions.
  */
-
 import express from 'express'
 import passport from 'passport'
 import { DAL } from '../DAL/DAL.mjs'
@@ -76,17 +75,18 @@ export default async function () {
     passport.authenticate('jwt', { session: false }),
     async function (req, res) {
       try {
+        const userKey = req.user._key
         let studies = []
         if (req.user.role === 'researcher') {
           if (req.query.teamKey) {
             const team = await DAL.getOneTeam(req.query.teamKey)
-            if (!team.researchersKeys.includes(req.user._key)) {
+            if (!team.researchers.find(t => t.userKey === userKey)) {
               return res.sendStatus(403)
             }
             studies = await DAL.getAllTeamStudies(req.query.teamKey)
           } else {
             // limit the studies to the teams the user belongs to
-            const teams = await DAL.getAllTeams(req.user._key)
+            const teams = await DAL.getAllTeams(userKey)
             for (let i = 0; i < teams.lenght; i++) {
               const studies = await DAL.getAllTeamStudies(teams[i]._key)
               studies.push(studies)
@@ -99,7 +99,7 @@ export default async function () {
             studies = await DAL.getAllStudies()
           }
         } else if (req.user.role === 'participant') {
-          const part = await DAL.getParticipantByUserKey(req.user._key)
+          const part = await DAL.getParticipantByUserKey(userKey)
           studies = await DAL.getAllParticipantStudies(part._key)
         }
 

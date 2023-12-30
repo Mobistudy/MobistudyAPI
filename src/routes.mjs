@@ -2,6 +2,7 @@ import passport from 'passport'
 
 import usersCtrl from './controllers/usersCtrl.mjs'
 import auditLogCtrl from './controllers/auditLogCtrl.mjs'
+import teamsCtrl from './controllers/teamsCtrl.mjs'
 import tasksResultsCtrl from './controllers/tasksResultsCtrl.mjs'
 import attachmentsCtrl from './controllers/attachmentsCtrl.mjs'
 import studyStatsCtrl from './controllers/studyStatsCtrl.mjs'
@@ -44,5 +45,16 @@ router.get('/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabul
 
 await techadminCtrl.init()
 router.post('/techadmin/sendemail/', passport.authenticate('jwt', { session: false }), techadminCtrl.sendOneEmail.bind(techadminCtrl))
+
+await teamsCtrl.init()
+router.post('/teams', passport.authenticate('jwt', { session: false }), teamsCtrl.createTeam.bind(teamsCtrl))
+router.get('/teams', passport.authenticate('jwt', { session: false }), teamsCtrl.getAll.bind(teamsCtrl))
+router.get('/teams/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.getTeamByKey.bind(teamsCtrl))
+router.get('/teams/invitationCode/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.generateInvitationCode.bind(teamsCtrl))
+router.post('/teams/researchers/add', passport.authenticate('jwt', { session: false }), teamsCtrl.addResearcherToTeam.bind(teamsCtrl))
+router.post('/teams/researchers/remove', passport.authenticate('jwt', { session: false }), teamsCtrl.removeResearcherFromTeam.bind(teamsCtrl))
+router.patch('/teams/:teamKey/researchers/studiesOptions/:studyKey', passport.authenticate('jwt', { session: false }), teamsCtrl.deleteTeam.bind(teamsCtrl))
+router.delete('/teams/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.deleteTeam.bind(teamsCtrl))
+
 
 export default router

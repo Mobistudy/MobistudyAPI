@@ -1,8 +1,19 @@
 {
-  "name": "Jameson",
+  "name": "Malmo Univeristy test project",
   "createdTS": "2018-11-12T16:40:07.542Z",
-  "researchersKeys": [
-    "35161592"
+  "researchers": [
+    {
+      "userKey": "35161592",
+      "studiesOptions": [
+        {
+          "studyKey": "312212",
+          "preferredParticipantsKeys": [
+            "4628193",
+            "9216384"
+          ]
+        }
+      ]
+    }
   ],
   "invitationCode": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZWFtS2V5IjoiMzUxNjYzNTIiLCJpYXQiOjE1NDI2MjIzODgsImV4cCI6MTU0MzIyNzE4OH0.kRmKMfyM7LrgNub_LHdjbVadRco9hhn6GezXYGGmMY8",
   "invitationExpiry": "2018-11-26T10:13:08.386Z"

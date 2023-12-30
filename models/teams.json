@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/teams.json",
+  "title": "Teams",
+  "description": "Definition of a team of researchers",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "Name of the team",
+      "type": "string"
+    },
+    "createdTS": {
+      "description": "ISO8601 timestamp describing when the team was created",
+      "type": "string"
+    },
+    "updatedTS": {
+      "description": "ISO8601 timestamp describing the last time the team was updated",
+      "type": "string"
+    },
+    "invitationCode": {
+      "description": "invitation code used to add researchers to the team",
+      "type": "string"
+    },
+    "invitationExpiry": {
+      "description": "Expiration date, in ISO8601, of the invitation code",
+      "type": "string"
+    },
+    "researchers": {
+      "description": "Array containing the researchers associaetd to this team",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "userKey": {
+            "description": "user key of the researcher",
+            "type": "string"
+          },
+          "studiesOptions": {
+            "description": "Options, per study, of the researcher",
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/studyOptions"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "$defs": {
+    "studyOptions": {
+      "type": "object",
+      "properties": {
+        "studyKey": {
+          "type": "string"
+        },
+        "preferredParticipantsKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
