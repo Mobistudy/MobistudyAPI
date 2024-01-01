@@ -229,11 +229,11 @@ export default {
   /**
    * Update study options in a team
    * @param {object} req - express request object, must contain logged in user,
-   * query params: teamKey and studyKey, body: studiesOptions for that study
+   * query params: teamKey and studyKey, body: studiesOptions for that study, typically the array preferredParticipantsKeys
    * @param {object} res - express response object, sends back just 200
    * @returns a promise
    */
-  async updateStudyOptionsInTeam (req, res) {
+  async updateResearcherStudyOptionsInTeam (req, res) {
     try {
       const userKey = req.user._key
       const teamKey = req.params.teamKey
@@ -250,6 +250,87 @@ export default {
           return
         }
         await DAL.addResearcherToTeam(teamKey, userKey, studyKey, studyOption)
+        res.sendStatus(200)
+        applogger.info(selTeam, 'Reseacher changed study option in a team')
+        auditLogger.log(
+          'researcherUpdateStudyOptionsInTeam',
+          req.user._key,
+          undefined,
+          undefined,
+          'Researcher with key ' +
+          userKey +
+          ' changed study options for study' +
+          + studyKey +
+          ' in team ' +
+          selTeam.name,
+          'teams',
+          selTeam._key
+        )
+      } else {
+        applogger.error(
+          'Adding researcher to team, team with key ' +
+          decodedTeamKey +
+          ' does not exist'
+        )
+        res.sendStatus(400)
+      }
+    } catch (err) {
+      // respond to request with error
+      applogger.error({ error: err }, 'Cannot add researcher to team')
+      res.sendStatus(500)
+    }
+  },
+
+
+  /**
+   * Change preferred status of patient in researchers study options in a team
+   * @param {object} req - express request object, must contain logged in user,
+   * query params: studyKey and participantUserKey, body: { isPreferred: true / false }
+   * @param {object} res - express response object, sends back just 200
+   * @returns a promise
+   */
+  async updateResearcherPreferredParticipantInTeam (req, res) {
+    try {
+      const userKey = req.user._key
+      const studyKey = req.params.studyKey
+      const participantUserKey = req.params.participantUserKey
+      const { isPreferred } = req.body
+
+      // derive team from study
+      let sutdyDescr = await DAL.getOneStudy(studyKey)
+      let teamKey = sutdyDescr.teamKey
+      // check that the researcher is in the team
+      const selTeam = await DAL.getOneTeam(teamKey)
+      if (selTeam) {
+        if (!selTeam.researchers) selTeam.researchers = []
+        let researcherOpts = selTeam.researchers.find(r => r.userKey === userKey)
+        if (!researcherOpts) {
+          applogger.warn('Cannot change study options in a team the researcher is not part of')
+          res.sendStatus(403)
+          return
+        }
+        if (!researcherOpts.studiesOptions) researcherOpts.studiesOptions = []
+        let studyOpt = researcherOpts.studiesOptions.find(so => so.studyKey === studyKey)
+        if (!studyOpt) {
+          const len = researcherOpts.studiesOptions.push({
+            preferredParticipantsKeys: []
+          })
+          studyOpt = researcherOpts.studiesOptions[len - 1]
+        }
+        if (!studyOpt.preferredParticipantsKeys) studyOpt.preferredParticipantsKeys = []
+        const partIdx = studyOpt.preferredParticipantsKeys.indexOf(participantUserKey)
+        if (partIdx > -1) {
+          if (!isPreferred) {
+            // participant is not preferred, but is among preferred, remove
+            studyOpt.preferredParticipantsKeys.splice(partIdx, 1)
+          } // else is preferred and in the list, leave as is
+        } else {
+          if (isPreferred) {
+            // participant is preferred, but is not in the list, add
+            studyOpt.preferredParticipantsKeys.push(participantUserKey)
+          } // else is not preferred and not in the list, leave as is
+        }
+        await DAL.addResearcherToTeam(teamKey, userKey, studyKey, studyOpt)
         res.sendStatus(200)
         applogger.info(selTeam, 'Reseacher changed study option in a team')
         auditLogger.log(

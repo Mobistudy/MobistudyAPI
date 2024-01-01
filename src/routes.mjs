@@ -53,8 +53,10 @@ router.get('/teams/:teamKey', passport.authenticate('jwt', { session: false }), 
 router.get('/teams/invitationCode/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.generateInvitationCode.bind(teamsCtrl))
 router.post('/teams/researchers/add', passport.authenticate('jwt', { session: false }), teamsCtrl.addResearcherToTeam.bind(teamsCtrl))
 router.post('/teams/researchers/remove', passport.authenticate('jwt', { session: false }), teamsCtrl.removeResearcherFromTeam.bind(teamsCtrl))
-router.patch('/teams/:teamKey/researchers/studiesOptions/:studyKey', passport.authenticate('jwt', { session: false }), teamsCtrl.deleteTeam.bind(teamsCtrl))
+router.patch('/teams/:teamKey/researchers/studiesOptions/:studyKey', passport.authenticate('jwt', { session: false }), teamsCtrl.updateResearcherStudyOptionsInTeam.bind(teamsCtrl))
+router.patch('/teams/researchers/studiesOptions/:studyKey/preferredParticipantsKey/:participantUserKey', passport.authenticate('jwt', { session: false }), teamsCtrl.updateResearcherPreferredParticipantInTeam.bind(teamsCtrl))
 router.delete('/teams/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.deleteTeam.bind(teamsCtrl))
+
 
 
 export default router
