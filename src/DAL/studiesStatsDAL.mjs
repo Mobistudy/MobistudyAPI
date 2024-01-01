@@ -16,19 +16,22 @@ const init = async function (DB) {
 const DAL = {
   /**
    * Gets a summary of the last task executed by each patient in a study
-   * @param {string} studyKey mandatory, the key of the study for which the statistics are retrieved
-   * @param {string} participantName optional, to filter by name, or surname
-   * @param {string} statusType optional, to filer by status in the study,
+   * @param {string} studyKey - mandatory, the key of the study for which the statistics are retrieved
+   * @param {string} participantName - optional, to filter by name, or surname
+   * @param {string} statusType - optional, to filer by status in the study,
    * being 'accepted', 'withdrawn', 'completed', 'excluded', 'rejected'
-   * @param {integer} offset optional, used for paging. If used also count must be present and the returned value is different
-   * @param {integer} count optional, used for paging.
+   * @param {object} preferredParticipants - optional, an object carrying 2 properties:
+   * include: 'none' does not include preferred participants, 'both' includes preferred and not, 'only' includes only preferred
+   * researcherKey: user key of the researcher
+   * @param {integer} offset - optional, used for paging. If used also count must be present and the returned value is different
+   * @param {integer} count - optional, used for paging.
    * If used also`offset` must be present and the returned value is different
-   * @param {function} dataCallback optional used for retrieving elements one by one
+   * @param {function} dataCallback - optional used for retrieving elements one by one
    * @returns a Promise with the data (if dataCallback is not specified).
    * The data is either the array for each participant, or, if paging is specified (and no callback used),
    * it's an object containing the total count (including filters) in `totalCount` and the paged data in `subset`
    */
-  async getLastTasksSummary (studyKey, participantName, statusType, offset, count, dataCallback) {
+  async getLastTasksSummary (studyKey, participantName, statusType, preferredParticipants, offset, count, dataCallback) {
 
     const queryOptions = {}
     const bindings = {
@@ -46,6 +49,23 @@ const DAL = {
     if (statusType) {
       queryString += `&& s.currentStatus == @statusType `
       bindings.statusType = statusType
+    }
+    let includePreferredParts = preferredParticipants && preferredParticipants.include !== 'none'
+    // 'none' does not include preferred participants, 'both' includes preferred and not, 'only' includes only preferred
+    if (includePreferredParts) {
+      bindings.researcherKey = preferredParticipants.researcherKey
+      queryString += `
+            FOR st in studies
+              FILTER st._key == @studyKey
+            FOR te in teams
+              FILTER te._key == st.teamKey
+            FOR re in te.researchers
+              FILTER re.userKey == @researcherKey
+            LET isPref = p.userKey IN FLATTEN(re.studiesOptions[* FILTER CURRENT.studyKey == @studyKey].preferredParticipantsKeys)
+      `
+      if (preferredParticipants.include === 'only') {
+        queryString += `FILTER isPref == true`
+      }
     }
     if (participantName) {
       bindings.partname = participantName
@@ -79,8 +99,13 @@ const DAL = {
       status: FIRST(p.studies[* FILTER CURRENT.studyKey == @studyKey].currentStatus),
       taskResultCount: taskResultCount,
       lastTaskDate: lastTask.createdTS,
-      lastTaskType: lastTask.taskType
-      }`
+      lastTaskType: lastTask.taskType`
+    if (includePreferredParts) {
+      queryString += `,
+      isPreferred: isPref
+      `
+    }
+    queryString += `}`
 
     applogger.trace(bindings, 'Querying "' + queryString + '"')
 

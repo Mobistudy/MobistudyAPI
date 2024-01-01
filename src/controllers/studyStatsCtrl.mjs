@@ -14,7 +14,7 @@ export default {
   /**
    * Get a summary of the last tasks performed by participants in a study.
    * mandatory query param: studyKey to filter by study
-   * optional query params: participantName, statusType, offset, count
+   * optional query params: participantName, statusType, includePreferredParticipants ('none', 'both', 'only'), offset, count
    * @param {object} req: express request object
    * @param {object} res: express response object
    * @returns a promise
@@ -44,10 +44,18 @@ export default {
         return res.status(403).send(errmess)
       }
       let participants = []
+      let preferredParts = undefined
+      if (req.query.includePreferredParticipants) {
+        preferredParts = {
+          include: req.query.includePreferredParticipants,
+          researcherKey: req.user._key
+        }
+      }
       participants = await DAL.getLastTasksSummary(
         req.query.studyKey,
         req.query.participantName,
         req.query.statusType,
+        preferredParts,
         req.query.offset,
         req.query.count
       )

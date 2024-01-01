@@ -71,6 +71,12 @@ export const addDataToCollection = async function (collname, data) {
   return meta._key
 }
 
+export const updateDataInCollection = async function (collname, data, key) {
+  let collection = await getCollection(collname)
+  let meta = await collection.replace(key, data)
+  return meta._key
+}
+
 export const removeFromCollection = async function (collname, key) {
   let collection = await getCollection(collname)
   return collection.remove(key)

@@ -108,6 +108,47 @@ describe('Testing studies stats controller,', () => {
     expect(res.data.length).toBe(1)
     expect(res.data[0].userKey).toBe('1122')
 
-    expect(DAL.getLastTasksSummary).toHaveBeenCalledOnceWith('fake', 'dar', undefined, undefined, undefined)
+    // studyKey, participantName, statusType, preferredParticipants, offset, count, dataCallback
+    expect(DAL.getLastTasksSummary).toHaveBeenCalledOnceWith('fake', 'dar', undefined, undefined, undefined, undefined)
+  })
+
+  it('researchers can get preferred only', async () => {
+    spyOn(DAL, 'getOneStudy').and.returnValue({
+      _key: 'fake'
+    })
+    spyOn(DAL, 'getAllTeams').and.returnValue([{}])
+    spyOn(DAL, 'getLastTasksSummary').and.returnValue([{
+      userKey: '1122',
+      name: 'Dario',
+      surname: 'Salvi',
+      DOB: '1994-06-04',
+      userEmail: 'dario@test.test',
+      status: 'accepted',
+      taskResultCount: 3,
+      lastTaskDate: null,
+      lastTaskType: null,
+      isPreferred: true
+    }])
+
+    let res = new MockResponse()
+    await studyStatsCtrl.getLastTasksSummary({
+      user: {
+        role: 'researcher',
+        _key: '909090'
+      },
+      query: {
+        studyKey: 'fake',
+        includePreferredParticipants: 'only'
+      }
+    }, res)
+
+    expect(res.data).not.toBeNull()
+    expect(res.data).not.toBeUndefined()
+    expect(res.data.length).toBe(1)
+    expect(res.data[0].userKey).toBe('1122')
+    expect(res.data[0].isPreferred).toBe(true)
+
+    // studyKey, participantName, statusType, preferredParticipants, offset, count, dataCallback
+    expect(DAL.getLastTasksSummary).toHaveBeenCalledOnceWith('fake', undefined, undefined, jasmine.objectContaining({ include: 'only', researcherKey: '909090' }), undefined, undefined)
   })
 })
