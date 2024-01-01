@@ -12,7 +12,7 @@ import * as studies from './studiesDAL.mjs'
 import * as participants from './participantsDAL.mjs'
 import * as forms from './formsDAL.mjs'
 import * as tasksResults from './tasksResultsDAL.mjs'
-import * as studystats from './studiesStatsDAL.mjs'
+import * as studystats from './studyStatsDAL.mjs'
 
 
 // will be removed:

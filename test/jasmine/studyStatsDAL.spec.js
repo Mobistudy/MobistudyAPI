@@ -5,7 +5,7 @@ import {
 } from '../arangoTools.mjs'
 import * as participants from '../../src/DAL/participantsDAL.mjs'
 import * as tasksResults from '../../src/DAL/tasksResultsDAL.mjs'
-import * as studystats from '../../src/DAL/studiesStatsDAL.mjs'
+import * as studystats from '../../src/DAL/studyStatsDAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
 
 // Storage module used for testing
