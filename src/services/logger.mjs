@@ -17,55 +17,55 @@ let pinoapplogger
 let applogger = {
   trace (object, message) {
     if (message) {
-      console.debug(message, object)
+      console.debug('TRACE: ' + message, object)
       pinoapplogger.trace(object, message)
     } else {
-      console.debug(object)
+      console.debug('TRACE: ' + object)
       pinoapplogger.trace(object)
     }
   },
   debug (object, message) {
     if (message) {
-      console.debug(message, object)
+      console.debug('DEBUG: ' + message, object)
       pinoapplogger.debug(object, message)
     } else {
-      console.debug(object)
+      console.debug('DEBUG: ' + object)
       pinoapplogger.debug(object)
     }
   },
   info (object, message) {
     if (message) {
-      console.info(message, object)
+      console.info('INFO: ' + message, object)
       pinoapplogger.info(object, message)
     } else {
-      console.info(object)
+      console.info('INFO: ' + object)
       pinoapplogger.info(object)
     }
   },
   warn (object, message) {
     if (message) {
-      console.warn(message, object)
+      console.warn('WARN: ' + message, object)
       pinoapplogger.warn(object, message)
     } else {
-      console.warn(object)
+      console.warn('WARN: ' + object)
       pinoapplogger.warn(object)
     }
   },
   error (object, message) {
     if (message) {
-      console.error(message, object)
+      console.error('ERR: ' + message, object)
       pinoapplogger.error(object, message)
     } else {
-      console.error(object)
+      console.error('ERR: ' + object)
       pinoapplogger.error(object)
     }
   },
   fatal (object, message) {
     if (message) {
-      console.error(message, object)
+      console.error('FATAL: ' + message, object)
       pinoapplogger.fatal(object, message)
     } else {
-      console.error(object)
+      console.error('FATAL: ' + object)
       pinoapplogger.fatal(object)
     }
   }
