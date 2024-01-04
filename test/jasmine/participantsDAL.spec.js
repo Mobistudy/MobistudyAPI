@@ -235,7 +235,7 @@ describe("when arangodb is running,", () => {
     })
 
     it('all participants can be queried and paged', async () => {
-      let parts = await DAL.getAllParticipants(null, 0, 2)
+      let parts = await DAL.getAllParticipants(null, null, 0, 2)
 
       expect(parts.totalCount).toBe(3)
       expect(parts.subset.length).toBe(2)
@@ -266,15 +266,23 @@ describe("when arangodb is running,", () => {
       expect(parts[2].name).toBe('Maria')
     })
 
+    it('participants can be queried by team and study', async () => {
+      let parts = await DAL.getParticipantsByTeam(team1Key, study2Key)
+
+      expect(parts.length).toBe(1)
+      expect(parts[0].name).toBe('Maria')
+    })
+
     it('participants can be queried by study and status', async () => {
       let parts = await DAL.getParticipantsByStudy(study1Key, 'accepted')
 
       expect(parts.length).toBe(1)
       expect(parts[0].name).toBe('Dario')
+      expect(parts[0].studies.length).toBe(1)
     })
 
     it('participants can be queried by team and status', async () => {
-      let parts = await DAL.getParticipantsByTeam(team1Key, 'accepted')
+      let parts = await DAL.getParticipantsByTeam(team1Key, null, 'accepted')
 
       expect(parts.length).toBe(2)
       expect(parts[0].name).toBe('Dario')

@@ -109,12 +109,13 @@ const DAL = {
   /**
    * Gets all the participants in the database
    * @param {?string} currentStatus - optional, status of the participants
+   * @param {?string} studykey - optional, participants in a study
    * @param {?number} offset - optional, starting from result N, used for paging
    * @param {?number} count - optional, number of results to be returned, used for paging
    * @param {?Function} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
    * @returns {Promise<Array<Types.Participant> | Types.PagedQueryResult<Types.Participant> | null>} a promise that passes the data as an array, or empty if dataCallback is specified
    */
-  async getAllParticipants (currentStatus, offset, count, dataCallback) {
+  async getAllParticipants (currentStatus, studykey, offset, count, dataCallback) {
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
     const bindings = {}
@@ -125,6 +126,16 @@ const DAL = {
       bindings.currentStatus = currentStatus
       queryString += ' FILTER @currentStatus IN participant.studies[*].currentStatus '
     }
+
+    if (studykey) {
+      bindings.studykey = studykey
+      queryString += `
+      FOR study in participant.studies
+      FILTER @studyKey == study.studyKey
+      `
+    }
+
+
     if (hasPaging) {
       queryString += `LIMIT @offset, @count `
       bindings.offset = parseInt(offset)
@@ -348,21 +359,32 @@ const DAL = {
   /**
    * Gets all participants in a team
    * @param {!string} teamKey - key of the team
+   * @param {?string} studyKey - optional, studyKey
    * @param {?string} currentStatus - optional, status
    * @param {number} offset - used for paging
    * @param {number} count - for paging
    * @param {Function} dataCallback - for retrieving participants one by one
    * @returns
    */
-  async getParticipantsByTeam (teamKey, currentStatus, offset, count, dataCallback) {
+  async getParticipantsByTeam (teamKey, studyKey, currentStatus, offset, count, dataCallback) {
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
     let queryOptions = {}
     const bindings = { teamKey: teamKey }
 
+    let query = ''
+    if (studyKey) {
+      bindings.studyKey = studyKey
+      query += `
+        LET studiesKeys = (FOR study IN studies FILTER (study.teamKey == @teamKey AND study._key == @studyKey) RETURN study._key)
+      `
+    } else {
+      query += `
+        LET studiesKeys = (FOR study IN studies FILTER study.teamKey == @teamKey RETURN study._key)
+      `
+    }
 
-    let query = `
-    LET studiesKeys = (FOR study IN studies FILTER study.teamKey == @teamKey RETURN study._key)
+    query += `
     FOR participant IN participants
       FILTER participant.studies[*].studyKey ANY IN studiesKeys
     `
