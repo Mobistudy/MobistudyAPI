@@ -77,7 +77,7 @@ export default {
         archive.append(JSON.stringify(u), { name: 'users/' + u._key + '.json' })
       }).then(() => {
         // participants
-        return DAL.getParticipantsByStudy(studyKey, null, (p) => {
+        return DAL.getParticipantsByStudy(studyKey, null, null, null, (p) => {
           archive.append(JSON.stringify(p), { name: 'participants/' + p._key + '.json' })
         })
       }).then(() => {

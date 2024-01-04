@@ -14,6 +14,23 @@ const init = async function (DB) {
 }
 
 const DAL = {
+
+  /**
+   * Provides number of participants per status in a study
+   * @param {string} studykey - key of the study
+   * @returns {Promise}
+   */
+  async getParticipantsStatusCountByStudy (studykey) {
+    const bindings = { studyKey: studykey }
+    const query = `FOR participant IN participants
+      FILTER @studyKey IN participant.studies[*].studyKey
+      COLLECT statuses = participant.studies[* FILTER CURRENT.studyKey == @studyKey].currentStatus WITH COUNT INTO statuesLen
+      RETURN { status: FIRST(statuses), count: statuesLen }`
+    applogger.trace(bindings, 'Querying "' + query + '"')
+    const cursor = await db.query(query, bindings)
+    return cursor.all()
+  },
+
   /**
    * Gets a summary of the last task executed by each patient in a study
    * @param {string} studyKey - mandatory, the key of the study for which the statistics are retrieved

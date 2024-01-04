@@ -1,6 +1,7 @@
 /**
 * This provides the data access for the Study participants.
 */
+import * as Types from '../../models/jsdocs.js'
 
 import utils from './utils.mjs'
 import { applogger } from '../services/logger.mjs'
@@ -24,27 +25,74 @@ const DAL = {
     return COLLECTIONNAME
   },
 
-  async getAllParticipants () {
-    const filter = ''
-    // TODO: use LIMIT @offset, @count in the query for pagination
-
-    const query = 'FOR participant in participants ' + filter + ' RETURN participant'
-    applogger.trace('Querying "' + query + '"')
-    const cursor = await db.query(query)
-    return cursor.all()
-  },
-
+  /**
+   * Saves a new participant
+   * @param {!Types.Participant} newparticipant - the new participant to save
+   * @returns a Promise
+   */
   async createParticipant (newparticipant) {
     const meta = await collection.save(newparticipant)
     newparticipant._key = meta._key
     return newparticipant
   },
 
-  async getOneParticipant (_key) {
-    const participant = await collection.document(_key)
+  /**
+   * Finds one aprticipant by key
+   * @param {!string} key - the key of the participant
+   * @returns {Promise<Types.Participant>} a promise with the participant if any
+   */
+  async getOneParticipant (key) {
+    const participant = await collection.document(key)
     return participant
   },
 
+  /**
+   * Replaces the participant with a new one
+   * @param {!string} key - key of the participant
+   * @param {!Types.Participant} newParticipant - new participant
+   * @param {?string} trx - optional, used for transactions
+   * @returns {Promise<Types.Participant>} a promise with the updated participant
+   */
+  async replaceParticipant (key, newParticipant, trx) {
+    let meta
+    if (trx) {
+      meta = await trx.step(() => collection.replace(key, newParticipant))
+    } else {
+      meta = await collection.replace(key, newParticipant)
+    }
+    applogger.trace(newParticipant, 'Replacing participant "' + key + '"')
+    newParticipant._key = meta._key
+    return newParticipant
+  },
+
+  /**
+   * Updates partial information of the participant
+   * @param {!string} key - key of the participant
+   * @param {!Types.Participant} partialParticipant - partial information of the new participant
+   * @returns {Promise<Types.Participant>} a promise with the updated participant
+   */
+  async updateParticipant (key, partialParticipant) {
+    const newval = await collection.update(key, partialParticipant, { keepNull: false, mergeObjects: true, returnNew: true })
+    applogger.trace(partialParticipant, 'Updating participant "' + key + '"')
+    return newval.new
+  },
+
+  /**
+   * Deletes a participant
+   * @param {string} key - key of the participant
+   * @returns {Promise}
+   */
+  async removeParticipant (key) {
+    await collection.remove(key)
+    applogger.trace('Removing participant "' + key + '"')
+    return true
+  },
+
+  /**
+  * Gets one participant using his/her user key
+  * @param {!string} userKey - key of the user of the participant
+  * @returns {Promise<Types.Participant>}
+  */
   async getParticipantByUserKey (userKey) {
     if (!userKey) {
       throw new Error('user key must be specified')
@@ -58,116 +106,304 @@ const DAL = {
     else return parts[0]
   },
 
-  // currentStatus is optional
-  async getParticipantsByStudy (studykey, currentStatus, dataCallback) {
-    const bindings = { studyKey: studykey }
+  /**
+   * Gets all the participants in the database
+   * @param {?string} currentStatus - optional, status of the participants
+   * @param {?number} offset - optional, starting from result N, used for paging
+   * @param {?number} count - optional, number of results to be returned, used for paging
+   * @param {?Function} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
+   * @returns {Promise<Array<Types.Participant> | Types.PagedQueryResult<Types.Participant> | null>} a promise that passes the data as an array, or empty if dataCallback is specified
+   */
+  async getAllParticipants (currentStatus, offset, count, dataCallback) {
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
-    let query = 'FOR participant IN participants '
-    query += ' FILTER @studyKey IN participant.studies[*].studyKey '
+    const bindings = {}
+    let queryOptions = {}
+
+    let queryString = 'FOR participant in participants '
     if (currentStatus) {
       bindings.currentStatus = currentStatus
-      query += ' AND @currentStatus IN participant.studies[*].currentStatus  '
+      queryString += ' FILTER @currentStatus IN participant.studies[*].currentStatus '
     }
-    query += `LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey == @studyKey]
-      LET retval = UNSET(participant, 'studies')`
-    query += ' RETURN MERGE_RECURSIVE(retval, { studies: filteredStudies })'
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
+    if (hasPaging) {
+      queryString += `LIMIT @offset, @count `
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
+    }
+    queryString += ' RETURN participant'
+
+    applogger.trace('Querying "' + queryString + '"')
+
+    const cursor = await db.query(queryString, bindings, queryOptions)
     if (dataCallback) {
       while (cursor.hasNext) {
-        const p = await cursor.next()
-        dataCallback(p)
+        const a = await cursor.next()
+        dataCallback(a)
       }
-    } else return cursor.all()
+    } else {
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
+        }
+      } else {
+        return cursor.all()
+      }
+    }
   },
 
-  async getParticipantsByResearcher (researcherKey, currentStatus) {
-    const bindings = { researcherKey: researcherKey }
-    let query = `FOR team IN teams
-      FILTER @researcherKey IN team.researchersKeys
-      FOR study IN studies
-      FILTER study.teamKey == team._key
-      FOR participant IN participants
-      FILTER study._key IN participant.studies[*].studyKey`
+  /**
+   * Gets all participants by study
+   * also accepts status of the participant as optional query parameter
+   * @param {!string} studykey - key of the study the participants are involved in
+   * @param {?string} currentStatus - optional, status of the participants
+   * @param {?number} offset - optional,used for paging
+   * @param {?number} count - optional, for paging
+   * @param {Function} dataCallback - if we want the participants to be retrieved one by one
+   * @returns {Promise<Array<Types.Participant> | Types.PagedQueryResult<Types.Participant> | null>} a promise with the data
+   */
+  async getParticipantsByStudy (studykey, currentStatus, offset, count, dataCallback) {
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
+
+    let queryOptions = {}
+    let bindings = { studyKey: studykey }
+
+    let query = 'FOR participant IN participants ' +
+      ' FOR study in participant.studies ' +
+      ' FILTER @studyKey == study.studyKey '
     if (currentStatus) {
       bindings.currentStatus = currentStatus
-      query += ' FILTER @currentStatus IN participant.studies[* FILTER CURRENT.studyKey == study._key].currentStatus '
+      query += ' AND @currentStatus == study.currentStatus  '
     }
+
+    if (hasPaging) {
+      query += `LIMIT @offset, @count `
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
+    }
+
+    query += `LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey == @studyKey]
+      LET retval = UNSET(participant, 'studies')`
+
+    query += ' RETURN MERGE_RECURSIVE(retval, { studies: filteredStudies })'
+
+    applogger.trace(bindings, 'Querying "' + query + '"')
+
+    const cursor = await db.query(query, bindings, queryOptions)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else {
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
+        }
+      } else {
+        return cursor.all()
+      }
+    }
+  },
+
+  /**
+   * Finds participants related to a given researcher.
+   * Studies for each participant are cut to only those where the researcher is involved.
+   * @param {!string} researcherUserKey - user key of the researcher
+   * @param {?string} currentStatus - optional, filter by status
+   * @param {?boolean} filterPreferred - optional, only get preferred participants
+   * @param {?string} teamKey - optional, only gets studies for a given team
+   * @param {number} offset - used for paging
+   * @param {number} count - for paging
+   * @param {Function} dataCallback - for retrieving participants one by one
+   * @returns {Promise<Array<Types.Participant> | Types.PagedQueryResult<Types.Participant> | null>} a promise with the data
+   */
+  async getParticipantsByResearcher (researcherUserKey, currentStatus, filterPreferred, teamKey, offset, count, dataCallback) {
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
+
+    let queryOptions = {}
+    const bindings = { researcherKey: researcherUserKey }
+
+    let query = `FOR team IN teams
+      FILTER @researcherKey IN team.researchers[*].userKey
+      `
+    if (teamKey) {
+      bindings.teamKey = teamKey
+      query += `
+      FILTER team._key == @teamKey
+      `
+    }
+
     query += `
-      LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey == study._key]
-      LET retval = UNSET(participant, 'studies')
-      RETURN MERGE_RECURSIVE(retval, { studies: filteredStudies })`
+    LET studiesKeys = (
+        FOR study IN studies
+        FILTER study.teamKey == team._key
+        RETURN study._key
+      )
+    `
+
+
+    if (filterPreferred) {
+      query += `
+      LET preferredParts = FLATTEN(team.researchers[* FILTER CURRENT.userKey == @researcherKey].studiesOptions[** FILTER CURRENT.studyKey IN studiesKeys].preferredParticipantsKeys)
+      `
+    }
+
+    query += `
+      FOR participant IN participants
+      FILTER studiesKeys ANY IN participant.studies[*].studyKey
+      `
+    if (filterPreferred) {
+      query += `
+      FILTER participant.userKey IN preferredParts
+      `
+    }
+
+    if (currentStatus) {
+      bindings.currentStatus = currentStatus
+      query += ' FILTER @currentStatus IN participant.studies[* FILTER CURRENT.studyKey IN studiesKeys].currentStatus \n'
+    }
+
+    if (hasPaging) {
+      query += `LIMIT @offset, @count \n`
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
+    }
+
+    if (currentStatus) {
+      query += ' LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey IN studiesKeys AND CURRENT.currentStatus == @currentStatus] \n'
+    } else {
+      query += ` LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey IN studiesKeys] \n`
+    }
+
+    query += `
+      LET cleanedPart = UNSET(participant, 'studies')
+      RETURN MERGE_RECURSIVE(cleanedPart, { studies: filteredStudies }) `
+
     applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    return cursor.all()
+
+    const cursor = await db.query(query, bindings, queryOptions)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else {
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
+        }
+      } else {
+        return cursor.all()
+      }
+    }
   },
 
-  async getParticipantsStatusCountByStudy (studykey) {
-    const bindings = { studyKey: studykey }
-    const query = `FOR participant IN participants
-      FILTER @studyKey IN participant.studies[*].studyKey
-      COLLECT statuses = participant.studies[* FILTER CURRENT.studyKey == @studyKey].currentStatus WITH COUNT INTO statuesLen
-      RETURN { status: FIRST(statuses), count: statuesLen }`
+  /**
+   * Tells if the researcher and the participant are linked by a common study
+   * @param {!string} researcherUserKey - user key of the researcher
+   * @param {string} participantUserKey - user key of the participant
+   * @param {string} participantKey - key of the participant (in alternative to participantUserKey)
+   * @returns {Promise<boolean>} a promise that tells if the participant and the researcher are linked
+   */
+  async hasResearcherParticipant (researcherUserKey, participantUserKey, participantKey) {
+    const bindings = { researcherUserKey }
+
+    let query = `
+    FOR team IN teams
+      FILTER @researcherUserKey IN team.researchers[*].userKey
+
+      LET studiesKeys = (
+        FOR study IN studies
+        FILTER study.teamKey == team._key
+        RETURN study._key
+      )
+
+    FOR participant IN participants
+      FILTER studiesKeys ANY IN participant.studies[*].studyKey
+    `
+    if (participantUserKey) {
+      bindings.participantUserKey = participantUserKey
+      query += 'FILTER participant.userKey == @participantUserKey'
+    } else {
+      bindings.participantKey = participantKey
+      query += 'FILTER participant._key == @participantKey'
+    }
+
+    query += `
+    RETURN !!participant
+    `
     applogger.trace(bindings, 'Querying "' + query + '"')
+
     const cursor = await db.query(query, bindings)
-    return cursor.all()
+    const retVal = await cursor.all()
+    return !!retVal[0]
   },
 
-  async getParticipantsByCurrentStatus (currentStatus) {
-    const bindings = { currentStatus: currentStatus }
-    const query = 'FOR participant IN participants FILTER @currentStatus IN participant.studies[*].currentStatus RETURN participant'
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    return cursor.all()
-  },
+  /**
+   * Gets all participants in a team
+   * @param {!string} teamKey - key of the team
+   * @param {?string} currentStatus - optional, status
+   * @param {number} offset - used for paging
+   * @param {number} count - for paging
+   * @param {Function} dataCallback - for retrieving participants one by one
+   * @returns
+   */
+  async getParticipantsByTeam (teamKey, currentStatus, offset, count, dataCallback) {
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
-  // currentStatus is optional
-  async getParticipantsByTeam (teamKey, currentStatus) {
+    let queryOptions = {}
     const bindings = { teamKey: teamKey }
 
-    let statusFilter = ''
+
+    let query = `
+    LET studiesKeys = (FOR study IN studies FILTER study.teamKey == @teamKey RETURN study._key)
+    FOR participant IN participants
+      FILTER participant.studies[*].studyKey ANY IN studiesKeys
+    `
+
     if (currentStatus) {
       bindings.currentStatus = currentStatus
-      statusFilter += 'AND @currentStatus IN participant.studies[*].currentStatus '
+      query += `
+      AND @currentStatus IN participant.studies[*].currentStatus
+      `
+    }
+    if (hasPaging) {
+      query += `
+      LIMIT @offset, @count
+      `
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
     }
 
-    const query = 'FOR study IN studies FILTER study.teamKey == @teamKey ' +
-      'FOR participant IN participants FILTER study._key IN participant.studies[*].studyKey ' +
-      statusFilter +
-      'RETURN  participant'
+    query += 'RETURN  participant'
 
     applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    return cursor.all()
-  },
 
-  // udpates a participant, we assume the _key is the correct one
-  // optional trx: for transactions
-  async replaceParticipant (_key, participant, trx) {
-    let meta
-    if (trx) {
-      meta = await trx.step(() => collection.replace(_key, participant))
+    const cursor = await db.query(query, bindings, queryOptions)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
     } else {
-      meta = await collection.replace(_key, participant)
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
+        }
+      } else {
+        return cursor.all()
+      }
     }
-    applogger.trace(participant, 'Replacing participant "' + _key + '"')
-    participant._key = meta._key
-    return participant
   },
 
-  // udpates a participant, we assume the _key is the correct one
-  async updateParticipant (_key, participant) {
-    const newval = await collection.update(_key, participant, { keepNull: false, mergeObjects: true, returnNew: true })
-    applogger.trace(participant, 'Updating participant "' + _key + '"')
-    return newval
-  },
-
-  // deletes an participant
-  async removeParticipant (_key) {
-    await collection.remove(_key)
-    applogger.trace('Removing participant "' + _key + '"')
-    return true
-  }
 }
 
 export { init, DAL }

@@ -8,7 +8,6 @@ import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { studyStatusUpdateCompose } from '../services/emailComposer.mjs'
-import mailsender from '../services/mailSender.mjs'
 import { deleteAttachmentsByUser } from '../services/attachments.mjs'
 
 const router = express.Router()
@@ -59,21 +58,14 @@ export default async function () {
             )
           } else if (req.query.currentStatus) {
             if (req.user.role === 'researcher') {
-              participants = await DAL.getParticipantsByResearcher(
-                req.user._key,
-                req.query.currentStatus
-              )
+              participants = await DAL.getParticipantsByResearcher(req.user._key, req.query.currentStatus)
             } else {
               // admin
-              participants = await DAL.getParticipantsByCurrentStatus(
-                req.query.currentStatus
-              )
+              participants = await DAL.getAllParticipants(req.query.currentStatus)
             }
           } else {
             if (req.user.role === 'researcher') {
-              participants = await DAL.getParticipantsByResearcher(
-                req.user._key
-              )
+              participants = await DAL.getParticipantsByResearcher(req.user._key)
             } else {
               participants = await DAL.getAllParticipants()
             }
@@ -98,8 +90,9 @@ export default async function () {
         ) {
           return res.sendStatus(403)
         } else if (req.user.role === 'researcher') {
-          const parts = await DAL.getParticipantsByResearcher(req.user._key)
-          if (!parts.includes(req.params.participant_key)) {
+          const areLinked = await DAL.hasResearcherParticipant(req.user._key, null, req.params.participant_key)
+          if (!areLinked) {
+            applogger.warn('Researcher ' + req.user._key + ' trying to get details of participant with key (not user) ' + req.params.userKey + ' but has no studies with such person')
             return res.sendStatus(403)
           }
         } else {
@@ -299,24 +292,19 @@ export default async function () {
     '/participants/byuserkey/:userKey',
     passport.authenticate('jwt', { session: false }),
     async function (req, res) {
-      if (
-        req.user.role === 'participant' &&
-        req.params.userKey !== req.user._key
-      ) {
+      if (req.user.role === 'participant' &&
+        req.params.userKey !== req.user._key) {
         return res.sendStatus(403)
       }
       if (req.user.role === 'researcher') {
-        const allowedParts = await DAL.getParticipantsByResearcher(
-          req.user._key
-        )
-        if (!allowedParts.some(participant => participant.userKey === req.params.userKey)) {
+        const areLInked = await DAL.hasResearcherParticipant(req.user._key, req.params.userKey)
+        if (!areLInked) {
+          applogger.warn('Researcher ' + req.user._key + ' trying to get details of participant with userkey ' + req.params.userKey + ' but has no studies with such person')
           return res.sendStatus(403)
         }
       }
       try {
-        const participant = await DAL.getParticipantByUserKey(
-          req.params.userKey
-        )
+        const participant = await DAL.getParticipantByUserKey(req.params.userKey)
         if (!participant) return res.sendStatus(404)
         res.send(participant)
       } catch (err) {
@@ -404,10 +392,9 @@ export default async function () {
           return res.sendStatus(403)
         }
         if (req.user.role === 'researcher') {
-          const allowedParts = await DAL.getParticipantsByResearcher(
-            req.user._key
-          )
-          if (!allowedParts.includes(req.params.user)) {
+          const areLinked = await DAL.hasResearcherParticipant(req.user._key, req.params.userKey)
+          if (!areLinked) {
+            applogger.warn('Researcher ' + req.user._key + ' trying to get details of participant with userkey ' + req.params.userKey + ' but has no studies with such person')
             return res.sendStatus(403)
           }
         }

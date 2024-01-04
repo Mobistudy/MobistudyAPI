@@ -24,7 +24,7 @@ describe('When testing the zipper', () => {
           email: 'dario.salvi@test.test'
         })
       })
-      spyOn(DAL, 'getParticipantsByStudy').and.callFake(async (a1, a2, cbk) => {
+      spyOn(DAL, 'getParticipantsByStudy').and.callFake(async (a1, a2, a3, a4, cbk) => {
         cbk({
           _key: '0000',
           userKey: '111111',
