@@ -28,6 +28,14 @@ const init = async function (DB) {
 
 const DAL = {
   /**
+   * Gets transaction for teams
+   * @returns {string}
+   */
+  teamsTransaction () {
+    return COLLECTIONNAME
+  },
+
+  /**
    * Stores a new team
    * @param {*} newTeam
    * @returns the new team, with added _key
@@ -139,12 +147,13 @@ const DAL = {
 
   /**
    * Gets all teams, optionally associated to a user (researcher) or study, or both
-   * @param {string} userKey - optional, the key of the researcher
-   * @param {string} studyKey - optional, the key of the study
-   * @param {Function} dataCallback - used to receive data one by one
+   * @param {?string} userKey - optional, the key of the researcher
+   * @param {?string} studyKey - optional, the key of the study
+   * @param {?Function} dataCallback - used to receive data one by one
    * @returns a promise, the teams found is passed, if any, as an array
    */
   async getAllTeams (userKey, studyKey, dataCallback) {
+    // TODO: add paging
     let query = 'FOR team in teams '
     let bindings = {}
 

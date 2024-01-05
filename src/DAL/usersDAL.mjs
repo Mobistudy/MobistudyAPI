@@ -27,6 +27,14 @@ const init = async function (DB) {
 
 const DAL = {
   /**
+   * Gets transaction for users
+   * @returns {string}
+   */
+  usersTransaction () {
+    return COLLECTION_NAME
+  },
+
+  /**
    * Finds one user by email address
    * @param {string} email
    * @returns a promise that passes the user object, undefined if user is not found

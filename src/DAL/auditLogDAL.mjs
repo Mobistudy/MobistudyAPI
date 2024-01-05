@@ -33,6 +33,14 @@ const init = async function (DB) {
 }
 
 const DAL = {
+  /**
+  * Gets transaction for audit logs
+  * @returns {string}
+  */
+  auditLogsTransaction () {
+    return COLLECTION_NAME
+  },
+
   async addAuditLog (newLog) {
     let meta = await collection.save(newLog)
     newLog._key = meta._key
@@ -158,7 +166,7 @@ const DAL = {
     return true
   },
 
-  async deleteLogsByUser (userKey) {
+  async deleteLogsByUserKey (userKey) {
     let bindings = { 'userKey': userKey }
     let query = 'FOR log IN ' + COLLECTION_NAME + ' FILTER log.userKey == @userKey REMOVE log IN auditlogs'
     applogger.trace('Querying "' + query + '"')

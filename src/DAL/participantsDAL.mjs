@@ -21,6 +21,10 @@ const init = async function (DB) {
 }
 
 const DAL = {
+  /**
+   * Gets participants transaction
+   * @returns {string}
+   */
   participantsTransaction () {
     return COLLECTIONNAME
   },
@@ -80,11 +84,16 @@ const DAL = {
   /**
    * Deletes a participant
    * @param {string} key - key of the participant
+   * @param {string} trx - optional, transaction
    * @returns {Promise}
    */
-  async removeParticipant (key) {
-    await collection.remove(key)
-    applogger.trace('Removing participant "' + key + '"')
+  async removeParticipant (key, trx) {
+    if (trx) {
+      await trx.step(() => collection.remove(key))
+    } else {
+      await collection.remove(key)
+    }
+    applogger.debug('Removing participant "' + key + '"')
     return true
   },
 

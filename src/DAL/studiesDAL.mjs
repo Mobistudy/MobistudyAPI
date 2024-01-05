@@ -18,6 +18,13 @@ const init = async function (DB) {
 }
 
 const DAL = {
+  /**
+ * Gets transaction for studies
+ * @returns {string}
+ */
+  studiesTransaction () {
+    return COLLECTIONNAME
+  },
 
   /**
    * Creates a new study

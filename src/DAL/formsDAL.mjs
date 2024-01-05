@@ -17,6 +17,14 @@ const init = async function (DB) {
 }
 
 const DAL = {
+  /**
+  * Gets transaction for forms
+  * @returns {string}
+  */
+  formsTransaction () {
+    return COLLECTIONNAME
+  },
+
   async getFormsList () {
     const filter = ''
     const query =
