@@ -90,39 +90,11 @@ export default {
         return getAttachments(studyKey, (res) => {
           archive.append(res.content, { name: 'attachments/' + res.task + '/' + res.user + '/' + res.file })
         })
+      }).then(() => {
+        return archive.finalize()
+      }).catch((err) => {
+        reject(err)
       })
-        // will be removed when new version of app is fully rolled out
-        .then(() => {
-          // answers
-          return DAL.getAnswersByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'answers/' + a._key + '.json' })
-          })
-        }).then(() => {
-          // healthstore
-          return DAL.getHealthStoreDataByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'healthstore/' + a._key + '.json' })
-          })
-        }).then(() => {
-          // miband
-          return DAL.getMiband3DataByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'miband3/' + a._key + '.json' })
-          })
-        }).then(() => {
-          // peakflow
-          return DAL.getPeakFlowsByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'peakflow/' + a._key + '.json' })
-          })
-        }).then(() => {
-          // position
-          return DAL.getPositionsByStudy(studyKey, (a) => {
-            archive.append(JSON.stringify(a), { name: 'position/' + a._key + '.json' })
-          })
-        })
-        .then(() => {
-          return archive.finalize()
-        }).catch((err) => {
-          reject(err)
-        })
     })
   }
 }

@@ -1,6 +1,5 @@
 /**
 * This provides the API endpoints for the form descriptions.
-* TODO: REMOVE, SUBSTITUTED BY TASKSRESULTS
 */
 
 import express from 'express'

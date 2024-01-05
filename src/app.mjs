@@ -17,11 +17,6 @@ import indexRouter from './routes/index.mjs'
 import studiesRouter from './routes/studies.mjs'
 import dataDownload from './routes/dataDownload.mjs'
 import formsRouter from './routes/forms.mjs'
-import answersRouter from './routes/answers.mjs'
-import healthStoreDataRouter from './routes/healthStoreData.mjs'
-import Miband3Router from './routes/miband3.mjs'
-import PeakFlowRouter from './routes/peakflow.mjs'
-import PositionsRouter from './routes/positions.mjs'
 import mSafetyRouter from './routes/mSafety.mjs'
 import attachmentsRouter from './routes/attachments.mjs'
 
@@ -64,11 +59,6 @@ export default async function () {
   app.use(apiPrefix, await studiesRouter())
   app.use(apiPrefix, dataDownload(app))
   app.use(apiPrefix, await formsRouter())
-  app.use(apiPrefix, await answersRouter())
-  app.use(apiPrefix, await healthStoreDataRouter())
-  app.use(apiPrefix, await Miband3Router())
-  app.use(apiPrefix, await PeakFlowRouter())
-  app.use(apiPrefix, await PositionsRouter())
   app.use(apiPrefix, await attachmentsRouter())
 
   app.use(apiPrefix, await mSafetyRouter())

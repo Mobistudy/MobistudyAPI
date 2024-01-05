@@ -268,16 +268,7 @@ export default async function () {
               await DAL.replaceParticipant(partKey, participant)
             }
           }
-          // TODO: Create methods en DAL.mjs
           // Data needs to be deleted before the study
-          await DAL.deleteAnswersByStudy(studykey)
-          await DAL.deleteHealthStoreByStudy(studykey)
-          await DAL.deleteQCSTDataByStudy(studykey)
-          await DAL.deleteSmwtByStudy(studykey)
-          await DAL.deleteMiband3DataByStudy(studykey)
-          await DAL.deletePO60DataByStudy(studykey)
-          await DAL.deletePeakFlowDataByStudy(studykey)
-          await DAL.deletePositionsByStudy(studykey)
           await DAL.deleteTasksResultsByStudy(studykey)
           await deleteAttachmentsByStudy(studykey)
 

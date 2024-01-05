@@ -85,13 +85,6 @@ describe('When testing the zipper', () => {
           taskId: 2
         })
       })
-
-      //TODO: to remove after related modules are purged
-      spyOn(DAL, 'getAnswersByStudy').and.resolveTo([])
-      spyOn(DAL, 'getHealthStoreDataByStudy').and.resolveTo([])
-      spyOn(DAL, 'getMiband3DataByStudy').and.resolveTo([])
-      spyOn(DAL, 'getPeakFlowsByStudy').and.resolveTo([])
-      spyOn(DAL, 'getPositionsByStudy').and.resolveTo([])
     })
 
     it('a zip file can be created', async () => {

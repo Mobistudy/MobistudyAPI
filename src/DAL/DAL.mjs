@@ -15,14 +15,6 @@ import * as tasksResults from './tasksResultsDAL.mjs'
 import * as studystats from './studyStatsDAL.mjs'
 
 
-// will be removed:
-import * as answers from './answersDAL.mjs'
-import * as healthstore from './healthStoreDataDAL.mjs'
-import * as miband3 from './miband3DataDAL.mjs'
-import * as peakflows from './peakflowDataDAL.mjs'
-import * as positions from './positionsDAL.mjs'
-
-
 import { applogger } from '../services/logger.mjs'
 
 export let DAL = {
@@ -51,13 +43,6 @@ export let DAL = {
     Object.assign(this, forms.DAL)
     Object.assign(this, tasksResults.DAL)
     Object.assign(this, studystats.DAL)
-
-    // will be removed:
-    Object.assign(this, answers.DAL)
-    Object.assign(this, healthstore.DAL)
-    Object.assign(this, miband3.DAL)
-    Object.assign(this, peakflows.DAL)
-    Object.assign(this, positions.DAL)
   },
 
   async init () {
@@ -98,13 +83,6 @@ export let DAL = {
     await forms.init(this.db)
     await tasksResults.init(this.db)
     await studystats.init(this.db)
-
-    // will be removed
-    await answers.init(this.db)
-    await healthstore.init(this.db)
-    await miband3.init(this.db)
-    await peakflows.init(this.db)
-    await positions.init(this.db)
 
     // add all functions
     return this.extendDAL()
