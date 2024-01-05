@@ -23,9 +23,9 @@ const init = async function (DB) {
 const DAL = {
   /**
    * Gets the transaction used for this data type
-   * @returns
+   * @returns {string}
    */
-  tasksResultsTransaction: function () {
+  tasksResultsTransaction () {
     return COLLECTION_NAME
   },
 
@@ -34,10 +34,10 @@ const DAL = {
    * The result changes depending on one's role, admins can see all,
    * researchers only those related to their studies
    * and participants only own.
-   * @param {function} dataCallback used to receive data one by one
-   * @returns a promise that gives an array of task results
+   * @param {Function} dataCallback used to receive data one by one
+   * @returns {Promise<Array>} a promise that gives an array of task results
    */
-  getAllTasksResults: async function (dataCallback) {
+  async getAllTasksResults (dataCallback) {
     const filter = ''
     const query = 'FOR data IN ' + COLLECTION_NAME + ' ' + filter + ' RETURN data'
     applogger.trace('Querying "' + query + '"')
@@ -53,10 +53,10 @@ const DAL = {
   /**
    * Gets the tasks results for a specific user
    * @param {string} userKey key of the user to be found
-   * @param {function} dataCallback function called when retrieving one-by-one
-   * @returns a promise that gives an array of task results
+   * @param {Function} dataCallback function called when retrieving one-by-one
+   * @returns {Promise<Array>} a promise that gives an array of task results
    */
-  getTasksResultsByUser: async function (userKey, dataCallback) {
+  async getTasksResultsByUser (userKey, dataCallback) {
     const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey RETURN data'
     const bindings = { userKey: userKey }
     applogger.trace(bindings, 'Querying "' + query + '"')
@@ -69,7 +69,7 @@ const DAL = {
     } else return cursor.all()
   },
 
-  getTasksResultsByUserAndStudy: async function (userKey, studyKey, dataCallback) {
+  async getTasksResultsByUserAndStudy (userKey, studyKey, dataCallback) {
     const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey AND data.studyKey == @studyKey RETURN data'
     const bindings = { userKey: userKey, studyKey: studyKey }
     applogger.trace(bindings, 'Querying "' + query + '"')
@@ -82,7 +82,7 @@ const DAL = {
     } else return cursor.all()
   },
 
-  getTasksResultsByStudy: async function (studyKey, dataCallback) {
+  async getTasksResultsByStudy (studyKey, dataCallback) {
     const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.studyKey == @studyKey RETURN data'
     const bindings = { studyKey: studyKey }
     applogger.trace(bindings, 'Querying "' + query + '"')
@@ -97,7 +97,7 @@ const DAL = {
 
   // creates new tasks results
   // trx: optional, for transactions
-  createTasksResults: async function (newTaskResults, trx) {
+  async createTasksResults (newTaskResults, trx) {
     let meta
     if (trx) {
       meta = await trx.step(() => collection.save(newTaskResults))
@@ -112,7 +112,7 @@ const DAL = {
 
   // udpates a study, we assume the _key is the correct one
   // trx: optional, for transactions
-  replaceTasksResults: async function (_key, newTaskResults, trx) {
+  async replaceTasksResults (_key, newTaskResults, trx) {
     let meta
     if (trx) {
       meta = await trx.step(() => collection.replace(_key, newTaskResults))
@@ -125,24 +125,33 @@ const DAL = {
     return newTaskResults
   },
 
-  getOneTaskResult: async function (_key) {
+  async getOneTaskResult (_key) {
     const results = await collection.document(_key, { graceful: true })
     return results
   },
 
-  // deletes tasks results
-  deleteTasksResults: async function (_key, trx) {
+  /**
+   * Deletes tasks results by key
+   * @param {string} key - key fo the results
+   * @param {string} trx - transaction
+   * @returns
+   */
+  async deleteTasksResults (key, trx) {
     if (trx) {
-      await trx.step(() => collection.remove(_key))
+      await trx.step(() => collection.remove(key))
     } else {
-      await collection.remove(_key)
+      await collection.remove(key)
     }
-    applogger.trace('Deleting tasks results "' + _key + '"')
+    applogger.trace('Deleting tasks results "' + key + '"')
     return true
   },
 
-  // deletes all data based on study
-  deleteTasksResultsByStudy: async function (studyKey, trx) {
+  /**
+   * Deletes all data based on study
+   * @param {string} studyKey
+   * @param {string} trx
+   */
+  async deleteTasksResultsByStudy (studyKey, trx) {
     applogger.trace('Deleting all tasks results by study "' + studyKey + '"')
     const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.studyKey == @studyKey REMOVE data._key IN ' + COLLECTION_NAME
     const bindings = { studyKey: studyKey }
@@ -155,8 +164,12 @@ const DAL = {
     }
   },
 
-  // deletes all data based on user
-  deleteTasksResultsByUser: async function (userKey, trx) {
+  /**
+   * Deletes all data based on user
+   * @param {string} userKey
+   * @param {string} trx
+   */
+  async deleteTasksResultsByUserKey (userKey, trx) {
     applogger.trace('Deleting all tasks results by user "' + userKey + '"')
 
     const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey REMOVE data._key IN ' + COLLECTION_NAME

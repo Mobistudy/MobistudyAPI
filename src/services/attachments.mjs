@@ -140,7 +140,7 @@ export async function deleteAttachmentsByStudy (studyKey) {
   return fsRm(studyDir, { recursive: true })
 }
 
-export async function deleteAttachmentsByUser (userKey) {
+export async function deleteAttachmentsByUserKey (userKey) {
   const studiesDirs = await fsReaddir(UPLOADSDIR + '/')
   let stat
   for (const studyDir of studiesDirs) {

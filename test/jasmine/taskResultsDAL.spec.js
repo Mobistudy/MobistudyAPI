@@ -166,7 +166,7 @@ describe('Testing tasks results DAL,', () => {
     })
 
     it('results can be removed by user', async () => {
-      testDAL.deleteTasksResultsByUser(tr_key)
+      testDAL.deleteTasksResultsByUserKey(tr_key)
 
       try {
         await testDAL.getOneTaskResult(tr_key)

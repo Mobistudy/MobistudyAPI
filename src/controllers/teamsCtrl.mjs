@@ -406,10 +406,7 @@ export default {
         let participantsByStudy = []
         // Get list of participants per study. Then delete each study.
         for (let i = 0; i < teamStudies.length; i++) {
-          participantsByStudy = await DAL.getParticipantsByStudy(
-            teamStudies[i]._key,
-            null
-          )
+          participantsByStudy = await DAL.getParticipantsByStudy(teamStudies[i]._key)
           for (let j = 0; j < participantsByStudy.length; j++) {
             // Per participant, remove the study
             const partKey = participantsByStudy[j]._key
