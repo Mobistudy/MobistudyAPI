@@ -1,6 +1,7 @@
 import passport from 'passport'
 
 import usersCtrl from './controllers/usersCtrl.mjs'
+import participantsCtrl from './controllers/participantsCtrl.mjs'
 import auditLogCtrl from './controllers/auditLogCtrl.mjs'
 import teamsCtrl from './controllers/teamsCtrl.mjs'
 import tasksResultsCtrl from './controllers/tasksResultsCtrl.mjs'
@@ -25,6 +26,17 @@ router.get('/users/:user_key', passport.authenticate('local', { session: false }
 router.patch('/users/:userKey', passport.authenticate('local', { session: false }), usersCtrl.updateUser.bind(usersCtrl))
 router.delete('/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.removeUser.bind(usersCtrl))
 
+await participantsCtrl.init()
+router.post('/participants', passport.authenticate('local', { session: false }), participantsCtrl.createParticipant.bind(usersCtrl))
+router.get('/participants', passport.authenticate('local', { session: false }), participantsCtrl.getAll.bind(usersCtrl))
+router.get('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.getParticipantByKey.bind(usersCtrl))
+router.get('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.getParticipantByUserKey.bind(usersCtrl))
+router.delete('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.deleteParticipant.bind(usersCtrl))
+router.delete('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.deleteParticipant.bind(usersCtrl))
+router.patch('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantProfile.bind(usersCtrl))
+router.patch('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantProfile.bind(usersCtrl))
+router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyStatus.bind(usersCtrl))
+router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey/taskItemsConsent/:taskId', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyTaskStatus.bind(usersCtrl))
 
 await auditLogCtrl.init()
 router.get('/auditlog/eventTypes', passport.authenticate('jwt', { session: false }), auditLogCtrl.getEventTypes.bind(auditLogCtrl))
@@ -38,7 +50,8 @@ await attachmentsCtrl.init()
 router.get('/tasksResults/attachments/:studyKey/:userKey/:taskId/:fileName', passport.authenticate('jwt', { session: false }), attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
 
 await studyStatsCtrl.init()
-router.get('/studyStats', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
+router.get('/studyStats/statusStats/:studyKey', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
+router.get('/studyStats/lastTasksSummary/:studyKey', passport.authenticate('jwt', { session: false }), studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
 
 await vocabularyCtrl.init()
 router.get('/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabularyCtrl))

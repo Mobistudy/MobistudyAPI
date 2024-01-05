@@ -12,8 +12,37 @@ export default {
   },
 
   /**
+   * Provides simple statistics about how many participants are in each status
+   * @param {Object} req - express request, must include param: studyKey
+   * @param {Object} res - express response
+   * @returns
+   */
+  async getParticipantsStatusCounts (req, res) {
+    try {
+      if (req.user.role === 'participant') {
+        res.sendStatus(403)
+      } else if (req.user.role === 'researcher') {
+        if (req.user.role === 'researcher') {
+          const team = await DAL.getAllTeams(
+            req.user._key,
+            req.params.studyKey
+          )
+          if (team.length === 0) return res.sendStatus(403)
+        }
+        const participants = await DAL.getParticipantsStatusCountByStudy(
+          req.params.studyKey
+        )
+        res.json(participants)
+      }
+    } catch (err) {
+      applogger.error({ error: err }, 'Cannot retrieve participants')
+      res.sendStatus(500)
+    }
+  },
+
+  /**
    * Get a summary of the last tasks performed by participants in a study.
-   * mandatory query param: studyKey to filter by study
+   * mandatory url param: studyKey to filter by study
    * optional query params: participantName, statusType, includePreferredParticipants ('none', 'both', 'only'), offset, count
    * @param {object} req: express request object
    * @param {object} res: express response object
