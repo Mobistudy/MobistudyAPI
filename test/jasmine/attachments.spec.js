@@ -1,4 +1,4 @@
-import { getAttachmentWriter, getAttachments, getAttachmentReader, deleteAttachmentsByUser } from '../../src/services/attachments.mjs'
+import { getAttachmentWriter, getAttachments, getAttachmentReader, deleteAttachmentsByUserKey } from '../../src/services/attachments.mjs'
 import { stat as fsStat, rm as fsRm } from 'fs/promises'
 import { applogger } from '../../src/services/logger.mjs'
 
@@ -94,7 +94,7 @@ describe('When saving an attachment', () => {
     await writer.write('text2')
     await writer.end()
 
-    await deleteAttachmentsByUser(userKey)
+    await deleteAttachmentsByUserKey(userKey)
 
     try {
       stat = await fsStat('tasksuploads/456/123/')
