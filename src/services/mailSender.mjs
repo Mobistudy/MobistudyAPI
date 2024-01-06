@@ -8,23 +8,28 @@ export default {
   sendEmail: async (contact, subject, message) => {
     return new Promise((resolve, reject) => {
 
+      if (config.smtp.disabled) {
+        console.log(`FAKE SMTP: sending email with subject: "${subject}", message: "${message}"`)
+        return
+      }
+
       const transporter = nodemailer.createTransport({
-        host: 'smtp-mail.outlook.com', // hostname
+        host: config.smtp.server, // hostname
         secureConnection: false, // TLS requires secureConnection to be false
         port: 587, // port for secure SMTP
         tls: {
           ciphers: 'SSLv3'
         },
         auth: {
-          user: config.outlook.user,
-          pass: config.outlook.password
+          user: config.smtp.user,
+          pass: config.smtp.password
         }
       })
 
       const strippedHtml = message.replace(/<[^>]+>/g, '')
 
       const mailOptions = {
-        from: config.outlook.email, // sender address (who sends)
+        from: config.smtp.email, // sender address (who sends)
         to: contact, // list of receivers (who receives)
         subject: subject, // Subject line
         text: strippedHtml, // plaintext body

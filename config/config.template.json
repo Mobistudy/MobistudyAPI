@@ -25,7 +25,9 @@
     "adminEmail": "admin@mobistudy.org",
     "adminPassword": "password"
   },
-  "outlook": {
+  "smtp": {
+    "disabled": false,
+    "server": "smtp.someserver.com",
     "email": "mobistudy@mau.se",
     "user": "actual user",
     "password": "actual user password"

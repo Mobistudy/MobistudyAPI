@@ -51,10 +51,12 @@ export default function () {
     if (config.db.user === undefined) config.db.user = (getSwarmSecret('DB_USER') || process.env.DB_USER)
     if (config.db.password === undefined) config.db.password = (getSwarmSecret('DB_PASSWORD') || process.env.DB_PASSWORD)
 
-    if (config.outlook === undefined) config.outlook = {}
-    if (config.outlook.email === undefined) config.outlook.email = process.env.OUTLOOK_EMAIL
-    if (config.outlook.user === undefined) config.outlook.user = (getSwarmSecret('OUTLOOK_USER') || process.env.OUTLOOK_USER)
-    if (config.outlook.password === undefined) config.outlook.password = (getSwarmSecret('OUTLOOK_PASSWORD') || process.env.OUTLOOK_PASSWORD)
+    if (config.smtp === undefined) config.smtp = {}
+    if (config.smtp.disabled === undefined) config.smtp.disabled = (process.env.SMTP_DISABLED ? process.env.SMTP_DISABLED.toLowerCase() == 'true' : false)
+    if (config.smtp.server === undefined) config.smtp.server = process.env.SMTP_SERVER
+    if (config.smtp.email === undefined) config.smtp.email = process.env.SMTP_EMAIL
+    if (config.smtp.user === undefined) config.smtp.user = (getSwarmSecret('OUTLOOK_USER') || process.env.OUTLOOK_USER)
+    if (config.smtp.password === undefined) config.smtp.password = (getSwarmSecret('OUTLOOK_PASSWORD') || process.env.OUTLOOK_PASSWORD)
 
     if (config.environmentAPIs === undefined) config.environmentAPIs = {}
     if (config.environmentAPIs.OpenWeatherMap === undefined) config.environmentAPIs.OpenWeatherMap = (getSwarmSecret('OWP_API_KEY') || process.env.OWP_API_KEY)
