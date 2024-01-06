@@ -19,6 +19,10 @@ const config = getConfig()
 // sets up the routes
 const router = express.Router()
 
+router.get('/', async function (req, res) {
+  res.send('<p>Working</p>')
+})
+
 await usersCtrl.init()
 router.post('/login', passport.authenticate('local', { session: false }), usersCtrl.login.bind(usersCtrl))
 router.post('/sendResetPasswordEmail', usersCtrl.sendPasswordResetEmail.bind(usersCtrl))

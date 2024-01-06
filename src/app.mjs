@@ -13,7 +13,6 @@ import { DAL } from './DAL/DAL.mjs'
 
 import routes from './routes.mjs'
 
-import indexRouter from './routes/index.mjs'
 import studiesRouter from './routes/studies.mjs'
 import dataDownload from './routes/dataDownload.mjs'
 import formsRouter from './routes/forms.mjs'
@@ -55,7 +54,6 @@ export default async function () {
 
   app.use(apiPrefix, routes)
 
-  app.use(apiPrefix, await indexRouter())
   app.use(apiPrefix, await studiesRouter())
   app.use(apiPrefix, dataDownload(app))
   app.use(apiPrefix, await formsRouter())
