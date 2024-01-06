@@ -71,8 +71,8 @@ await attachmentsCtrl.init()
 router.get('/tasksResults/attachments/:studyKey/:userKey/:taskId/:fileName', mustBeLoggedIn, attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
 
 await studyStatsCtrl.init()
-router.get('/studyStats/statusStats/:studyKey', mustBeLoggedIn, studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
-router.get('/studyStats/lastTasksSummary/:studyKey', mustBeLoggedIn, studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
+router.get('/studyStats/:studyKey/participantsStatusStats', mustBeLoggedIn, studyStatsCtrl.getParticipantsStatusCounts.bind(studyStatsCtrl))
+router.get('/studyStats/:studyKey/lastTasksSummary', mustBeLoggedIn, studyStatsCtrl.getLastTasksSummary.bind(studyStatsCtrl))
 
 await vocabularyCtrl.init()
 router.get('/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabularyCtrl))

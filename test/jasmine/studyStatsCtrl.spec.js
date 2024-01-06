@@ -34,7 +34,7 @@ describe('Testing studies stats controller,', () => {
       user: {
         role: 'participant'
       },
-      query: {
+      params: {
         studyKey: '1978'
       }
     }, res)
@@ -64,9 +64,10 @@ describe('Testing studies stats controller,', () => {
       user: {
         role: 'researcher'
       },
-      query: {
+      params: {
         studyKey: 'fake'
-      }
+      },
+      query: {}
     }, res)
 
     expect(res.data).not.toBeNull()
@@ -97,8 +98,10 @@ describe('Testing studies stats controller,', () => {
       user: {
         role: 'researcher'
       },
+      params: {
+        studyKey: 'fake'
+      },
       query: {
-        studyKey: 'fake',
         participantName: 'dar'
       }
     }, res)
@@ -136,8 +139,10 @@ describe('Testing studies stats controller,', () => {
         role: 'researcher',
         _key: '909090'
       },
+      params: {
+        studyKey: 'fake'
+      },
       query: {
-        studyKey: 'fake',
         includePreferredParticipants: 'only'
       }
     }, res)

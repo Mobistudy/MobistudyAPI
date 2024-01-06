@@ -49,12 +49,12 @@ export default {
    * @returns a promise
    */
   async getLastTasksSummary (req, res) {
-    if (!req.query || !req.query.studyKey) {
+    if (!req.params.studyKey) {
       const errmess = 'Cannot request study statistics without specifying a study'
       applogger.warn(errmess)
       return res.status(400).send(errmess)
     }
-    const studyKey = req.query.studyKey
+    const studyKey = req.params.studyKey
 
     try {
       const study = await DAL.getOneStudy(studyKey)
@@ -81,7 +81,7 @@ export default {
         }
       }
       participants = await DAL.getLastTasksSummary(
-        req.query.studyKey,
+        studyKey,
         req.query.participantName,
         req.query.statusType,
         preferredParts,
