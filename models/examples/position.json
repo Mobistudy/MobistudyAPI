@@ -46,9 +46,10 @@
         "nh3": 2.63
       }
     },
-    "postcode": {
+    "location": {
       "postcode": "OX1 4DS",
-      "county": "Oxfordshire"
+      "country": "England",
+      "place": "Oxford"
     },
     "allergens": {
       "pollen": {

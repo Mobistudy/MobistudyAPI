@@ -1,4 +1,4 @@
-import { getWeather, getPollution, getPostcode, getAllergenes } from '../../src/services/environment.mjs'
+import { getWeather, getPollution, getLocation, getAllergenes } from '../../src/services/environment.mjs'
 
 // Warning: for this test to work, a proper configuration file with API keys must be given!
 
@@ -19,13 +19,13 @@ xdescribe('when searching for environment', () => {
   })
 
   it('you can retrieve postcode', async () => {
-    let pc = await getPostcode(51.751985, -1.257609)
+    let pc = await getLocation(51.751985, -1.257609)
     expect(pc).not.toBeUndefined()
     expect(pc.postcode).toBe('OX1 4DS')
   })
 
   it('you sometimes cannot retrieve postcode', async () => {
-    let pc = await getPostcode(55.6028859, 13.019894299999999)
+    let pc = await getLocation(55.6028859, 13.019894299999999)
     expect(pc).toBeUndefined()
   })
 

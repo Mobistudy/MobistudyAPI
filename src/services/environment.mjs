@@ -1,3 +1,4 @@
+import * as Types from '../../models/jsdocs.js'
 import axios from 'axios'
 import getConfig from './config.mjs'
 
@@ -6,8 +7,13 @@ const config = getConfig()
 const OWMapiKey = config.environmentAPIs.OpenWeatherMap
 const AMBEEKey = config.environmentAPIs.Ambee
 
-// lat: latitude
-// long: longitude
+
+/**
+ * Gets the current weather of a given location
+ * @param {number} lat - latitude
+ * @param {number} long - longitude
+ * @returns {Promise<Types.Weather>}
+ */
 export async function getWeather (lat, long) {
   const queryString = 'https://api.openweathermap.org/data/2.5/weather?lon=' + long + '&lat=' + lat + '&appid=' + OWMapiKey
   const resp = await axios.get(queryString)
@@ -28,18 +34,31 @@ export async function getWeather (lat, long) {
   }
 }
 
-export async function getPostcode (lat, long) {
+/**
+ * Gets the name and other characteristics of the location
+ * @param {number} lat - latitude
+ * @param {number} long - longitude
+ * @returns {Promise<Types.Location>}
+ */
+export async function getLocation (lat, long) {
   const postcodeLimit = 1
   const queryString = 'https://api.postcodes.io/postcodes?lon=' + long + '&lat=' + lat + '&limit=' + postcodeLimit
   const resp = await axios.get(queryString)
   if (resp.data.result) {
     return {
       postcode: resp.data.result[0].postcode,
-      county: resp.data.result[0].admin_county
+      country: resp.data.result[0].country,
+      place: resp.data.result[0].parish
     }
   } else return undefined
 }
 
+/**
+ * Gets the info about pollution
+ * @param {number} lat - latitude
+ * @param {number} long - longitude
+ * @returns {Promise<Types.Pollution>}
+ */
 export async function getPollution (lat, long) {
   const queryString = 'https://api.openweathermap.org/data/2.5/air_pollution?lon=' + long + '&lat=' + lat + '&appid=' + OWMapiKey
   const resp = await axios.get(queryString)

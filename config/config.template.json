@@ -38,6 +38,7 @@
     "privateKey": "erwerwrwe="
   },
   "environmentAPIs": {
+    "disabled": false,
     "OpenWeatherMap": "KEY",
     "Ambee": "KEY"
   }

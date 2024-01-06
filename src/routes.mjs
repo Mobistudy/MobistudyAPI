@@ -1,5 +1,7 @@
 import passport from 'passport'
 
+import getConfig from './services/config.mjs'
+
 import usersCtrl from './controllers/usersCtrl.mjs'
 import participantsCtrl from './controllers/participantsCtrl.mjs'
 import auditLogCtrl from './controllers/auditLogCtrl.mjs'
@@ -9,8 +11,10 @@ import attachmentsCtrl from './controllers/attachmentsCtrl.mjs'
 import studyStatsCtrl from './controllers/studyStatsCtrl.mjs'
 import vocabularyCtrl from './controllers/vocabularyCtrl.mjs'
 import techadminCtrl from './controllers/techadminCtrl.mjs'
+import environmentCtrl from './controllers/environmentCtrl.mjs'
 import express from 'express'
 
+const config = getConfig()
 
 // sets up the routes
 const router = express.Router()
@@ -27,16 +31,16 @@ router.patch('/users/:userKey', passport.authenticate('local', { session: false 
 router.delete('/users/:user_key', passport.authenticate('local', { session: false }), usersCtrl.removeUser.bind(usersCtrl))
 
 await participantsCtrl.init()
-router.post('/participants', passport.authenticate('local', { session: false }), participantsCtrl.createParticipant.bind(usersCtrl))
-router.get('/participants', passport.authenticate('local', { session: false }), participantsCtrl.getAll.bind(usersCtrl))
-router.get('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.getParticipantByKey.bind(usersCtrl))
-router.get('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.getParticipantByUserKey.bind(usersCtrl))
-router.delete('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.deleteParticipant.bind(usersCtrl))
-router.delete('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.deleteParticipant.bind(usersCtrl))
-router.patch('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantProfile.bind(usersCtrl))
-router.patch('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantProfile.bind(usersCtrl))
-router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyStatus.bind(usersCtrl))
-router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey/taskItemsConsent/:taskId', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyTaskStatus.bind(usersCtrl))
+router.post('/participants', passport.authenticate('local', { session: false }), participantsCtrl.createParticipant.bind(participantsCtrl))
+router.get('/participants', passport.authenticate('local', { session: false }), participantsCtrl.getAll.bind(participantsCtrl))
+router.get('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.getParticipantByKey.bind(participantsCtrl))
+router.get('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.getParticipantByUserKey.bind(participantsCtrl))
+router.delete('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.deleteParticipant.bind(participantsCtrl))
+router.delete('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.deleteParticipant.bind(participantsCtrl))
+router.patch('/participants/:participantKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantProfile.bind(participantsCtrl))
+router.patch('/participants/byuserkey/:participantUserKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantProfile.bind(participantsCtrl))
+router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyStatus.bind(participantsCtrl))
+router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey/taskItemsConsent/:taskId', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyTaskStatus.bind(participantsCtrl))
 
 await teamsCtrl.init()
 router.post('/teams', passport.authenticate('jwt', { session: false }), teamsCtrl.createTeam.bind(teamsCtrl))
@@ -70,7 +74,10 @@ router.get('/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabul
 await techadminCtrl.init()
 router.post('/techadmin/sendemail/', passport.authenticate('jwt', { session: false }), techadminCtrl.sendOneEmail.bind(techadminCtrl))
 
-
+if (!config.environmentAPIs.disabled) {
+  await environmentCtrl.init()
+  router.get('environment', passport.authenticate('jwt', { session: false }), environmentCtrl.getEnvironment.bind(environmentCtrl))
+}
 
 
 export default router

@@ -59,6 +59,7 @@ export default function () {
     if (config.smtp.password === undefined) config.smtp.password = (getSwarmSecret('OUTLOOK_PASSWORD') || process.env.OUTLOOK_PASSWORD)
 
     if (config.environmentAPIs === undefined) config.environmentAPIs = {}
+    if (config.environmentAPIs.disabled === undefined) config.environmentAPIs.disabled = (process.env.ENVAPIS_DISABLED ? process.env.ENVAPIS_DISABLED.toLowerCase() == 'true' : false)
     if (config.environmentAPIs.OpenWeatherMap === undefined) config.environmentAPIs.OpenWeatherMap = (getSwarmSecret('OWP_API_KEY') || process.env.OWP_API_KEY)
     if (config.environmentAPIs.Ambee === undefined) config.environmentAPIs.Ambee = (getSwarmSecret('AMBEE_API_KEY') || process.env.AMBEE_API_KEY)
 

@@ -10,12 +10,12 @@
  * A person object with a name and age.
  * @typedef {Object} Participant
  * @property {!string} userKey - key of the user
- * @property {string} createdTS - ISO 8610 of when the participant has been created
- * @property {string} updatedTS - ISO 8610 of when the participant has been updated
+ * @property {string} createdTS - ISO 8601 of when the participant has been created
+ * @property {string} updatedTS - ISO 8601 of when the participant has been updated
  * @property {string} name - name of the participant
  * @property {string} surname - surname of the participant
  * @property {string} sex - can be 'male', 'female', 'other'
- * @property {string} dateOfBirth - ISO 8610 date of birth (yyyy-mm-dd)
+ * @property {string} dateOfBirth - ISO 8601 date of birth (yyyy-mm-dd)
  * @property {string} country - country of residence, ISO 2 letters standard
  * @property {string} language - preferred language, ISO 2 letters
  * @property {number} height - height in cm
@@ -25,5 +25,73 @@
  * @property {boolean} studiesSuggestions - true if the participants wants to be suggested studies
  * @property {array} studies - list of studies that were accepted or rejected
  */
+
+
+/**
+ * Location variables.
+ * @typedef {Object} Location
+ * @property {string} postcode - postcode of the place
+ * @property {string} place - name of the place, such as city
+ * @property {string} country - name of the country, such as England
+ */
+
+/**
+ * Weather variables.
+ * @typedef {Object} Weather
+ * @property {string} location - name of the location, such as the city
+ * @property {string} description - description of the weather, such as "clear sky"
+ * @property {string} icon - url of an icon representing the weather
+ * @property {number} temperature - temperature in Celsius degrees
+ * @property {number} temperatureFeels - temperature, as felt, in Celsius degrees
+ * @property {number} temperatureMin - minimum temperature, in Celsius degrees
+ * @property {number} temperatureMax - maximum temperature, in Celsius degrees
+ * @property {number} pressure - air pressure in Pascal
+ * @property {number} humidity - air humidity in %
+ * @property {string} sunrise - time of sunrise, as ISO 8601 string
+ * @property {string} sunset - time of sunrise, as ISO 8601 string
+ * @property {number} clouds - presence of clouds
+ * @property {Object} wind - properties of wind
+ * @property {number} wind.speed - wind speed in m/s
+ * @property {number} wind.deg - wind orientation in degrees
+ * @property {number} wind.gust - wind gust
+ */
+
+/**
+ * Pollution variables.
+ * @typedef {Object} Pollution
+ * @property {number} aqi - Air Quality Index
+ * @property {object} components - pollutants
+ * @property {number} components.co - concentration of CO
+ * @property {number} components.no - concentration of NO
+ * @property {number} components.no2 - concentration of NO2
+ * @property {number} components.o3 - concentration of O3
+ * @property {number} components.so2 - concentration of SO2
+ * @property {number} components.pm2_5 - concentration of PM2.5
+ * @property {number} components.pm10 - concentration of PM10
+ * @property {number} components.nh3 - concentration of NH3
+ */
+
+/**
+ * Allergens variables.
+ * @typedef {Object} Allergens
+ * @property {object} pollen - pollen info
+ * @property {string} pollen.updatedAt - when info was updated last time, as ISO 8601 string
+ * @property {object} pollen.Count - pollen measurement
+ * @property {object} pollen.Risk - pollen risk by type
+ * @property {object} pollen.Species - pollen by species
+ */
+
+
+/**
+ * Environment variables.
+ * @typedef {Object} Environment
+ * @property {!Weather} weather - current weather
+ * @property {!Location} location - location administrative details
+ * @property {!Pollution} pollution - pollution conditions
+ * @property {!Allergens} allergens - allergens conditions
+ * @property
+ */
+
+
 
 export const Types = {}
