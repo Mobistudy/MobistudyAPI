@@ -38,6 +38,17 @@ router.patch('/participants/byuserkey/:participantUserKey', passport.authenticat
 router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyStatus.bind(usersCtrl))
 router.patch('/participants/byuserkey/:participantUserKey/studies/:studyKey/taskItemsConsent/:taskId', passport.authenticate('local', { session: false }), participantsCtrl.updateParticipantStudyTaskStatus.bind(usersCtrl))
 
+await teamsCtrl.init()
+router.post('/teams', passport.authenticate('jwt', { session: false }), teamsCtrl.createTeam.bind(teamsCtrl))
+router.get('/teams', passport.authenticate('jwt', { session: false }), teamsCtrl.getAll.bind(teamsCtrl))
+router.get('/teams/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.getTeamByKey.bind(teamsCtrl))
+router.get('/teams/invitationCode/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.generateInvitationCode.bind(teamsCtrl))
+router.post('/teams/researchers/add', passport.authenticate('jwt', { session: false }), teamsCtrl.addResearcherToTeam.bind(teamsCtrl))
+router.post('/teams/researchers/remove', passport.authenticate('jwt', { session: false }), teamsCtrl.removeResearcherFromTeam.bind(teamsCtrl))
+router.patch('/teams/:teamKey/researchers/studiesOptions/:studyKey', passport.authenticate('jwt', { session: false }), teamsCtrl.updateResearcherStudyOptionsInTeam.bind(teamsCtrl))
+router.patch('/teams/researchers/studiesOptions/:studyKey/preferredParticipantsKey/:participantUserKey', passport.authenticate('jwt', { session: false }), teamsCtrl.updateResearcherPreferredParticipantInTeam.bind(teamsCtrl))
+router.delete('/teams/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.deleteTeam.bind(teamsCtrl))
+
 await auditLogCtrl.init()
 router.get('/auditlog/eventTypes', passport.authenticate('jwt', { session: false }), auditLogCtrl.getEventTypes.bind(auditLogCtrl))
 router.get('/auditlog', passport.authenticate('jwt', { session: false }), auditLogCtrl.getAuditLogs.bind(auditLogCtrl))
@@ -59,16 +70,6 @@ router.get('/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabul
 await techadminCtrl.init()
 router.post('/techadmin/sendemail/', passport.authenticate('jwt', { session: false }), techadminCtrl.sendOneEmail.bind(techadminCtrl))
 
-await teamsCtrl.init()
-router.post('/teams', passport.authenticate('jwt', { session: false }), teamsCtrl.createTeam.bind(teamsCtrl))
-router.get('/teams', passport.authenticate('jwt', { session: false }), teamsCtrl.getAll.bind(teamsCtrl))
-router.get('/teams/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.getTeamByKey.bind(teamsCtrl))
-router.get('/teams/invitationCode/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.generateInvitationCode.bind(teamsCtrl))
-router.post('/teams/researchers/add', passport.authenticate('jwt', { session: false }), teamsCtrl.addResearcherToTeam.bind(teamsCtrl))
-router.post('/teams/researchers/remove', passport.authenticate('jwt', { session: false }), teamsCtrl.removeResearcherFromTeam.bind(teamsCtrl))
-router.patch('/teams/:teamKey/researchers/studiesOptions/:studyKey', passport.authenticate('jwt', { session: false }), teamsCtrl.updateResearcherStudyOptionsInTeam.bind(teamsCtrl))
-router.patch('/teams/researchers/studiesOptions/:studyKey/preferredParticipantsKey/:participantUserKey', passport.authenticate('jwt', { session: false }), teamsCtrl.updateResearcherPreferredParticipantInTeam.bind(teamsCtrl))
-router.delete('/teams/:teamKey', passport.authenticate('jwt', { session: false }), teamsCtrl.deleteTeam.bind(teamsCtrl))
 
 
 

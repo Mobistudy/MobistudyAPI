@@ -64,7 +64,9 @@ The folder structure follows this pattern:
 ```
 project
 └───config                  // contains the runtime configuration files
-└───models                  // examples of data managed by the app, in json
+└───logs                    // used to store applications logs
+└───models                  // json schema of the data managed at the API interfaces
+│   └───examples            // example of data
 └───src                     // application code
 │   └───DAO                 // access to the database
 │   └───i18n                // internationalised text
@@ -74,8 +76,12 @@ project
 │   └───controllers         // controllers of the API endpoints
 │   └───routes              // API endpoints - controllers combined
 │   └───services            // application logic
+└───tasksuploads            // stores raw data of the tasks
 └───test                    // automatic tests and experiments
-    └───jest                // unit tests specs
+│   └───jasmine             // unit tests specs
+│   └───mocks               // mocked objects
+└───tmp                     // used to store data to be downloaded temporarily
+
 ```
 
 Run `npm run dev` to start a self-restarting server. This needs `nodemon` package to be installed globally, do that with `npm i -g nodemon`.

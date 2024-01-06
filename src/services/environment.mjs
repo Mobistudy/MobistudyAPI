@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 import axios from 'axios'
 import getConfig from './config.mjs'
 
