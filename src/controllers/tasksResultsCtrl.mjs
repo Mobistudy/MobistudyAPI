@@ -155,8 +155,8 @@ export default {
     try {
       let participantUserKey = req.query.participantUserKey
       let studyKey = req.query.studyKey
-      let offset = req.query.offset
-      let count = req.query.count
+      let offset = req.query.offset ? parseInt(req.query.offset) : null
+      let count = req.query.count ? parseInt(req.query.count) : null
       if (req.user.role === 'researcher') {
         // researcher requests tasks results
         if (!req.query.studyKey) {
