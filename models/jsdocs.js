@@ -7,6 +7,22 @@
 */
 
 /**
+ * Results of a task.
+ * @typedef {Object} TaskResults
+ * @property {!string} userKey - key of the user
+ * @property {string} participantKey - key of the participant
+ * @property {!string} studyKey - key of the study
+ * @property {!number} taskId - id of the task
+ * @property {string} taskType - type fo task
+ * @property {string} createdTS - ISO 8601 of when the participant has been created
+ * @property {?boolean} discarded - if true the task does not contain data
+ * @property {object} phone - information about the phone
+ * @property {object} summary - summary data of the task
+ * @property {object} data - data related to the task
+ * @property {Array<string>} attachments - filnames containing additional data
+ */
+
+/**
  * A person object with a name and age.
  * @typedef {Object} Participant
  * @property {!string} userKey - key of the user
