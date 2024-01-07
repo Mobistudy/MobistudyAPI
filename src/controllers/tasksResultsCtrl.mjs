@@ -146,12 +146,17 @@ export default {
   /**
    * Get all tasks results
    * optional query params: studyKey to filter by study, userKey to filter also by user
-   * @param {object} req: express request object
-   * @param {object} res: express response object
+   * @param {object} req - express request object
+   * can contain optinal query: studyKey, participantUserKey, offset and count for paging
+   * @param {object} res - express response object
    * @returns a promise
    */
   async getAll (req, res) {
     try {
+      let participantUserKey = req.query.participantUserKey
+      let studyKey = req.query.studyKey
+      let offset = req.query.offset
+      let count = req.query.count
       if (req.user.role === 'researcher') {
         // researcher requests tasks results
         if (!req.query.studyKey) {
@@ -167,27 +172,28 @@ export default {
           return res.status(403).send(errmess)
         } else {
           if (req.query.userKey) { // study and user
-            const resultsData = await DAL.getTasksResultsByUserAndStudy(req.query.userKey, req.query.studyKey)
+            const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
             return res.send(resultsData)
           } else { // study only
-            const resultsData = await DAL.getTasksResultsByStudy(req.query.studyKey)
+            const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
             return res.send(resultsData)
           }
         }
       } else if (req.user.role === 'participant') {
         // participant requests tasks results
+        participantUserKey = req.user._key
         let resultsData
         if (req.query && req.query.studyKey) {
           // results for a given study
-          resultsData = await DAL.getTasksResultsByUserAndStudy(req.user._key, req.query.studyKey)
+          resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
         } else {
           // results for all studies
-          resultsData = await DAL.getTasksResultsByUser(req.user._key)
+          resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
         }
         res.status(200).send(resultsData)
       } else {
         // admin
-        const resultsData = await DAL.getAllTasksResults()
+        const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
         res.status(200).send(resultsData)
       }
     } catch (err) {

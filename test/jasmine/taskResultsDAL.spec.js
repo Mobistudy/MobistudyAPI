@@ -3,24 +3,20 @@ import {
   connectToDatabase, dropDatabase,
   addDataToCollection, removeFromCollection
 } from '../arangoTools.mjs'
-import * as tasksResults from '../../src/DAL/tasksResultsDAL.mjs'
+import * as tasksResultsDAL from '../../src/DAL/tasksResultsDAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-
-// Storage module used for testing
-let testDAL = {}
 
 describe('Testing tasks results DAL,', () => {
 
   const DBNAME = 'test_tasksresults'
+  let testDAL = tasksResultsDAL.DAL
 
   beforeAll(async () => {
     // mock app logger
     spyOnAllFunctions(applogger)
 
     let db = await connectToDatabase(DBNAME)
-    testDAL.db = db
-    await tasksResults.init(db)
-    Object.assign(testDAL, tasksResults.DAL)
+    await tasksResultsDAL.init(db)
   }, 60000)
 
   afterAll(async () => {
@@ -52,7 +48,7 @@ describe('Testing tasks results DAL,', () => {
     })
 
     it("tasks results can be retrieved by user", async () => {
-      let newResults = await testDAL.getTasksResultsByUser('1234')
+      let newResults = await testDAL.getAllTasksResults('1234')
 
       expect(newResults).not.toBeNull()
       expect(newResults.length).toBe(1)
@@ -62,7 +58,7 @@ describe('Testing tasks results DAL,', () => {
 
 
     it("tasks results can be retrieved by study", async () => {
-      let newResults = await testDAL.getTasksResultsByStudy('abc')
+      let newResults = await testDAL.getAllTasksResults(null, 'abc')
 
       expect(newResults).not.toBeNull()
       expect(newResults.length).toBe(1)
@@ -72,7 +68,7 @@ describe('Testing tasks results DAL,', () => {
     })
 
     it("tasks results can be retrieved by user and study", async () => {
-      let newResults = await testDAL.getTasksResultsByUserAndStudy('1234', 'abc')
+      let newResults = await testDAL.getAllTasksResults('1234', 'abc')
 
       expect(newResults).not.toBeNull()
       expect(newResults.length).toBe(1)
@@ -115,7 +111,7 @@ describe('Testing tasks results DAL,', () => {
 
     it('results can be retrieved one by one by user', async () => {
       let res = []
-      await testDAL.getTasksResultsByUser('1234', (d) => {
+      await testDAL.getAllTasksResults('1234', null, null, null, (d) => {
         res.push(d)
       })
 
@@ -124,11 +120,20 @@ describe('Testing tasks results DAL,', () => {
 
     it('results can be retrieved one by one by user and study', async () => {
       let res = []
-      await testDAL.getTasksResultsByUserAndStudy('1234', 'abc', (d) => {
+      await testDAL.getAllTasksResults('1234', 'abc', null, null, (d) => {
         res.push(d)
       })
 
       expect(res.length).toBe(2)
+    })
+
+    it('results can be paged', async () => {
+      let res = await testDAL.getAllTasksResults(null, null, 0, 2)
+
+      expect(res.totalCount).toBe(3)
+      expect(res.subset.length).toBe(2)
+      expect(res.subset[0]._key).toBe(tr1_key)
+      expect(res.subset[1]._key).toBe(tr2_key)
     })
   })
 

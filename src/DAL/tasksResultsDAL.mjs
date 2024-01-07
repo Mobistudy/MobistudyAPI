@@ -1,6 +1,8 @@
 /**
  * This provides the data access for all tasks results.
  */
+import * as Types from '../../models/jsdocs.js'
+
 import utils from './utils.mjs'
 import { applogger } from '../services/logger.mjs'
 
@@ -30,69 +32,64 @@ const DAL = {
   },
 
   /**
-   * Gets all the tasks results.
-   * The result changes depending on one's role, admins can see all,
-   * researchers only those related to their studies
-   * and participants only own.
-   * @param {Function} dataCallback used to receive data one by one
-   * @returns {Promise<Array>} a promise that gives an array of task results
+   * Gets all tasks result.
+   * Optional query parameters by user key and study key.
+   * @param {?string} participantUserKey - participant user key
+   * @param {?string} studyKey - study key
+   * @param {?number} offset - optional, starting from result N, used for paging
+   * @param {?number} count - optional, number of results to be returned, used for paging
+   * @param {?Function} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
+   * @returns {Promise<Array<Types.TaskResults> | Types.PagedQueryResult<Types.TaskResults> | null>} a promise that passes the data as an array, or empty if dataCallback is specified
    */
-  async getAllTasksResults (dataCallback) {
-    const filter = ''
-    const query = 'FOR data IN ' + COLLECTION_NAME + ' ' + filter + ' RETURN data'
-    applogger.trace('Querying "' + query + '"')
-    const cursor = await db.query(query)
-    if (dataCallback) {
-      while (cursor.hasNext) {
-        const a = await cursor.next()
-        dataCallback(a)
-      }
-    } else return cursor.all()
-  },
+  async getAllTasksResults (participantUserKey, studyKey, offset, count, dataCallback) {
+    const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
-  /**
-   * Gets the tasks results for a specific user
-   * @param {string} userKey key of the user to be found
-   * @param {Function} dataCallback function called when retrieving one-by-one
-   * @returns {Promise<Array>} a promise that gives an array of task results
-   */
-  async getTasksResultsByUser (userKey, dataCallback) {
-    const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey RETURN data'
-    const bindings = { userKey: userKey }
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    if (dataCallback) {
-      while (cursor.hasNext) {
-        const a = await cursor.next()
-        dataCallback(a)
-      }
-    } else return cursor.all()
-  },
+    let bindings = {}
+    let queryOptions = {}
 
-  async getTasksResultsByUserAndStudy (userKey, studyKey, dataCallback) {
-    const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.userKey == @userKey AND data.studyKey == @studyKey RETURN data'
-    const bindings = { userKey: userKey, studyKey: studyKey }
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    if (dataCallback) {
-      while (cursor.hasNext) {
-        const a = await cursor.next()
-        dataCallback(a)
-      }
-    } else return cursor.all()
-  },
+    let query = `FOR data IN ${COLLECTION_NAME}`
+    if (studyKey) {
+      bindings.studyKey = studyKey
+      query += `
+      FILTER data.studyKey == @studyKey
+      `
+    }
+    if (participantUserKey) {
+      bindings.participantUserKey = participantUserKey
+      query += `
+      FILTER data.userKey == @participantUserKey
+      `
+    }
 
-  async getTasksResultsByStudy (studyKey, dataCallback) {
-    const query = 'FOR data IN ' + COLLECTION_NAME + ' FILTER data.studyKey == @studyKey RETURN data'
-    const bindings = { studyKey: studyKey }
+    if (hasPaging) {
+      query += `
+      LIMIT @offset, @count
+      `
+      bindings.offset = parseInt(offset)
+      bindings.count = parseInt(count)
+      queryOptions.fullCount = true
+    }
+
+    query += `
+    RETURN data`
+
     applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
+    const cursor = await db.query(query, bindings, queryOptions)
     if (dataCallback) {
       while (cursor.hasNext) {
         const a = await cursor.next()
         dataCallback(a)
       }
-    } else return cursor.all()
+    } else {
+      if (hasPaging) {
+        return {
+          totalCount: cursor.extra.stats.fullCount,
+          subset: await cursor.all()
+        }
+      } else {
+        return cursor.all()
+      }
+    }
   },
 
   // creates new tasks results

@@ -82,7 +82,7 @@ export default {
         })
       }).then(() => {
         // tasks results
-        return DAL.getTasksResultsByStudy(studyKey, (a) => {
+        return DAL.getAllTasksResults(null, studyKey, null, null, (a) => {
           archive.append(JSON.stringify(a), { name: 'taskresults/' + a._key + '.json' })
         })
       }).then(() => {

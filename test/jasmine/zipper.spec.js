@@ -7,7 +7,7 @@ import { rm as fsRmdir } from 'fs/promises'
 const DBNAME = 'test_zipper'
 
 
-describe('When testing the zipper', () => {
+describe('When testing the zipper,', () => {
   beforeAll(async () => {
     await DAL.extendDAL()
 
@@ -15,7 +15,7 @@ describe('When testing the zipper', () => {
     spyOnAllFunctions(applogger)
   })
 
-  describe('when a participant and some answers are stored', () => {
+  describe('when a participant and some answers are stored,', () => {
 
     beforeAll(async () => {
       spyOn(DAL, 'getUsers').and.callFake(async (a1, a2, a3, a4, a5, a6, cbk) => {
@@ -57,7 +57,7 @@ describe('When testing the zipper', () => {
           }]
         })
       })
-      spyOn(DAL, 'getTasksResultsByStudy').and.callFake(async (a1, cbk) => {
+      spyOn(DAL, 'getAllTasksResults').and.callFake(async (a1, a2, a3, a4, cbk) => {
         cbk({
           _key: '2121212',
           taskId: 1,

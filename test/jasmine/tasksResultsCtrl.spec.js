@@ -338,7 +338,8 @@ describe('Testing tasks results controller,', () => {
         user: {
           _key: 'userkey1',
           role: 'participant'
-        }
+        },
+        query: {}
       }, res)
 
       expect(res).toBeDefined()
