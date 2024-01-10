@@ -57,7 +57,7 @@ describe('When testing the zipper,', () => {
           }]
         })
       })
-      spyOn(DAL, 'getAllTasksResults').and.callFake(async (a1, a2, a3, a4, cbk) => {
+      spyOn(DAL, 'getAllTasksResults').and.callFake(async (a1, a2, a3, a4, a5, cbk) => {
         cbk({
           _key: '2121212',
           taskId: 1,

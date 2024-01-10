@@ -111,7 +111,7 @@ describe('Testing tasks results DAL,', () => {
 
     it('results can be retrieved one by one by user', async () => {
       let res = []
-      await testDAL.getAllTasksResults('1234', null, null, null, (d) => {
+      await testDAL.getAllTasksResults('1234', null, null, null, null, (d) => {
         res.push(d)
       })
 
@@ -120,7 +120,7 @@ describe('Testing tasks results DAL,', () => {
 
     it('results can be retrieved one by one by user and study', async () => {
       let res = []
-      await testDAL.getAllTasksResults('1234', 'abc', null, null, (d) => {
+      await testDAL.getAllTasksResults('1234', 'abc', null, null, null, (d) => {
         res.push(d)
       })
 
@@ -128,7 +128,7 @@ describe('Testing tasks results DAL,', () => {
     })
 
     it('results can be paged', async () => {
-      let res = await testDAL.getAllTasksResults(null, null, 0, 2)
+      let res = await testDAL.getAllTasksResults(null, null, null, 0, 2)
 
       expect(res.totalCount).toBe(3)
       expect(res.subset.length).toBe(2)

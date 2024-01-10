@@ -36,12 +36,13 @@ const DAL = {
    * Optional query parameters by user key and study key.
    * @param {?string} participantUserKey - participant user key
    * @param {?string} studyKey - study key
+   * @param {?Array<number>} taskIds - optional, a selection of taskk ids
    * @param {?number} offset - optional, starting from result N, used for paging
    * @param {?number} count - optional, number of results to be returned, used for paging
    * @param {?Function} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
    * @returns {Promise<Array<Types.TaskResults> | Types.PagedQueryResult<Types.TaskResults> | null>} a promise that passes the data as an array, or empty if dataCallback is specified
    */
-  async getAllTasksResults (participantUserKey, studyKey, offset, count, dataCallback) {
+  async getAllTasksResults (participantUserKey, studyKey, taskIds, offset, count, dataCallback) {
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
     let bindings = {}
@@ -58,6 +59,12 @@ const DAL = {
       bindings.participantUserKey = participantUserKey
       query += `
       FILTER data.userKey == @participantUserKey
+      `
+    }
+    if (taskIds && taskIds.length > 0) {
+      bindings.taskIds = taskIds
+      query += `
+      FILTER data.taskId IN @taskIds
       `
     }
 

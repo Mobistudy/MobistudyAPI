@@ -155,6 +155,17 @@ export default {
     try {
       let participantUserKey = req.query.participantUserKey
       let studyKey = req.query.studyKey
+      let taskIds = null
+      // parse and validate task Ids
+      if (req.query.taskIds) {
+        for (let ns of req.query.taskIds) {
+          let nn = parseInt(ns)
+          if (!Number.isNaN(nn)) {
+            if (!taskIds) taskIds = []
+            taskIds.push(nn)
+          }
+        }
+      }
       let offset = req.query.offset ? parseInt(req.query.offset) : null
       let count = req.query.count ? parseInt(req.query.count) : null
       if (req.user.role === 'researcher') {
@@ -172,10 +183,10 @@ export default {
           return res.status(403).send(errmess)
         } else {
           if (req.query.userKey) { // study and user
-            const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
+            const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, taskIds, offset, count)
             return res.send(resultsData)
           } else { // study only
-            const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
+            const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, taskIds, offset, count)
             return res.send(resultsData)
           }
         }
@@ -185,15 +196,15 @@ export default {
         let resultsData
         if (req.query && req.query.studyKey) {
           // results for a given study
-          resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
+          resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, taskIds, offset, count)
         } else {
           // results for all studies
-          resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
+          resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, taskIds, offset, count)
         }
         res.status(200).send(resultsData)
       } else {
         // admin
-        const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, offset, count)
+        const resultsData = await DAL.getAllTasksResults(participantUserKey, studyKey, taskIds, offset, count)
         res.status(200).send(resultsData)
       }
     } catch (err) {
