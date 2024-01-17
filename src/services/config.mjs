@@ -56,8 +56,8 @@ export default function () {
     if (config.smtp.disabled === undefined) config.smtp.disabled = (process.env.SMTP_DISABLED ? process.env.SMTP_DISABLED.toLowerCase() == 'true' : false)
     if (config.smtp.server === undefined) config.smtp.server = process.env.SMTP_SERVER
     if (config.smtp.email === undefined) config.smtp.email = process.env.SMTP_EMAIL
-    if (config.smtp.user === undefined) config.smtp.user = (getSwarmSecret('OUTLOOK_USER') || process.env.OUTLOOK_USER)
-    if (config.smtp.password === undefined) config.smtp.password = (getSwarmSecret('OUTLOOK_PASSWORD') || process.env.OUTLOOK_PASSWORD)
+    if (config.smtp.user === undefined) config.smtp.user = (getSwarmSecret('SMTP_USER') || process.env.SMTP_USER)
+    if (config.smtp.password === undefined) config.smtp.password = (getSwarmSecret('SMTP_PASSWORD') || process.env.SMTP_PASSWORD)
 
     if (config.environmentAPIs === undefined) config.environmentAPIs = {}
     if (config.environmentAPIs.disabled === undefined) config.environmentAPIs.disabled = (process.env.ENVAPIS_DISABLED ? process.env.ENVAPIS_DISABLED.toLowerCase() == 'true' : false)
