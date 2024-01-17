@@ -93,7 +93,12 @@ const initLogs = async function () {
   applogstream.on('error', console.error)
   applogstream.on('warning', console.error)
 
-  httplogger = pinohttp(httplogstream)
+  httplogger = pinohttp(httplogstream, {
+    redact: {
+      paths: ['req.headers.cookie', 'req.headers.authorization'],
+    }
+  })
+
   pinoapplogger = pino(applogstream)
 
   httplogger.level = config.logs.level
