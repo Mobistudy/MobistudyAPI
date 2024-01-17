@@ -15,9 +15,11 @@
     "password": "xxxxxxxx"
   },
   "logs": {
+    "loghttp": true,
     "folder": "path to logs",
     "rotationsize": "5M",
-    "console": true
+    "console": true,
+    "level": 10
   },
   "auth": {
     "secret": "mysecret",

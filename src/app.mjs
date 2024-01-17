@@ -8,6 +8,9 @@ import passport from 'passport'
 
 import { initLogs, applogger, httplogger } from './services/logger.mjs'
 import authConfig from './services/authSetup.mjs'
+import getConfig from './services/config.mjs'
+
+const config = getConfig()
 
 import { DAL } from './DAL/DAL.mjs'
 
@@ -25,7 +28,10 @@ export default async function () {
   const app = express()
 
   app.use(helmet())
-  app.use(httplogger)
+
+  if (config.loghttp) {
+    app.use(httplogger)
+  }
   // setup body parser
   // default limit is 100kb, so we need to extend the limit
   // see http://stackoverflow.com/questions/19917401/node-js-express-request-entity-too-large

@@ -30,13 +30,14 @@ export default function () {
     }
     if (config.web === undefined) config.web = {}
     if (config.web.port === undefined) config.web.port = (process.env.WEB_PORT || 8080)
-    if (config.web.cluster === undefined) config.web.cluster = (process.env.WEB_CLUSTER === 'true' || true)
+    if (config.web.cluster === undefined) config.web.cluster = (process.env.WEB_CLUSTER.toLowerCase() === 'true' || true)
 
     if (config.logs === undefined) config.logs = {}
     if (config.logs.folder === undefined) config.logs.folder = (process.env.LOGS_FOLDER || 'logs')
     if (config.logs.rotationsize === undefined) config.logs.rotationsize = (process.env.LOGS_ROTATIONSIZE || '1M')
     if (config.logs.console === undefined) config.logs.console = !!(process.env.LOGS_CONSOLE || false)
     if (config.logs.level === undefined) config.logs.level = parseInt(process.env.LOGS_LEVEL || '30')
+    if (config.logs.loghttp === undefined) config.logs.loghttp = (process.env.LOGHTTP.toLowerCase() === 'true' || false)
 
     if (config.auth === undefined) config.auth = {}
     if (config.auth.secret === undefined) config.auth.secret = (getSwarmSecret('AUTH_SECRET') || process.env.AUTH_SECRET)

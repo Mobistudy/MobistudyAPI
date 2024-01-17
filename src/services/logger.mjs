@@ -75,11 +75,23 @@ let httplogger = {}
 const initLogs = async function () {
   if (!rfs) throw new Error('Cannot load rotating fle stream')
 
-  const httplogstream = rfs.createStream(HTTPLOG_FILENAME, {
-    path: config.logs.folder,
-    size: config.logs.rotationsize,
-    compress: 'gzip'
-  })
+  if (config.loghttp) {
+    const httplogstream = rfs.createStream(HTTPLOG_FILENAME, {
+      path: config.logs.folder,
+      size: config.logs.rotationsize,
+      compress: 'gzip'
+    })
+
+    httplogstream.on('error', console.error)
+    httplogstream.on('warning', console.error)
+
+    httplogger = pinohttp(httplogstream, {
+      redact: {
+        paths: ['req.headers.cookie', 'req.headers.authorization'],
+      }
+    })
+    httplogger.level = config.logs.level
+  }
 
   const applogstream = rfs.createStream(APPLOG_FILENAME, {
     path: config.logs.folder,
@@ -87,21 +99,10 @@ const initLogs = async function () {
     compress: 'gzip'
   })
 
-  httplogstream.on('error', console.error)
-  httplogstream.on('warning', console.error)
-
   applogstream.on('error', console.error)
   applogstream.on('warning', console.error)
 
-  httplogger = pinohttp(httplogstream, {
-    redact: {
-      paths: ['req.headers.cookie', 'req.headers.authorization'],
-    }
-  })
-
   pinoapplogger = pino(applogstream)
-
-  httplogger.level = config.logs.level
   pinoapplogger.level = config.logs.level
 
   if (!config.logs.console) {
