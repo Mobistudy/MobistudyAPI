@@ -35,6 +35,7 @@
     "password": "actual user password"
   },
   "mSafety": {
+    "disabled": false,
     "webhookAuthKey": "zxzxzxzxzx",
     "publicKey": "asasa=",
     "privateKey": "erwerwrwe="

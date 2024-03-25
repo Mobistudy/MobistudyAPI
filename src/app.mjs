@@ -64,7 +64,10 @@ export default async function () {
   app.use(apiPrefix, dataDownload(app))
   app.use(apiPrefix, await formsRouter())
   app.use(apiPrefix, await attachmentsRouter())
-  app.use(apiPrefix, await mSafetyRouter())
+
+  if (config.mSafety && !config.mSafety.disabled) {
+    app.use(apiPrefix, await mSafetyRouter())
+  }
 
   // error handler
   app.use(function (err, req, res, next) {
