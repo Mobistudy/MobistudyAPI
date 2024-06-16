@@ -123,17 +123,19 @@ export default {
     if (!req.body.password || !req.body.email || !req.body.role) return res.status(400).send('Need email, role and password')
 
     const user = req.body
+
+    if (user.role === 'admin') {
+      // no admin should ever be registered
+      res.sendStatus(403)
+      return
+    }
+
     const password = user.password
     if (!pwdCheck(user.email, password)) return res.status(400).send('Password too weak')
 
-    // get the language from the browser, at this stage the user preferences are unknown
-    const language = getLanguageFromAcceptedList(req.acceptsLanguages())
-    try {
-      const msg = userRegistrationCompose(language)
-      await mailSender.sendEmail(user.email, msg.title, msg.content)
-    } catch (err) {
-      res.status(400).send('Cannot send confirmation email')
-      applogger.warn({ error: err }, 'Cannot send new user confirmation email')
+    const existing = await DAL.findUserByEmail(user.email)
+    if (existing) {
+      res.status(409).send('This email is already registered')
       return
     }
 
@@ -141,20 +143,26 @@ export default {
     delete user.password
     user.hashedPassword = hashedPassword
     try {
-      const existing = await DAL.findUserByEmail(user.email)
-      if (existing) {
-        res.status(409).send('This email is already registered')
+
+      // user can be registered now, we first try to send the email
+      // this works also as a partial email address control
+      // get the language from the browser, at this stage the user preferences are unknown
+      const language = getLanguageFromAcceptedList(req.acceptsLanguages())
+      try {
+        const msg = userRegistrationCompose(language)
+        await mailSender.sendEmail(user.email, msg.title, msg.content)
+      } catch (err) {
+        res.status(400).send('Cannot send confirmation email')
+        applogger.warn({ error: err }, 'Cannot send new user confirmation email')
         return
       }
-      if (user.role === 'admin') {
-        res.sendStatus(403)
-        return
-      }
+
       user.createdTS = new Date()
       const newuser = await DAL.createUser(user)
       res.sendStatus(200)
       applogger.info({ email: newuser.email }, 'New user created')
       auditLogger.log('userCreated', newuser._key, undefined, undefined, 'New user created with email ' + newuser.email, 'users', newuser._key)
+
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new user')
       res.sendStatus(500)
