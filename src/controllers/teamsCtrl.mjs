@@ -28,12 +28,12 @@ export default {
     this.JWTSecret = getConfig().auth.secret
 
     const teamSchema = JSON.parse(
-      await readFile('./models/teams.json')
+      await readFile('./models/team.json')
     )
     const ajv = new Ajv({
       schemas: [teamSchema]
     })
-    this.validate = ajv.getSchema('https://mobistudy.org/models/tasksResults.json')
+    this.validate = ajv.getSchema('https://mobistudy.org/models/team.json')
   },
 
   /**
