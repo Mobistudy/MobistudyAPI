@@ -108,16 +108,22 @@ describe("when arangodb is running,", () => {
     })
 
     describe('when a participant and a study are present,', () => {
-      let participant1Key, part1key, study1key
+      let userKey1, userKey2, part1key, part2key, study1key
       beforeAll(async () => {
-        participant1Key = await addDataToCollection("users", {
-          email: "participant@home.com",
+        userKey1 = await addDataToCollection("users", {
+          email: "participant1@home.com",
+          hashedPasswor: "xxxxxxxx",
+          role: "participant",
+        })
+
+        userKey2 = await addDataToCollection("users", {
+          email: "participant2@home.com",
           hashedPasswor: "xxxxxxxx",
           role: "participant",
         })
 
         part1key = await addDataToCollection("participants", {
-          userKey: participant1Key,
+          userKey: userKey1,
           name: "part1",
           sex: "male",
           dateOfBirth: "1980-02-27",
@@ -152,21 +158,64 @@ describe("when arangodb is running,", () => {
             medications: [],
             minBMI: 18,
             maxBMI: 30,
-          },
+          }
+        })
+
+        part2key = await addDataToCollection("participants", {
+          userKey: userKey1,
+          name: "part2",
+          sex: "female",
+          dateOfBirth: "1980-02-27",
+          country: "it",
+          language: "en",
+          height: 180,
+          weight: 78,
+          diseases: [],
+          medications: [],
+          studiesSuggestions: true,
+          studies: [{
+            studyKey: study1key
+          }],
         })
       }, 5000)
 
       afterAll(async () => {
-        await removeFromCollection('users', participant1Key)
+        await removeFromCollection('users', userKey1)
         await removeFromCollection('participants', part1key)
         await removeFromCollection('studies', study1key)
       }, 5000)
 
       it("someone with no studies and right age, sex, country is selected", async () => {
         let matchedStudies = await testDAL.getMatchedNewStudies(
-          participant1Key
+          userKey1
         )
         expect(matchedStudies).toContain(study1key)
+      })
+
+      it("study can be found", async () => {
+        // after, before, studyTitle, teamsKeys, sortDirection, offset, count, dataCallback
+        let studies = await testDAL.getStudies(
+        )
+        expect(studies.length).toBe(1)
+        expect(studies[0].teamKey).toBe(team1Key)
+      })
+
+      it("study can be filtered by team key", async () => {
+        // after, before, studyTitle, teamsKeys, participantKey, sortDirection, offset, count, dataCallback
+        let studies = await testDAL.getStudies(
+          null, null, null, [team1Key]
+        )
+        expect(studies.length).toBe(1)
+        expect(studies[0].teamKey).toBe(team1Key)
+      })
+
+      it("study can be filtered by participant key", async () => {
+        // after, before, studyTitle, teamsKeys, participantKey, sortDirection, offset, count, dataCallback
+        let studies = await testDAL.getStudies(
+          null, null, null, null, part2key
+        )
+        expect(studies.length).toBe(1)
+        expect(studies[0]._key).toBe(study1key)
       })
     })
 

@@ -16,7 +16,6 @@ import { DAL } from './DAL/DAL.mjs'
 
 import routes from './routes.mjs'
 
-import studiesRouter from './routes/studies.mjs'
 import dataDownload from './routes/dataDownload.mjs'
 import formsRouter from './routes/forms.mjs'
 import mSafetyRouter from './routes/mSafety.mjs'
@@ -60,11 +59,10 @@ export default async function () {
 
   app.use(apiPrefix, routes)
 
-  app.use(apiPrefix, await studiesRouter())
+  //TODO: refactor these routers into contollers
   app.use(apiPrefix, dataDownload(app))
   app.use(apiPrefix, await formsRouter())
   app.use(apiPrefix, await attachmentsRouter())
-
   if (config.mSafety && !config.mSafety.disabled) {
     app.use(apiPrefix, await mSafetyRouter())
   }

@@ -5,6 +5,7 @@ import getConfig from './services/config.mjs'
 import usersCtrl from './controllers/usersCtrl.mjs'
 import participantsCtrl from './controllers/participantsCtrl.mjs'
 import auditLogCtrl from './controllers/auditLogCtrl.mjs'
+import studiesCtrl from './controllers/studiesCtrl'
 import teamsCtrl from './controllers/teamsCtrl.mjs'
 import tasksResultsCtrl from './controllers/tasksResultsCtrl.mjs'
 import attachmentsCtrl from './controllers/attachmentsCtrl.mjs'
@@ -62,6 +63,17 @@ router.delete('/teams/:teamKey', mustBeLoggedIn, teamsCtrl.deleteTeam.bind(teams
 await auditLogCtrl.init()
 router.get('/auditlog/eventTypes', mustBeLoggedIn, auditLogCtrl.getEventTypes.bind(auditLogCtrl))
 router.get('/auditlog', mustBeLoggedIn, auditLogCtrl.getAuditLogs.bind(auditLogCtrl))
+
+await studiesCtrl.init()
+router.post('/studies', mustBeLoggedIn, studiesCtrl.createStudy.bind(studiesCtrl))
+router.get('/studies', mustBeLoggedIn, studiesCtrl.getStudies.bind(studiesCtrl))
+router.get('/studies/:study_key', mustBeLoggedIn, studiesCtrl.getOneStudy.bind(studiesCtrl))
+router.put('/studies/:study_key', mustBeLoggedIn, studiesCtrl.replaceStudy.bind(studiesCtrl))
+router.patch('/studies/:study_key', mustBeLoggedIn, studiesCtrl.updateStudy.bind(studiesCtrl))
+router.get('/studies/newStudies', mustBeLoggedIn, studiesCtrl.getNewStudies.bind(studiesCtrl))
+router.get('/studies/newInvitationCode', mustBeLoggedIn, studiesCtrl.getNewInvitationCode.bind(studiesCtrl))
+router.get('/studies/invitational/:invitationalCode', mustBeLoggedIn, studiesCtrl.getNewInvitationCode.bind(studiesCtrl))
+router.delete('/studies/:study_key', mustBeLoggedIn, studiesCtrl.deleteStudy.bind(studiesCtrl))
 
 await tasksResultsCtrl.init()
 router.get('/tasksResults', mustBeLoggedIn, tasksResultsCtrl.getAll.bind(tasksResultsCtrl))

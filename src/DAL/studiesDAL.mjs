@@ -52,35 +52,42 @@ const DAL = {
   },
 
   /**
-   * Retrieves all study descriptions
-   * @returns a Promise with an array of studies
-   */
-  async getAllStudies () {
-    const query = 'FOR study in studies RETURN study'
-    applogger.trace('Querying "' + query + '"')
-    const cursor = await db.query(query)
-    return cursor.all()
-  },
-
-  /**
    * Gets the studies
+   * @param {*} after - optional, only studies after a certain date TODO: implement filter
+   * @param {*} before - optional, only studies before a certain date TODO: implement filter
+   * @param {*} studyTitle - optional, name of the study TODO: implement filter
+   * @param {*} teamsKeys - optional, filter by certain teams
+   * @param {*} participantKey - optional, filter by participant key
    * @param {*} sortDirection - optional, sort direction referring to the creation time
    * @param {*} offset - optional, starting from result N, used for paging
    * @param {*} count - optional, number of results to be returned, used for paging
    * @param {*} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
   * @returns a promise that passes the data as an array (or empty if dataCallback is specified)
    */
-  async getStudies (sortDirection, offset, count, dataCallback) {
+  async getStudies (after, before, studyTitle, teamsKeys, participantKey, sortDirection, offset, count, dataCallback) {
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
     const bindings = {}
     let queryOptions = {}
     let queryString = 'FOR study IN studies '
 
+    if (participantKey) {
+      queryString += `FOR participant IN participants
+      FILTER participant._key == @participantKey
+      FILTER study._key IN participant.studies[*].studyKey
+      `
+      bindings.participantKey = participantKey
+    }
+
+    if (teamsKeys) {
+      queryString += 'FILTER POSITION( @teamsKeys, study.teamKey ) '
+      bindings.teamsKeys = teamsKeys
+    }
+
     if (!sortDirection) {
       sortDirection = 'DESC'
     }
-    queryString += 'SORT study.generalities.createdTS @sortDirection '
+    queryString += 'SORT study.createdTS @sortDirection '
     bindings.sortDirection = sortDirection
 
     if (hasPaging) {
@@ -117,6 +124,7 @@ const DAL = {
     }
   },
 
+  // gets all the studies belonging to a team
   async getAllTeamStudies (teamkey) {
     const query = 'FOR study in studies FILTER study.teamKey == @teamkey RETURN study'
     const bindings = { teamkey: teamkey }
@@ -145,7 +153,7 @@ const DAL = {
   },
 
   // udpates a study, we assume the _key is the correct one
-  async udpateStudy (_key, study) {
+  async updateStudy (_key, study) {
     const newval = await collection.update(_key, study, {
       keepNull: false,
       mergeObjects: true,
