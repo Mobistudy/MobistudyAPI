@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/teams.json",
+  "title": "StudyDescription",
+  "description": "Definition of a study",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "Name of the study",
+      "type": "string"
+    },
+    "createdTS": {
+      "description": "ISO8601 timestamp describing when the team was created",
+      "type": "string"
+    },
+    "updatedTS": {
+      "description": "ISO8601 timestamp describing the last time the team was updated",
+      "type": "string"
+    },
+    "publishedTS": {
+      "description": "ISO8601 timestamp of when the study was published",
+      "type": "string"
+    },
+    "teamKey": {
+      "description": "Key that identifies the team that owns this study",
+      "type": "string"
+    },
+    "invitational": {
+      "description": "If true, the study only accepts participants who use the invitaiton code",
+      "type": "boolean"
+    },
+    "invitationCode": {
+      "description": "Code used by participants to join a study",
+      "type": "string"
+    },
+    "generalities": {
+      "description": "Generalities of the study",
+      "type": "object"
+    },
+    "inclusionCriteria": {
+      "description": "Inclusion criteria of the study",
+      "type": "object"
+    },
+    "tasks": {
+      "description": "List of tasks participants should do",
+      "type": "array"
+    },
+    "consent": {
+      "description": "Information about voluntary consent",
+      "type": "object"
+    }
+  },
+  "required": [
+    "name",
+    "teamKey",
+    "invitational",
+    "generalities",
+    "inclusionCriteria",
+    "tasks",
+    "consent"
+  ],
+  "$defs": {
+    "multiLanguageText": {
+      "type": "object",
+      "properties": {
+        "en": {
+          "type": "string"
+        },
+        "es": {
+          "type": "string"
+        },
+        "se": {
+          "type": "string"
+        },
+        "it": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
