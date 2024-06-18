@@ -171,7 +171,7 @@ const DAL = {
       bindings.userKey = userKey
     }
 
-    query += ' RETURN team'
+    query += ' SORT team.name RETURN team'
     applogger.trace(bindings, 'Querying "' + query + '"')
     let cursor = await db.query(query, bindings)
     if (dataCallback) {
