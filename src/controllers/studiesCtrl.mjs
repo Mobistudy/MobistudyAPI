@@ -20,12 +20,12 @@ export default {
    */
   async init () {
     const studySchema = JSON.parse(
-      await readFile('./models/teams.json')
+      await readFile('./models/studyDescription.json')
     )
     const ajv = new Ajv({
       schemas: [studySchema]
     })
-    this.validate = ajv.getSchema('https://mobistudy.org/models/teams.json')
+    this.validate = ajv.getSchema('https://mobistudy.org/models/studyDescription.json')
   },
 
   /**

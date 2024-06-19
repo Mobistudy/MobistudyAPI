@@ -240,7 +240,7 @@ export default {
       const studyKey = req.params.studyKey
       const studyOption = req.body
 
-      // TODO: validate https://mobistudy.org/models/teams.json/#/$defs/studyOptions
+      // TODO: validate https://mobistudy.org/models/team.json/#/$defs/studyOptions
 
       const selTeam = await DAL.getOneTeam(teamKey)
       if (selTeam) {

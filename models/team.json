@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://mobistudy.org/models/teams.json",
+  "$id": "https://mobistudy.org/models/team.json",
   "title": "Team",
   "description": "Definition of a team of researchers",
   "type": "object",
