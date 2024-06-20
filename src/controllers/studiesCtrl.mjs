@@ -188,12 +188,12 @@ export default {
   /**
    * Query existing studies
    * @param {object} req - express request object, query parameters:
-   * after, before, studyTitle, teamKey, sortDirection, offset, count
+   * after, before, studyTitle, participantKey, teamKey, summary, sortDirection, offset, count
    * @param {object} res - express response object
    * @returns {Promise} a promise
    */
   async getStudies (req, res) {
-    let participantKey
+    let participantKey = null
     if (req.query.participantKey) {
       // only participants can filter by their participant key
       if (req.user.role == 'researcher') {
@@ -221,15 +221,17 @@ export default {
       teamsKeys = researcherTeamsKeys
     }
 
+    let summary = req.query.summary ? true : false
+
     try {
       // after, before, studyTitle, teamsKeys, participantKey, sortDirection, offset, count, dataCallback
       const result = await DAL.getStudies(
-        false,
         req.query.after,
         req.query.before,
         req.query.studyTitle,
         teamsKeys,
         participantKey,
+        summary,
         req.query.sortDirection,
         req.query.offset,
         req.query.count

@@ -193,7 +193,7 @@ describe("when arangodb is running,", () => {
       })
 
       it("study can be found", async () => {
-        // after, before, studyTitle, teamsKeys, sortDirection, offset, count, dataCallback
+        // after, before, studyTitle, teamsKeys, participantKey, summary, sortDirection, offset, count, dataCallback
         let studies = await testDAL.getStudies(
         )
         expect(studies.length).toBe(1)
@@ -201,7 +201,7 @@ describe("when arangodb is running,", () => {
       })
 
       it("study can be filtered by team key", async () => {
-        // after, before, studyTitle, teamsKeys, participantKey, sortDirection, offset, count, dataCallback
+        // after, before, studyTitle, teamsKeys, participantKey, summary, sortDirection, offset, count, dataCallback
         let studies = await testDAL.getStudies(
           null, null, null, [team1Key]
         )
@@ -210,7 +210,7 @@ describe("when arangodb is running,", () => {
       })
 
       it("study can be filtered by participant key", async () => {
-        // after, before, studyTitle, teamsKeys, participantKey, sortDirection, offset, count, dataCallback
+        // after, before, studyTitle, teamsKeys, participantKey, summary, sortDirection, offset, count, dataCallback
         let studies = await testDAL.getStudies(
           null, null, null, null, part2key
         )

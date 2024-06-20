@@ -58,13 +58,14 @@ const DAL = {
    * @param {*} studyTitle - optional, name of the study TODO: implement filter
    * @param {*} teamsKeys - optional, filter by certain teams
    * @param {*} participantKey - optional, filter by participant key
+   * @param {*} summary - optional, returns a summary of the studies
    * @param {*} sortDirection - optional, sort direction referring to the creation time
    * @param {*} offset - optional, starting from result N, used for paging
    * @param {*} count - optional, number of results to be returned, used for paging
    * @param {*} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
   * @returns a promise that passes the data as an array (or empty if dataCallback is specified)
    */
-  async getStudies (after, before, studyTitle, teamsKeys, participantKey, sortDirection, offset, count, dataCallback) {
+  async getStudies (after, before, studyTitle, teamsKeys, participantKey, summary, sortDirection, offset, count, dataCallback) {
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
 
     const bindings = {}
@@ -72,14 +73,15 @@ const DAL = {
     let queryString = 'FOR study IN studies '
 
     if (participantKey) {
-      queryString += `FOR participant IN participants
+      queryString += `
+      FOR participant IN participants
       FILTER participant._key == @participantKey
       FILTER study._key IN participant.studies[*].studyKey
       `
       bindings.participantKey = participantKey
     }
 
-    if (teamsKeys) {
+    if (teamsKeys && teamsKeys.length > 0) {
       queryString += 'FILTER POSITION( @teamsKeys, study.teamKey ) '
       bindings.teamsKeys = teamsKeys
     }
@@ -103,7 +105,20 @@ const DAL = {
       bindings.count = parseInt(count)
     }
 
-    queryString += ` RETURN study`
+    if (summary) {
+      console.log('SUMMARY')
+      queryString += ` RETURN {
+      _key: study._key,
+      title: study.generalities.title,
+      createdTS: study.createdTS,
+      publishedTS: study.publishedTS,
+      startDate: study.generalities.startDate,
+      endDate: study.generalities.endDate,
+      }
+      `
+    } else {
+      queryString += ` RETURN study`
+    }
 
     applogger.trace(bindings, 'Querying "' + queryString + '"')
     const cursor = await db.query(queryString, bindings, queryOptions)
