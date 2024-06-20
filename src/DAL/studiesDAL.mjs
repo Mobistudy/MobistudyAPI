@@ -1,6 +1,7 @@
 /**
  * This provides the data access for the study descriptions.
  */
+import * as Types from '../../models/jsdocs.js'
 import utils from './utils.mjs'
 import { applogger } from '../services/logger.mjs'
 
@@ -20,7 +21,7 @@ const init = async function (DB) {
 const DAL = {
   /**
  * Gets transaction for studies
- * @returns {string}
+ * @returns {string} the transaction name
  */
   studiesTransaction () {
     return COLLECTIONNAME
@@ -28,8 +29,8 @@ const DAL = {
 
   /**
    * Creates a new study
-   * @param {Object} newstudy - study to be created
-   * @returns a Promise that passes the study just created, with its key
+   * @param {Types.StudyDescription} newstudy - study to be created
+   * @returns {Promise<Array<Types.StudyDescription>}  a Promise that passes the study just created, with its key
    */
   async createStudy (newstudy) {
     const meta = await collection.save(newstudy)
@@ -40,7 +41,7 @@ const DAL = {
   /**
    * Retrieves one study, by Key
    * @param {Object} studyKey
-   * @returns a Promise passing the study
+   * @returns {Promise<Array<Types.StudyDescription>} a Promise passing the study
    */
   async getOneStudy (studyKey) {
     const query = 'FOR study IN studies FILTER study._key == @studyKey RETURN study'
@@ -63,7 +64,7 @@ const DAL = {
    * @param {*} offset - optional, starting from result N, used for paging
    * @param {*} count - optional, number of results to be returned, used for paging
    * @param {*} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
-  * @returns a promise that passes the data as an array (or empty if dataCallback is specified)
+   * @returns {Promise<Array<Types.StudyDescription> | Types.PagedQueryResult<Types.StudyDescription> | null>}  a promise that passes the data as an array (or empty if dataCallback is specified)
    */
   async getStudies (after, before, studyTitle, teamsKeys, participantKey, summary, sortDirection, offset, count, dataCallback) {
     const hasPaging = typeof (offset) !== 'undefined' && offset != null && typeof (count) !== 'undefined' && count != null
@@ -139,7 +140,11 @@ const DAL = {
     }
   },
 
-  // gets all the studies belonging to a team
+  /**
+   * Gets all the studies belonging to a team
+   * @param {string} teamkey - key of the team
+   * @returns {Promise<Array<Types.StudyDescription>}  a promise that passes the data as an array
+   */
   async getAllTeamStudies (teamkey) {
     const query = 'FOR study in studies FILTER study.teamKey == @teamkey RETURN study'
     const bindings = { teamkey: teamkey }
@@ -148,6 +153,11 @@ const DAL = {
     return cursor.all()
   },
 
+  /**
+ * Gets all the studies belonging to a participant
+ * @param {string} participantKey - key of the participant
+ * @returns {Promise<Array<Types.StudyDescription>}  a promise that passes the data as an array
+ */
   async getAllParticipantStudies (participantKey) {
     const query = `FOR participant IN participants
       FILTER participant._key == @participantKey
@@ -160,14 +170,24 @@ const DAL = {
     return cursor.all()
   },
 
-  // udpates a study, we assume the _key is the correct one
+  /**
+  * Replaces a study, we assume the _key is the correct one
+  * @param {string} _key - key of the study to be replaced
+  * @param {Types.StudyDescription} study - new study desctiption
+  * @returns {Promise<Types.StudyDescription>}  a promise that passes the new study description
+  */
   async replaceStudy (_key, study) {
     const meta = await collection.replace(_key, study)
     study._key = meta._key
     return study
   },
 
-  // udpates a study, we assume the _key is the correct one
+  /**
+  * Updates a study, we assume the _key is the correct one
+  * @param {string} _key - key of the study to be replaced
+  * @param {Types.StudyDescription} study - new study desctiption
+  * @returns {Promise<Types.StudyDescription>}  a promise that passes the new study description
+  */
   async updateStudy (_key, study) {
     const newval = await collection.update(_key, study, {
       keepNull: false,
@@ -177,7 +197,11 @@ const DAL = {
     return newval
   },
 
-  // deletes a study
+  /**
+  * Deletes a study, also removes all received task results and information about the study from participants
+  * @param {String} _key - key of the study to be replaced
+  * @returns {Promise}  a promise that passes true if all OK
+  */
   async deleteStudy (_key) {
     await collection.remove(_key)
     return true
@@ -185,7 +209,7 @@ const DAL = {
 
   /**
    * Creates an unused invitation code
-   * @returns a Promise, passing the code
+   * @returns {Promise<String>}  a Promise, passing the code
    */
   async getNewInvitationCode () {
     let repeat = true
@@ -208,8 +232,8 @@ const DAL = {
 
   /**
    * Gets the one study that matches the invitation code
-   * @param {string} invitationCode
-   * @returns a Promise passing the study description
+   * @param {String} invitationCode
+   * @returns {Promise<Types.StudyDescription>} a Promise passing the study description
    */
   async getInvitationalStudy (invitationCode) {
     const query = 'FOR study IN studies FILTER study.invitationCode == @invitationCode RETURN study'
@@ -220,7 +244,12 @@ const DAL = {
     return study
   },
 
-  // gets all the studies that match inclusion criteria
+
+  /**
+   * Gets all the studies that match inclusion criteria
+   * @param {String} userKey - key of the user to match studies against
+   * @returns {Promise<Array<Types.StudyDescription>}  a promise that passes the data as an array
+   */
   async getMatchedNewStudies (userKey) {
     // TODO add BMI to query
     const query = `FOR study IN studies

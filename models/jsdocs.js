@@ -7,6 +7,22 @@
 */
 
 /**
+ * Description of a study.
+ * @typedef {Object} StudyDescription
+ * @property {string} _key - key of the study
+ * @property {!string} teamKey - key of the team that manages the study
+ * @property {string} createdTS - ISO 8601 of when the study has been created
+ * @property {string} updatedTS - ISO 8601 of when the study has been last updated
+ * @property {string} publishedTS - ISO 8601 of when the study has been published
+ * @property {boolean} invitational - if true the study can be accessed by invitation
+ * @property {string} invitationCode - invitation code used by participants to join the study
+ * @property {!Object} generalities - properties related to generalities
+ * @property {!Object} inclusionCriteria - properties related to inclusion criteria
+ * @property {!Array} tasks - tasks planned in this study
+ * @property {!Object} consent - properties related to informed consent
+ */
+
+/**
  * Results of a task.
  * @typedef {Object} TaskResults
  * @property {!string} userKey - key of the user
@@ -23,7 +39,7 @@
  */
 
 /**
- * A person object with a name and age.
+ * A participant object.
  * @typedef {Object} Participant
  * @property {!string} userKey - key of the user
  * @property {string} createdTS - ISO 8601 of when the participant has been created
