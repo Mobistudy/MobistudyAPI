@@ -11,6 +11,7 @@ export default {
       if (config.smtp.disabled) {
         console.log(`FAKE SMTP: sending email with subject: "${subject}", message: "${message}"`)
         resolve()
+        return
       }
 
       const transporter = nodemailer.createTransport({
