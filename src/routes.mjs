@@ -69,7 +69,7 @@ router.post('/studies', mustBeLoggedIn, studiesCtrl.createStudy.bind(studiesCtrl
 router.get('/studies', mustBeLoggedIn, studiesCtrl.getStudies.bind(studiesCtrl))
 router.get('/studies/newStudies', mustBeLoggedIn, studiesCtrl.getNewStudies.bind(studiesCtrl))
 router.get('/studies/newInvitationCode', mustBeLoggedIn, studiesCtrl.getNewInvitationCode.bind(studiesCtrl))
-router.get('/studies/invitational/:invitationalCode', mustBeLoggedIn, studiesCtrl.getNewInvitationCode.bind(studiesCtrl))
+router.get('/studies/invitational/:invitationalCode', mustBeLoggedIn, studiesCtrl.getStudyByInvitationCode.bind(studiesCtrl))
 router.get('/studies/:study_key', mustBeLoggedIn, studiesCtrl.getOneStudy.bind(studiesCtrl))
 router.put('/studies/:study_key', mustBeLoggedIn, studiesCtrl.replaceStudy.bind(studiesCtrl))
 router.patch('/studies/:study_key', mustBeLoggedIn, studiesCtrl.updateStudy.bind(studiesCtrl))
