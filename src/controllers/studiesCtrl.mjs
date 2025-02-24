@@ -251,12 +251,15 @@ export default {
    * @param {object} res - express response object
    * @returns {Promise} a promise
    */
-  async getOneStudy (req, res) {
+  async getStudyByKey (req, res) {
     if (!req.params.study_key) {
       return res.status(400).send('No study key specified')
     }
-
-    return await DAL.getOneStudy(req.params.study_key)
+    const study = await DAL.getStudyByKey(req.params.study_key)
+    if (!study) {
+      return res.status(404).send('Study not found')
+    }
+    res.send(study)
   },
 
   /**

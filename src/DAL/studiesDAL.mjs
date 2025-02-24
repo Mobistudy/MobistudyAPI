@@ -43,13 +43,9 @@ const DAL = {
    * @param {Object} studyKey
    * @returns {Promise<Array<Types.StudyDescription>} a Promise passing the study
    */
-  async getOneStudy (studyKey) {
-    const query = 'FOR study IN studies FILTER study._key == @studyKey RETURN study'
-    const bindings = { studyKey: studyKey }
-    applogger.trace(bindings, 'Querying "' + query + '"')
-    const cursor = await db.query(query, bindings)
-    const study = await cursor.next()
-    return study
+  async getStudyByKey (studyKey) {
+    applogger.trace('Searching for study ' + studyKey)
+    return collection.document(studyKey, { graceful: true })
   },
 
   /**
