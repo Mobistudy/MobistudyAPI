@@ -297,7 +297,7 @@ export default {
       const { isPreferred } = req.body
 
       // derive team from study
-      let sutdyDescr = await DAL.getOneStudy(studyKey)
+      let sutdyDescr = await DAL.getStudyByKey(studyKey)
       let teamKey = sutdyDescr.teamKey
       // check that the researcher is in the team
       const selTeam = await DAL.getOneTeam(teamKey)

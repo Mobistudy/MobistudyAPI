@@ -49,7 +49,7 @@ export default {
 
     try {
       // verify if study exists
-      const study = await DAL.getOneStudy(studyKey)
+      const study = await DAL.getStudyByKey(studyKey)
       if (!study) return res.sendStatus(404)
 
       if (req.user.role === 'researcher') {

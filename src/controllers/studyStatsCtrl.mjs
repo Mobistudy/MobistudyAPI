@@ -57,7 +57,7 @@ export default {
     const studyKey = req.params.studyKey
 
     try {
-      const study = await DAL.getOneStudy(studyKey)
+      const study = await DAL.getStudyByKey(studyKey)
       if (!study) return res.sendStatus(404)
 
       if (req.user.role === 'researcher') {

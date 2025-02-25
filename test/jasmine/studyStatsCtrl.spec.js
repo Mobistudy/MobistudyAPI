@@ -26,7 +26,7 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('participants cannot access study stats', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       _key: 'fake'
     })
     let res = new MockResponse()
@@ -43,7 +43,7 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('researchers can access their studies stats', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       _key: 'fake'
     })
     spyOn(DAL, 'getAllTeams').and.returnValue([{}])
@@ -77,7 +77,7 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('researchers can filter by name', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       _key: 'fake'
     })
     spyOn(DAL, 'getAllTeams').and.returnValue([{}])
@@ -116,7 +116,7 @@ describe('Testing studies stats controller,', () => {
   })
 
   it('researchers can get preferred only', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       _key: 'fake'
     })
     spyOn(DAL, 'getAllTeams').and.returnValue([{}])

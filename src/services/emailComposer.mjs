@@ -36,7 +36,7 @@ export function newPasswordCompose (language) {
 // Creates the content of an email to be sent to a user when the status of a study changes
 // returns { title: '...', content: '...'}
 export async function studyStatusUpdateCompose (studyKey, participant) {
-  const study = await DAL.getOneStudy(studyKey)
+  const study = await DAL.getStudyByKey(studyKey)
   i18n.locale = participant.language
   const studyTitle = study.generalities.title[participant.language]
   let emailTitle = ''

@@ -286,7 +286,7 @@ describe('Testing teams controller,', () => {
   })
 
   it('a researcher can add a preferred participant', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       _key: 'studyKey',
       teamKey: 'teamKey'
     })
@@ -317,7 +317,7 @@ describe('Testing teams controller,', () => {
   })
 
   it('a researcher can remove a preferred participant', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       _key: 'studyKey',
       teamKey: 'teamKey'
     })

@@ -23,7 +23,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a completed study is correct', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -49,7 +49,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for a withdrawn study is correct', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       generalities: {
         languages: ['en', 'it'],
         title: {
@@ -72,7 +72,7 @@ describe('when composing an email', () => {
   })
 
   it('the email for an accepted study is correct', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       generalities: {
         languages: ['en', 'it'],
         title: {

@@ -60,7 +60,7 @@ describe('Testing attachments controller,', () => {
     })
 
     it('a researcher can access a single file', async () => {
-      spyOn(DAL, 'getOneStudy').and.returnValue({
+      spyOn(DAL, 'getStudyByKey').and.returnValue({
         _key: 'fake'
       })
       spyOn(DAL, 'getAllTeams').and.returnValue([{}])

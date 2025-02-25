@@ -72,7 +72,7 @@ describe("when arangodb is running,", () => {
       })
       expect(newStudy._key).toBeDefined()
 
-      let study2 = await testDAL.getOneStudy(newStudy._key)
+      let study2 = await testDAL.getStudyByKey(newStudy._key)
       expect(study2.generalities).toBeDefined()
       expect(study2.generalities.title).toBeDefined()
       expect(study2.generalities.title.en).toBe(newStudy.generalities.title.en)
@@ -236,9 +236,9 @@ describe("when arangodb is running,", () => {
 
       await testDAL.deleteStudy(newStudy._key)
 
-      let study = await testDAL.getOneStudy(newStudy._key)
+      let study = await testDAL.getStudyByKey(newStudy._key)
 
-      expect(study).not.toBeDefined()
+      expect(study).toBeNull()
     })
   })
 })

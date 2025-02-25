@@ -240,14 +240,14 @@ describe('Testing studies controller,', () => {
   })
 
   it('one can get a study by key', async () => {
-    spyOn(DAL, 'getOneStudy').and.returnValue({
+    spyOn(DAL, 'getStudyByKey').and.returnValue({
       _key: 'studyKey',
       teamKey: 'myTeam',
       name: 'testStudy'
     })
 
     let res = new MockResponse()
-    await studiesCtrl.getOneStudy({
+    await studiesCtrl.getStudyByKey({
       user: {
         _key: 'userKey',
         role: 'participant'
@@ -257,7 +257,7 @@ describe('Testing studies controller,', () => {
       }
     }, res)
     expect(res.code).not.toBe(403)
-    expect(DAL.getOneStudy).toHaveBeenCalled()
+    expect(DAL.getStudyByKey).toHaveBeenCalled()
   })
 
   it('participant can get new studies', async () => {
