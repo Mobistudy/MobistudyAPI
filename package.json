@@ -29,7 +29,6 @@
     "pino": "^8.17.2",
     "pino-http": "^9.0.0",
     "rotating-file-stream": "^3.2.1",
-    "tweetnacl": "^1.0.3",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {

@@ -18,7 +18,6 @@ import routes from './routes.mjs'
 
 import dataDownload from './routes/dataDownload.mjs'
 import formsRouter from './routes/forms.mjs'
-import mSafetyRouter from './routes/mSafety.mjs'
 import attachmentsRouter from './routes/attachments.mjs'
 
 export default async function () {
@@ -63,9 +62,6 @@ export default async function () {
   app.use(apiPrefix, dataDownload(app))
   app.use(apiPrefix, await formsRouter())
   app.use(apiPrefix, await attachmentsRouter())
-  if (config.mSafety && !config.mSafety.disabled) {
-    app.use(apiPrefix, await mSafetyRouter())
-  }
 
   // error handler
   app.use(function (err, req, res, next) {
