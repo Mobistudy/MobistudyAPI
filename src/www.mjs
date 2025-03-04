@@ -33,7 +33,7 @@ import getApp from './app.mjs'
       console.log(`worker ${worker.process.pid} died`)
     })
   } else {
-    if (config.web.cert) {
+    if (config.web.cert && config.web.cert.key && config.web.cert.file) {
       // HTTPS case
 
       // Private Key and Public Certificate
