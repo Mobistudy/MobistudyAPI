@@ -30,8 +30,8 @@ export default function () {
     }
     if (config.web === undefined) config.web = {}
     if (config.web.port === undefined) config.web.port = (process.env.WEB_PORT || 8080)
-    if (config.web.cluster === undefined) config.web.cluster = (process.env.WEB_CLUSTER.toLowerCase() === 'true' || true)
-    if (config.web.validateSchema === undefined) config.web.validateSchema = (process.env.VALIDATE_SCHEMA.toLowerCase() === 'true' || true)
+    if (config.web.cluster === undefined) config.web.cluster = (process.env.WEB_CLUSTER.toLowerCase() === 'true' || false)
+    if (config.web.validateSchema === undefined) config.web.validateSchema = (process.env.VALIDATE_SCHEMA.toLowerCase() === 'true' || false)
     if (config.web.cert && config.web.cert.key === undefined) config.web.cert.key = (getSwarmSecret('CERT_KEY') || process.env.CERT_KEY)
     if (config.web.cert && config.web.cert.file === undefined) config.web.cert.key = (getSwarmSecret('CERT_FILE') || process.env.CERT_FILE)
 
