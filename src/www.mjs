@@ -33,12 +33,12 @@ import getApp from './app.mjs'
       console.log(`worker ${worker.process.pid} died`)
     })
   } else {
-    if (config.cert) {
+    if (config.web.cert) {
       // HTTPS case
 
       // Private Key and Public Certificate
-      const privateKey = fs.readFileSync(config.cert.key, 'utf8')
-      const certificate = fs.readFileSync(config.cert.file, 'utf8')
+      const privateKey = fs.readFileSync(config.web.cert.key, 'utf8')
+      const certificate = fs.readFileSync(config.web.cert.file, 'utf8')
 
       console.log('Using certificates')
       server = https.createServer({ key: privateKey, cert: certificate }, app)

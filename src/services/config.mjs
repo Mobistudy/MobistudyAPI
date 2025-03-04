@@ -31,6 +31,10 @@ export default function () {
     if (config.web === undefined) config.web = {}
     if (config.web.port === undefined) config.web.port = (process.env.WEB_PORT || 8080)
     if (config.web.cluster === undefined) config.web.cluster = (process.env.WEB_CLUSTER.toLowerCase() === 'true' || true)
+    if (config.web.cert === undefined) config.web.cert = {}
+    if (config.web.cert.key === undefined) config.web.cert.key = (getSwarmSecret('CERT_KEY') || process.env.CERT_KEY)
+    if (config.web.cert.file === undefined) config.web.cert.key = (getSwarmSecret('CERT_FILE') || process.env.CERT_FILE)
+
 
     if (config.logs === undefined) config.logs = {}
     if (config.logs.folder === undefined) config.logs.folder = (process.env.LOGS_FOLDER || 'logs')

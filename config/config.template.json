@@ -1,11 +1,11 @@
 {
   "web": {
     "port": 3000,
-    "cluster": true
-  },
-  "cert": {
-    "key": "https certificate pem file",
-    "file": "https certificate crt file"
+    "cluster": true,
+    "cert": {
+      "key": "https certificate pem file",
+      "file": "https certificate crt file"
+    }
   },
   "db": {
     "host": "127.0.0.1",
