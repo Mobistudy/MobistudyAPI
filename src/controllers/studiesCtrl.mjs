@@ -1,6 +1,7 @@
 /**
  * This provides the API endpoints for the studies.
  */
+import getConfig from '../services/config.mjs'
 import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
@@ -19,13 +20,18 @@ export default {
    * Initialises the controller.
    */
   async init () {
-    const studySchema = JSON.parse(
-      await readFile('./models/studyDescription.json')
-    )
-    const ajv = new Ajv({
-      schemas: [studySchema]
-    })
-    this.validate = ajv.getSchema('https://mobistudy.org/models/studyDescription.json')
+    if (getConfig().web.validateSchema) {
+      const studySchema = JSON.parse(
+        await readFile('./models/studyDescription.json')
+      )
+      const ajv = new Ajv({
+        schemas: [studySchema]
+      })
+      this.validate = ajv.getSchema('https://mobistudy.org/models/studyDescription.json')
+    } else {
+      this.validate = () => true
+    }
+
   },
 
   /**

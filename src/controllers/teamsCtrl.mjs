@@ -27,13 +27,17 @@ export default {
   async init () {
     this.JWTSecret = getConfig().auth.secret
 
-    const teamSchema = JSON.parse(
-      await readFile('./models/team.json')
-    )
-    const ajv = new Ajv({
-      schemas: [teamSchema]
-    })
-    this.validate = ajv.getSchema('https://mobistudy.org/models/team.json')
+    if (getConfig().web.validateSchema) {
+      const teamSchema = JSON.parse(
+        await readFile('./models/team.json')
+      )
+      const ajv = new Ajv({
+        schemas: [teamSchema]
+      })
+      this.validate = ajv.getSchema('https://mobistudy.org/models/team.json')
+    } else {
+      this.validate = () => true
+    }
   },
 
   /**

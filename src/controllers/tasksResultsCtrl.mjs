@@ -6,7 +6,10 @@ import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getAttachmentWriter } from '../services/attachments.mjs'
 import { readFile } from 'fs/promises'
+import getConfig from '../services/config.mjs'
 import Ajv from 'ajv'
+
+const config = getConfig()
 
 export default {
   /**
@@ -18,129 +21,134 @@ export default {
    * Initialises the controller.
    */
   async init () {
-    const accelerationSampleSchema = JSON.parse(
-      await readFile('./models/accelerationSample.json')
-    )
-    const orientationSampleSchema = JSON.parse(
-      await readFile('./models/orientationSample.json')
-    )
+    if (config.web.validateSchema) {
 
-    const tasksResultsSchema = JSON.parse(
-      await readFile('./models/taskResults.json')
-    )
-    const answersSummarySchema = JSON.parse(
-      await readFile('./models/answersSummary.json')
-    )
-    const answersDataSchema = JSON.parse(
-      await readFile('./models/answersData.json')
-    )
-    const fingerTappingSummarySchema = JSON.parse(
-      await readFile('./models/fingerTappingSummary.json')
-    )
-    const fingerTappingDataSchema = JSON.parse(
-      await readFile('./models/fingerTappingData.json')
-    )
+      const accelerationSampleSchema = JSON.parse(
+        await readFile('./models/accelerationSample.json')
+      )
+      const orientationSampleSchema = JSON.parse(
+        await readFile('./models/orientationSample.json')
+      )
 
-    const holdPhoneSummarySchema = JSON.parse(
-      await readFile('./models/holdPhoneSummary.json')
-    )
-    const holdPhoneDataSchema = JSON.parse(
-      await readFile('./models/holdPhoneData.json')
-    )
+      const tasksResultsSchema = JSON.parse(
+        await readFile('./models/taskResults.json')
+      )
+      const answersSummarySchema = JSON.parse(
+        await readFile('./models/answersSummary.json')
+      )
+      const answersDataSchema = JSON.parse(
+        await readFile('./models/answersData.json')
+      )
+      const fingerTappingSummarySchema = JSON.parse(
+        await readFile('./models/fingerTappingSummary.json')
+      )
+      const fingerTappingDataSchema = JSON.parse(
+        await readFile('./models/fingerTappingData.json')
+      )
 
-    const tugtSummarySchema = JSON.parse(
-      await readFile('./models/tugtSummary.json')
-    )
-    const tugtDataSchema = JSON.parse(
-      await readFile('./models/tugtData.json')
-    )
+      const holdPhoneSummarySchema = JSON.parse(
+        await readFile('./models/holdPhoneSummary.json')
+      )
+      const holdPhoneDataSchema = JSON.parse(
+        await readFile('./models/holdPhoneData.json')
+      )
 
-    const vocalizaitonSummarySchema = JSON.parse(
-      await readFile('./models/vocalizationSummary.json')
-    )
+      const tugtSummarySchema = JSON.parse(
+        await readFile('./models/tugtSummary.json')
+      )
+      const tugtDataSchema = JSON.parse(
+        await readFile('./models/tugtData.json')
+      )
 
-    const drawingSummarySchema = JSON.parse(
-      await readFile('./models/drawingSummary.json')
-    )
-    const drawingDataSchema = JSON.parse(
-      await readFile('./models/drawingData.json')
-    )
+      const vocalizaitonSummarySchema = JSON.parse(
+        await readFile('./models/vocalizationSummary.json')
+      )
 
-    const dataQuerySummarySchema = JSON.parse(
-      await readFile('./models/dataQuerySummary.json')
-    )
-    const dataQueryDataSchema = JSON.parse(
-      await readFile('./models/dataQueryData.json')
-    )
+      const drawingSummarySchema = JSON.parse(
+        await readFile('./models/drawingSummary.json')
+      )
+      const drawingDataSchema = JSON.parse(
+        await readFile('./models/drawingData.json')
+      )
 
-    const miband3SummarySchema = JSON.parse(
-      await readFile('./models/miband3Summary.json')
-    )
-    const miband3DataSchema = JSON.parse(
-      await readFile('./models/miband3Data.json')
-    )
+      const dataQuerySummarySchema = JSON.parse(
+        await readFile('./models/dataQuerySummary.json')
+      )
+      const dataQueryDataSchema = JSON.parse(
+        await readFile('./models/dataQueryData.json')
+      )
 
-    const smwtSummarySchema = JSON.parse(
-      await readFile('./models/smwtSummary.json')
-    )
-    const smwtDataSchema = JSON.parse(
-      await readFile('./models/smwtData.json')
-    )
+      const miband3SummarySchema = JSON.parse(
+        await readFile('./models/miband3Summary.json')
+      )
+      const miband3DataSchema = JSON.parse(
+        await readFile('./models/miband3Data.json')
+      )
 
-    const po60SummarySchema = JSON.parse(
-      await readFile('./models/po60Summary.json')
-    )
-    const po60DataSchema = JSON.parse(
-      await readFile('./models/po60Data.json')
-    )
+      const smwtSummarySchema = JSON.parse(
+        await readFile('./models/smwtSummary.json')
+      )
+      const smwtDataSchema = JSON.parse(
+        await readFile('./models/smwtData.json')
+      )
 
-    const positionSummarySchema = JSON.parse(
-      await readFile('./models/positionSummary.json')
-    )
-    const positionDataSchema = JSON.parse(
-      await readFile('./models/positionData.json')
-    )
+      const po60SummarySchema = JSON.parse(
+        await readFile('./models/po60Summary.json')
+      )
+      const po60DataSchema = JSON.parse(
+        await readFile('./models/po60Data.json')
+      )
 
-    const peakFlowSummarySchema = JSON.parse(
-      await readFile('./models/peakFlowSummary.json')
-    )
-    const peakFlowDataSchema = JSON.parse(
-      await readFile('./models/peakFlowData.json')
-    )
+      const positionSummarySchema = JSON.parse(
+        await readFile('./models/positionSummary.json')
+      )
+      const positionDataSchema = JSON.parse(
+        await readFile('./models/positionData.json')
+      )
 
-    const ajv = new Ajv({
-      schemas: [
-        accelerationSampleSchema,
-        orientationSampleSchema,
-        tasksResultsSchema,
-        answersSummarySchema,
-        answersDataSchema,
-        fingerTappingSummarySchema,
-        fingerTappingDataSchema,
-        holdPhoneSummarySchema,
-        holdPhoneDataSchema,
-        tugtSummarySchema,
-        tugtDataSchema,
-        vocalizaitonSummarySchema,
-        drawingSummarySchema,
-        drawingDataSchema,
-        dataQuerySummarySchema,
-        dataQueryDataSchema,
-        miband3SummarySchema,
-        miband3DataSchema,
-        smwtSummarySchema,
-        smwtDataSchema,
-        po60SummarySchema,
-        po60DataSchema,
-        positionSummarySchema,
-        positionDataSchema,
-        peakFlowSummarySchema,
-        peakFlowDataSchema
-      ],
-      allowUnionTypes: true
-    })
+      const peakFlowSummarySchema = JSON.parse(
+        await readFile('./models/peakFlowSummary.json')
+      )
+      const peakFlowDataSchema = JSON.parse(
+        await readFile('./models/peakFlowData.json')
+      )
 
-    this.validate = ajv.getSchema('https://mobistudy.org/models/tasksResults.json')
+      const ajv = new Ajv({
+        schemas: [
+          accelerationSampleSchema,
+          orientationSampleSchema,
+          tasksResultsSchema,
+          answersSummarySchema,
+          answersDataSchema,
+          fingerTappingSummarySchema,
+          fingerTappingDataSchema,
+          holdPhoneSummarySchema,
+          holdPhoneDataSchema,
+          tugtSummarySchema,
+          tugtDataSchema,
+          vocalizaitonSummarySchema,
+          drawingSummarySchema,
+          drawingDataSchema,
+          dataQuerySummarySchema,
+          dataQueryDataSchema,
+          miband3SummarySchema,
+          miband3DataSchema,
+          smwtSummarySchema,
+          smwtDataSchema,
+          po60SummarySchema,
+          po60DataSchema,
+          positionSummarySchema,
+          positionDataSchema,
+          peakFlowSummarySchema,
+          peakFlowDataSchema
+        ],
+        allowUnionTypes: true
+      })
+
+      this.validate = ajv.getSchema('https://mobistudy.org/models/tasksResults.json')
+    } else {
+      this.validate = () => true
+    }
   },
 
   /**
