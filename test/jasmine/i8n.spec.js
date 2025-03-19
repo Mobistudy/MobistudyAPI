@@ -22,7 +22,7 @@ describe('when using lang from list', () => {
   })
 
   it('a list with no supported languages gives en', () => {
-    let lang = getLanguageFromAcceptedList(['it', 'de'])
+    let lang = getLanguageFromAcceptedList(['sq', 'de'])
     expect(lang).toBe('en')
   })
 
@@ -36,18 +36,18 @@ describe('when using lang from list', () => {
     expect(lang).toBe('en')
   })
 
-  it('a list with it, de and sv gives sv', () => {
-    let lang = getLanguageFromAcceptedList(['it', 'de', 'sv'])
+  it('a list with sq, de and sv gives sv', () => {
+    let lang = getLanguageFromAcceptedList(['sq', 'de', 'sv'])
     expect(lang).toBe('sv')
   })
 
-  it('a list with it, de and sv-SW gives sv', () => {
-    let lang = getLanguageFromAcceptedList(['it', 'de', 'sv-SW'])
+  it('a list with sq, de and sv-SW gives sv', () => {
+    let lang = getLanguageFromAcceptedList(['sq', 'de', 'sv-SW'])
     expect(lang).toBe('sv')
   })
 
-  it('a list with es, it and en gives es', () => {
-    let lang = getLanguageFromAcceptedList(['es', 'it', 'en'])
+  it('a list with es, sq and en gives es', () => {
+    let lang = getLanguageFromAcceptedList(['es', 'sq', 'en'])
     expect(lang).toBe('es')
   })
 })
