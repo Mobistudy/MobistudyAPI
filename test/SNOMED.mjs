@@ -204,18 +204,18 @@ async function getDiseaseIta (term, limit) {
 
 (async () => {
 
-  // let heart = await getDiseaseEng('heart', 5)
-  // console.log(heart)
+  let heartn = await getDiseaseEngNHS('heart', 5)
+  console.log(heartn)
 
-  // let heartn = await getDiseaseEngNhs('heart', 5)
-  // console.log(heartn)
+  let cancer = await getDiseaseEng('cancer', 5)
+  console.log(cancer)
 
-  // let hjarta = await getDiseaseSwe('hjärta', 5)
-  // console.log(hjarta)
+  let hjarta = await getDiseaseSwe('hjärta', 5)
+  console.log(hjarta)
 
-  // let insuficiencia = await getDiseaseSpa('insuficiencia', 5)
-  // console.log(insuficiencia)
+  let insuficiencia = await getDiseaseSpa('insuficiencia', 5)
+  console.log(insuficiencia)
 
-  let insuficienza = await getDiseaseIta('insufficien', 5)
-  console.log(insuficienza)
+  let cancro = await getDiseaseIta('cancro', 5)
+  console.log(cancro)
 })()
