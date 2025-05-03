@@ -2,8 +2,8 @@ export default {
   studyStatusUpdate: {
     studyAcceptedTitle: 'Conferma di accettazione dello studio { studyTitle }',
     studyAcceptedThanks: 'Grazie per aver accettato di partecipare allo studio { studyTitle }.',
-    studyAcceptedConsentedTasks: 'Hai acconsentito ai seguenti compiti:',
-    studyAcceptedNotConsentedTasks: 'Non hai acconsentito ai seguenti compiti:',
+    studyAcceptedConsentedTasks: 'Hai acconsentito alle seguenti attività:',
+    studyAcceptedNotConsentedTasks: 'Non hai acconsentito alle seguenti attività:',
     studyCompletedTitle: 'Completamento dello studio { studyTitle }',
     studyCompletedThanks: 'Lo studio { studyTitle } è stato completato. Grazie per la tua partecipazione.',
     studyWithdrawnTitle: 'Ritiro dallo studio { studyTitle }',
