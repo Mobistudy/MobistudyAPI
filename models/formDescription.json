@@ -21,6 +21,35 @@
       "description": "Javascript code that computes a summary of the form. The function takes an argument called 'answers' in the form of the array produced as result of the task, and should return an object with one or more properties, that is added to the summary object.",
       "type": "string"
     },
+    "summaryFunctionDescription": {
+      "description": "Description of the values returned by the summary function, in all the supported languages",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "description": "Description of a single value, the name of the property in the summary object is the key of the property in this object",
+          "type": "object",
+          "properties": {
+            "name": {
+              "description": "Name of the value returned by the summary function, in all the supported languages",
+              "type": "object"
+            },
+            "type": {
+              "description": "Type of the value returned by the summary function",
+              "type": "string",
+              "enum": [
+                "string",
+                "number",
+                "category"
+              ]
+            },
+            "description": {
+              "description": "Description of the value returned by the summary function, in all the supported languages",
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
     "questions": {
       "description": "Array of questions",
       "type": "array",

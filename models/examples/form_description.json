@@ -10,6 +10,19 @@
     "it": "Cosa preferisci?"
   },
   "summaryFunction": "return { value: answers[1].answer };",
+  "summaryFunctionDescription": {
+    "value": {
+      "name": {
+        "en": "Summary value",
+        "it": "Valore di riepilogo"
+      },
+      "type": "string",
+      "description": {
+        "en": "Returns the answer to the second question.",
+        "it": "Restituisce la risposta alla seconda domanda."
+      }
+    }
+  },
   "questions": [
     {
       "id": "Q1",
