@@ -139,6 +139,7 @@ const DAL = {
     if (studykey) {
       bindings.studykey = studykey
       queryString += `
+      FILTER HAS(participant, "studies")
       FOR study in participant.studies
       FILTER @studyKey == study.studyKey
       `
@@ -190,6 +191,7 @@ const DAL = {
     let bindings = { studyKey: studykey }
 
     let query = 'FOR participant IN participants ' +
+      ' FILTER HAS(participant, "studies") ' +
       ' FOR study in participant.studies ' +
       ' FILTER @studyKey == study.studyKey '
     if (currentStatus) {
