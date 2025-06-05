@@ -227,7 +227,7 @@ export default {
         partUserKey = participant.userKey
       }
 
-      trans = DAL.startTransaction([
+      trans = await DAL.startTransaction([
         DAL.tasksResultsTransaction(),
         DAL.auditLogsTransaction(),
         DAL.participantsTransaction(),

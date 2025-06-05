@@ -345,7 +345,7 @@ export default {
     }
 
     try {
-      let trans = DAL.startTransaction([
+      let trans = await DAL.startTransaction([
         DAL.participantsTransaction(),
         DAL.tasksResultsTransaction(),
         DAL.studiesTransaction()
