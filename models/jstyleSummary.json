@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/jstyleSummary.json",
+  "title": "jStyle data download summary",
+  "description": "Summary of the data downloaded from the jStyle.",
+  "type": "object",
+  "properties": {
+    "firstTS": {
+      "description": "timestamp of the first sample",
+      "type": "string"
+    },
+    "lastTS": {
+      "description": "timestamp of the last sample",
+      "type": "string"
+    },
+    "activitySummary": {
+      "description": "Summary of the activity data, by day",
+      "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+              "date": {
+                "type": "string"
+              },
+              "steps": {
+                "type": "number"
+              },
+              "distance": {
+                "type": "number"
+              },
+              "goal": {
+                "type": "number"
+              },
+              "calories": {
+                "type": "number"
+              },
+              "exerciseMinutes": {
+                "type": "number"
+              },
+              "activeMinutes": {
+                "type": "number"
+              }
+            },
+          "required": [
+              "date",
+              "steps",
+              "distance",
+              "goal",
+              "exerciseMinutes",
+              "activeMinutes"
+            ]
+        }
+    }
+  },
+  "required": [
+    "firstTS",
+    "lastTS"
+  ]
+}

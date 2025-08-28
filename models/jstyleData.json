@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/jstyleData.json",
+  "title": "jStyle smartwatch data",
+  "description": "Complete data of the task that retrieves data from the jStyle smartwatch.",
+  "type": "object",
+  "properties": {
+    "device": {
+      "description": "Information about the jStyle smartwatch.",
+      "type": "object"
+    },
+    "activity": {
+      "type": "array",
+      "items": {
+        "description": "Sample holding activity data collected by the jStyle smartwatch",
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "ISO date string of when the sample was recorded",
+            "type": "string"
+          },
+          "steps": {
+            "description": "Steps walked measured by the smartwatch",
+            "type": "number"
+          },
+          "calories": {
+            "description": "Calories burned",
+            "type": "number"
+          },
+          "distance": {
+            "description": "Distance traveled in m",
+            "type": "number"
+          },
+          "detailSteps": {
+            "description": "Steps walked in the last 10 minutes",
+            "type": "array",
+            "items": {
+              "description": "Steps walked in the minute",
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "date",
+          "steps",
+          "calories",
+          "distance",
+          "detailSteps"
+        ]
+      }
+    },
+    "hr": {
+      "type": "array",
+      "items": {
+        "description": "Sample holding heart rate data collected by the jStyle smartwatch",
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "ISO date string of when the sample was recorded",
+            "type": "string"
+          },
+          "hr": {
+            "description": "Heart rate in bpm",
+            "type": "number"
+          },
+          "recordCount": {
+            "description": "Number of heart rate records",
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "hr",
+          "recordCount"
+        ]
+      }
+    },
+    "hrv": {
+      "type": "array",
+      "items": {
+        "description": "Sample holding heart rate variability data collected by the jStyle smartwatch",
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "ISO date string of when the sample was recorded",
+            "type": "string"
+          },
+          "hrv": {
+            "description": "Heart rate variability in ms",
+            "type": "number"
+          },
+          "hr": {
+            "description": "Heart rate in bpm",
+            "type": "number"
+          },
+          "recordCount": {
+            "description": "Number of heart rate variability records",
+            "type": "number"
+          },
+          "vascularAge": {
+            "description": "Vascular age in years",
+            "type": "number"
+          },
+          "stressLevel": {
+            "description": "Stress level in arbitrary units",
+            "type": "number"
+          },
+          "lowBP": {
+            "description": "Low blood pressure in mmHg",
+            "type": "number"
+          },
+          "highBP": {
+            "description": "High blood pressure in mmHg",
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "hrv",
+          "hr",
+          "recordCount"
+        ]
+      }
+    },
+    "temperature": {
+      "type": "array",
+      "items": {
+        "description": "Sample holding temperature data collected by the jStyle smartwatch",
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "ISO date string of when the sample was recorded",
+            "type": "string"
+          },
+          "temperature": {
+            "description": "Body temperature in Celsius",
+            "type": "number"
+          },
+          "recordCount": {
+            "description": "Number of temperature records",
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "temperature",
+          "recordCount"
+        ]
+      }
+    }
+  },
+  "required": [
+    "device",
+    "activity",
+    "hr",
+    "hrv",
+    "temperature"
+  ]
+}

@@ -116,6 +116,10 @@
         {
           "description": "Results summary of the peak flow meter task",
           "$ref": "https://mobistudy.org/models/peakFlowSummary.json"
+        },
+         {
+          "description": "Results summary of the jStyle task",
+          "$ref": "https://mobistudy.org/models/jstyleSummary.json"
         }
       ]
     },
@@ -172,6 +176,10 @@
         {
           "description": "Data collected from the peak flow meter",
           "$ref": "https://mobistudy.org/models/peakFlowData.json"
+        },
+        {
+          "description": "Data collected from the jStyle device",
+          "$ref": "https://mobistudy.org/models/jstyleData.json"
         }
       ]
     }
