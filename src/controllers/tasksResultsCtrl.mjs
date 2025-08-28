@@ -113,6 +113,13 @@ export default {
         await readFile('./models/peakFlowData.json')
       )
 
+      const jstyleSchema = JSON.parse(
+        await readFile('./models/jstyleSummary.json')
+      )
+      const jstyleDataSchema = JSON.parse(
+        await readFile('./models/jstyleData.json')
+      )
+
       const ajv = new Ajv({
         schemas: [
           accelerationSampleSchema,
@@ -140,7 +147,9 @@ export default {
           positionSummarySchema,
           positionDataSchema,
           peakFlowSummarySchema,
-          peakFlowDataSchema
+          peakFlowDataSchema,
+          jstyleSchema,
+          jstyleDataSchema
         ],
         allowUnionTypes: true
       })

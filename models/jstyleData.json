@@ -147,6 +147,62 @@
           "recordCount"
         ]
       }
+    },
+    "spo2": {
+      "type": "array",
+      "items": {
+        "description": "Sample holding blood oxygen saturation data collected by the jStyle smartwatch",
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "ISO date string of when the sample was recorded",
+            "type": "string"
+          },
+          "spo2": {
+            "description": "Blood oxygen saturation in %",
+            "type": "number"
+          },
+          "recordCount": {
+            "description": "Number of blood oxygen saturation records",
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "spo2",
+          "recordCount"
+        ]
+      }
+    },
+    "sleep": {
+      "type": "array",
+      "items": {
+        "description": "Sample holding sleep data collected by the jStyle smartwatch",
+        "type": "object",
+        "properties": {
+          "date": {
+            "description": "ISO date string of when the sample was recorded",
+            "type": "string"
+          },
+          "sleepQualityDurationMins": {
+            "description": "Duration of the sleep quality measurement in minutes",
+            "type": "number"
+          },
+          "sleepQuality": {
+            "description": "Array of sleep quality records",
+            "type": "array",
+            "items": {
+              "description": "Sleep quality record, one per sleepQualityDurationMins",
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "date",
+          "sleepQuality",
+          "recordCount"
+        ]
+      }
     }
   },
   "required": [
