@@ -70,8 +70,7 @@
         },
         "required": [
           "date",
-          "hr",
-          "recordCount"
+          "hr"
         ]
       }
     },
@@ -117,8 +116,7 @@
         "required": [
           "date",
           "hrv",
-          "hr",
-          "recordCount"
+          "hr"
         ]
       }
     },
@@ -143,8 +141,7 @@
         },
         "required": [
           "date",
-          "temperature",
-          "recordCount"
+          "temperature"
         ]
       }
     },
@@ -169,8 +166,7 @@
         },
         "required": [
           "date",
-          "spo2",
-          "recordCount"
+          "spo2"
         ]
       }
     },
@@ -199,8 +195,7 @@
         },
         "required": [
           "date",
-          "sleepQuality",
-          "recordCount"
+          "sleepQuality"
         ]
       }
     }
