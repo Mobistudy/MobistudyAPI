@@ -79,6 +79,9 @@ const DAL = {
     }
 
     if (teamsKeys && teamsKeys.length > 0) {
+      // from ArangoQL documentation: https://www.arangodb.com/docs/stable/aql/operations-filter.html
+      // POSITION(anyArray, search, returnIndex) → position Return whether search is contained in array.
+
       queryString += 'FILTER POSITION( @teamsKeys, study.teamKey ) '
       bindings.teamsKeys = teamsKeys
     }
