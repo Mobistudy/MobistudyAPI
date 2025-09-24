@@ -176,7 +176,7 @@ export default {
     delete user.iat
 
     const newToken = jwt.sign(user, process.env.AUTH_SECRET, {
-      expiresIn: process.env.TOKEN_EXPIRES
+      expiresIn: process.env.AUTH_TOKEN_EXPIRES
     })
     user.token = newToken
     res.send(newToken)
