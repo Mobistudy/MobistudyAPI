@@ -1,11 +1,9 @@
 import * as Types from '../../models/jsdocs.js'
 import axios from 'axios'
-import getConfig from './config.mjs'
 
-const config = getConfig()
 
-const OWMapiKey = config.environmentAPIs.OpenWeatherMap
-const AMBEEKey = config.environmentAPIs.Ambee
+const OWMapiKey = process.env.ENVAPIS_OWP_API_KEY
+const AMBEEKey = process.env.ENVAPIS_AMBEE_API_KEY
 
 
 /**

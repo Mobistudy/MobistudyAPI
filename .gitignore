@@ -2,6 +2,6 @@
 /logs
 /tmp
 /tasksuploads
-config.json
+.env
 .DS_Store
 /path to logs/**

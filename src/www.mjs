@@ -7,21 +7,19 @@ import http from 'http'
 import https from 'https'
 import cluster from 'cluster'
 import os from 'os'
-import getConfig from './services/config.mjs'
 import getApp from './app.mjs'
 
 (async () => {
   const numCPUs = os.cpus().length
   const app = await getApp()
 
-  const config = getConfig()
 
   // pass parameters down the application
-  app.set('port', config.web.port)
+  app.set('port', process.env.WEB_PORT || 8080)
 
   let server
 
-  if (config.web.cluster && cluster.isMaster) {
+  if (process.env.WEB_CLUSTER === 'true' && cluster.isPrimary) {
     console.log(`Master process ${process.pid} is running`)
 
     // Fork workers.
@@ -33,12 +31,12 @@ import getApp from './app.mjs'
       console.log(`worker ${worker.process.pid} died`)
     })
   } else {
-    if (config.web.cert && config.web.cert.key && config.web.cert.file) {
+    if (process.env.CERT_KEY && process.env.CERT_FILE) {
       // HTTPS case
 
       // Private Key and Public Certificate
-      const privateKey = fs.readFileSync(config.web.cert.key, 'utf8')
-      const certificate = fs.readFileSync(config.web.cert.file, 'utf8')
+      const privateKey = fs.readFileSync(process.env.CERT_KEY, 'utf8')
+      const certificate = fs.readFileSync(process.env.CERT_FILE, 'utf8')
 
       console.log('Using certificates')
       server = https.createServer({ key: privateKey, cert: certificate }, app)
@@ -48,7 +46,7 @@ import getApp from './app.mjs'
     }
 
     // Listen on provided port, on all network interfaces.
-    server.listen(config.web.port)
+    server.listen(process.env.WEB_PORT)
     server.on('error', onError)
     server.on('listening', onListening)
 
@@ -63,7 +61,7 @@ import getApp from './app.mjs'
       throw error
     }
 
-    const bind = typeof config.web.port === 'string' ? 'Pipe ' + config.web.port : 'Port ' + config.web.port
+    const bind = typeof process.env.WEB_PORT === 'string' ? 'Pipe ' + process.env.WEB_PORT : 'Port ' + process.env.WEB_PORT
 
     // handle specific listen errors with friendly messages
     switch (error.code) {

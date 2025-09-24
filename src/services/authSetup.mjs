@@ -8,19 +8,17 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { applogger } from './logger.mjs'
 import { DAL } from '../DAL/DAL.mjs'
-import getConfig from './config.mjs'
 
 export default async function () {
-  const config = getConfig()
 
-  if (config.auth.adminEmail) {
-    // generate admin user from config if not already existing
+  if (process.env.AUTH_ADMIN_EMAIL && process.env.AUTH_ADMIN_PASSWORD) {
+    // generate admin user from env if not already existing
     try {
-      const admin = await DAL.findUserByEmail(config.auth.adminEmail)
+      const admin = await DAL.findUserByEmail(process.env.AUTH_ADMIN_EMAIL)
       if (!admin) {
         await DAL.createUser({
-          email: config.auth.adminEmail,
-          hashedPassword: bcrypt.hashSync(config.auth.adminPassword, 8),
+          email: process.env.AUTH_ADMIN_EMAIL,
+          hashedPassword: bcrypt.hashSync(process.env.AUTH_ADMIN_PASSWORD, 8),
           role: 'admin'
         })
         applogger.info('Admin user created')
@@ -50,8 +48,8 @@ export default async function () {
         delete user.hashedPassword
         delete user._rev
         delete user._id
-        const token = jwt.sign(user, config.auth.secret, {
-          expiresIn: config.auth.tokenExpires
+        const token = jwt.sign(user, process.env.AUTH_SECRET, {
+          expiresIn: process.env.AUTH_TOKEN_EXPIRES
         })
         user.token = token
         return done(null, user, { message: 'Logged In Successfully' })
@@ -66,7 +64,7 @@ export default async function () {
   // this is used each time an API endpoint is called
   const opts = {}
   opts.jwtFromRequest = PassportJWT.ExtractJwt.fromAuthHeaderAsBearerToken()
-  opts.secretOrKey = config.auth.secret
+  opts.secretOrKey = process.env.AUTH_SECRET
   passport.use(new PassportJWT.Strategy(opts, function (jwtPayload, cb) {
     const user = jwtPayload
     delete user.exp

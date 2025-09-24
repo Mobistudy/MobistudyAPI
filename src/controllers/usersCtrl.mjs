@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken'
 import owasp from 'owasp-password-strength-test'
 import zxcvbn from 'zxcvbn'
 import { DAL } from '../DAL/DAL.mjs'
-import getConfig from '../services/config.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import mailSender from '../services/mailSender.mjs'
@@ -21,7 +20,6 @@ owasp.config({
   minOptionalTestsToPass: 3
 })
 
-const config = getConfig()
 
 const pwdCheck = function (email, password) {
   const userName = email.substring(0, email.indexOf('@'))
@@ -59,7 +57,7 @@ export default {
       const daysecs = 24 * 60 * 60
       const token = jwt.sign({
         email: email
-      }, config.auth.secret, {
+      }, process.env.AUTH_SECRET, {
         expiresIn: daysecs
       })
       const serverlink = 'https://app.mobistudy.org/#/resetPassword?email=' + email + '&token=' + token
@@ -81,7 +79,7 @@ export default {
     if (req.body.token && req.body.password) {
       let decoded
       try {
-        decoded = jwt.verify(req.body.token, config.auth.secret)
+        decoded = jwt.verify(req.body.token, process.env.AUTH_SECRET)
       } catch (err) {
         applogger.error(err, 'Resetting password, cannot parse token')
         return res.sendStatus(500)
@@ -177,8 +175,8 @@ export default {
     delete user.exp
     delete user.iat
 
-    const newToken = jwt.sign(user, config.auth.secret, {
-      expiresIn: config.auth.tokenExpires
+    const newToken = jwt.sign(user, process.env.AUTH_SECRET, {
+      expiresIn: process.env.TOKEN_EXPIRES
     })
     user.token = newToken
     res.send(newToken)

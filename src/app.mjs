@@ -8,9 +8,6 @@ import passport from 'passport'
 
 import { initLogs, applogger, httplogger } from './services/logger.mjs'
 import authConfig from './services/authSetup.mjs'
-import getConfig from './services/config.mjs'
-
-const config = getConfig()
 
 import { DAL } from './DAL/DAL.mjs'
 
@@ -27,7 +24,7 @@ export default async function () {
 
   app.use(helmet())
 
-  if (config.loghttp) {
+  if (process.env.LOGHTTP === 'true') {
     app.use(httplogger)
   }
   // setup body parser

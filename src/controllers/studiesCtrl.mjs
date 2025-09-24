@@ -1,7 +1,6 @@
 /**
  * This provides the API endpoints for the studies.
  */
-import getConfig from '../services/config.mjs'
 import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
@@ -20,7 +19,7 @@ export default {
    * Initialises the controller.
    */
   async init () {
-    if (getConfig().web.validateSchema) {
+    if (process.env.VALIDATE_SCHEMA === 'true') {
       const studySchema = JSON.parse(
         await readFile('./models/studyDescription.json')
       )

@@ -1,7 +1,6 @@
 /**
  * This provides the API endpoints for the teams.
  */
-import getConfig from '../services/config.mjs'
 import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
@@ -25,9 +24,9 @@ export default {
    * Initialises the controller.
    */
   async init () {
-    this.JWTSecret = getConfig().auth.secret
+    this.JWTSecret = process.env.AUTH_SECRET
 
-    if (getConfig().web.validateSchema) {
+    if (process.env.VALIDATE_SCHEMA === 'true') {
       const teamSchema = JSON.parse(
         await readFile('./models/team.json')
       )

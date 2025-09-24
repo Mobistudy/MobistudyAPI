@@ -7,10 +7,10 @@
   "type": "module",
   "scripts": {
     "lint": "eslint --ext .js,.mjs src",
-    "start": "node ./src/www.mjs",
-    "dev": "nodemon --trace-warnings",
+    "start": "node --env-file=.env ./src/www.mjs",
+    "dev": "node --watch --trace-warnings --env-file=.env ./src/www.mjs",
     "test": "jasmine test/jasmine/**/*.spec.js",
-    "test:watch": "nodemon  --exec 'jasmine \"test/jasmine/**/*.spec.js\"'"
+    "test:watch": "node --watch --exec 'jasmine \"test/jasmine/**/*.spec.js\"'"
   },
   "dependencies": {
     "ajv": "^8.12.0",
@@ -37,8 +37,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
-    "jasmine": "^5.1.0",
-    "nodemon": "^3.0.2"
+    "jasmine": "^5.1.0"
   },
   "nodemonConfig": {
     "ignore": [

@@ -6,10 +6,8 @@ import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getAttachmentWriter } from '../services/attachments.mjs'
 import { readFile } from 'fs/promises'
-import getConfig from '../services/config.mjs'
 import Ajv from 'ajv'
 
-const config = getConfig()
 
 export default {
   /**
@@ -21,7 +19,7 @@ export default {
    * Initialises the controller.
    */
   async init () {
-    if (config.web.validateSchema) {
+    if (process.env.VALIDATE_SCHEMA === 'true') {
 
       const accelerationSampleSchema = JSON.parse(
         await readFile('./models/accelerationSample.json')

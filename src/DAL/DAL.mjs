@@ -2,7 +2,6 @@
  * This module is a Data Access Layer (DAL), it abstracts the database with functions.
  */
 import Database from 'arangojs'
-import getConfig from '../services/config.mjs'
 
 import * as users from './usersDAL.mjs'
 import * as teams from './teamsDAL.mjs'
@@ -47,23 +46,16 @@ export let DAL = {
 
   async init () {
     if (!this.db) {
-      const config = getConfig()
 
-      if (!config) throw new Error('a configuration must be passed')
-      if (
-        !config.db.host ||
-        !config.db.port ||
-        !config.db.user ||
-        !config.db.password
-      ) {
-        console.error('Configuration is missing some critical parameters', config)
-        throw new Error('Configuration is missing some critical parameters')
+      if (!process.env.DB_HOST || !process.env.DB_PORT || !process.env.DB_USER || !process.env.DB_PASSWORD) {
+        throw new Error('Database configuration is missing')
       }
+
       try {
         this.db = new Database({
-          url: 'http://' + config.db.host + ':' + config.db.port,
-          databaseName: config.db.name,
-          auth: { username: config.db.user, password: config.db.password }
+          url: 'http://' + process.env.DB_HOST + ':' + process.env.DB_PORT,
+          databaseName: process.env.DB_NAME,
+          auth: { username: process.env.DB_USER, password: process.env.DB_PASSWORD }
         })
       }
       catch (err) {

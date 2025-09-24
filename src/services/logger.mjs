@@ -6,9 +6,7 @@
 import rfs from 'rotating-file-stream'
 import pino from 'pino'
 import pinohttp from 'pino-http'
-import getConfig from './config.mjs'
 
-const config = getConfig()
 
 const HTTPLOG_FILENAME = 'http.log'
 const APPLOG_FILENAME = 'app.log'
@@ -75,10 +73,10 @@ let httplogger = {}
 const initLogs = async function () {
   if (!rfs) throw new Error('Cannot load rotating fle stream')
 
-  if (config.loghttp) {
+  if (process.env.LOGHTTP === 'true') {
     const httplogstream = rfs.createStream(HTTPLOG_FILENAME, {
-      path: config.logs.folder,
-      size: config.logs.rotationsize,
+      path: process.env.LOGS_FOLDER || './logs',
+      size: process.env.LOGS_ROTATIONSIZE || '1M',
       compress: 'gzip'
     })
 
@@ -90,12 +88,12 @@ const initLogs = async function () {
         paths: ['req.headers.cookie', 'req.headers.authorization'],
       }
     })
-    httplogger.level = config.logs.level
+    httplogger.level = process.env.LOGS_LEVEL || '30'
   }
 
   const applogstream = rfs.createStream(APPLOG_FILENAME, {
-    path: config.logs.folder,
-    size: config.logs.rotationsize,
+    path: process.env.LOGS_FOLDER || './logs',
+    size: process.env.LOGS_ROTATIONSIZE || '1M',
     compress: 'gzip'
   })
 
@@ -103,9 +101,9 @@ const initLogs = async function () {
   applogstream.on('warning', console.error)
 
   pinoapplogger = pino(applogstream)
-  pinoapplogger.level = config.logs.level
+  pinoapplogger.level = parseInt(process.env.LOGS_LEVEL)
 
-  if (!config.logs.console) {
+  if (!process.env.LOGS_CONSOLE) {
     // just use the pino version directly
     applogger = pinoapplogger
   }

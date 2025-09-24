@@ -1,7 +1,5 @@
 import passport from 'passport'
 
-import getConfig from './services/config.mjs'
-
 import usersCtrl from './controllers/usersCtrl.mjs'
 import participantsCtrl from './controllers/participantsCtrl.mjs'
 import auditLogCtrl from './controllers/auditLogCtrl.mjs'
@@ -14,8 +12,6 @@ import vocabularyCtrl from './controllers/vocabularyCtrl.mjs'
 import techadminCtrl from './controllers/techadminCtrl.mjs'
 import environmentCtrl from './controllers/environmentCtrl.mjs'
 import express from 'express'
-
-const config = getConfig()
 
 // sets up the routes
 const router = express.Router()
@@ -92,7 +88,7 @@ router.get('/vocabulary/:lang/:type/search', vocabularyCtrl.getTerm.bind(vocabul
 await techadminCtrl.init()
 router.post('/techadmin/sendemail/', mustBeLoggedIn, techadminCtrl.sendOneEmail.bind(techadminCtrl))
 
-if (!config.environmentAPIs.disabled) {
+if (process.env.ENVAPIS_DISABLED !== 'true') {
   await environmentCtrl.init()
   router.get('environment', mustBeLoggedIn, environmentCtrl.getEnvironment.bind(environmentCtrl))
 }

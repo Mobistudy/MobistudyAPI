@@ -1,36 +1,34 @@
-import getConfig from './config.mjs'
 import { applogger } from './logger.mjs'
 import nodemailer from 'nodemailer'
 
-const config = getConfig()
 
 export default {
   sendEmail: async (contact, subject, message) => {
     return new Promise((resolve, reject) => {
 
-      if (config.smtp.disabled) {
+      if (process.env.SMTP_DISABLED === 'true') {
         console.log(`FAKE SMTP: sending email with subject: "${subject}", message: "${message}"`)
         resolve()
         return
       }
 
       const transporter = nodemailer.createTransport({
-        host: config.smtp.server, // hostname
+        host: process.env.SMTP_SERVER, // hostname
         secureConnection: false, // TLS requires secureConnection to be false
         port: 587, // port for secure SMTP
         tls: {
           ciphers: 'SSLv3'
         },
         auth: {
-          user: config.smtp.user,
-          pass: config.smtp.password
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASSWORD
         }
       })
 
       const strippedHtml = message.replace(/<[^>]+>/g, '')
 
       const mailOptions = {
-        from: config.smtp.email, // sender address (who sends)
+        from: process.env.SMTP_EMAIL, // sender address (who sends)
         to: contact, // list of receivers (who receives)
         subject: subject, // Subject line
         text: strippedHtml, // plaintext body
