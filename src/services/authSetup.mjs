@@ -49,7 +49,7 @@ export default async function () {
         delete user._rev
         delete user._id
         const token = jwt.sign(user, process.env.AUTH_SECRET, {
-          expiresIn: process.env.AUTH_TOKEN_EXPIRES
+          expiresIn: process.env.AUTH_TOKEN_EXPIRES || '30 days'
         })
         user.token = token
         return done(null, user, { message: 'Logged In Successfully' })

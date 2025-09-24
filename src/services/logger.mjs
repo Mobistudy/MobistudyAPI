@@ -103,7 +103,7 @@ const initLogs = async function () {
   pinoapplogger = pino(applogstream)
   pinoapplogger.level = parseInt(process.env.LOGS_LEVEL)
 
-  if (!process.env.LOGS_CONSOLE) {
+  if (!process.env.LOGS_CONSOLE === 'true') {
     // just use the pino version directly
     applogger = pinoapplogger
   }
