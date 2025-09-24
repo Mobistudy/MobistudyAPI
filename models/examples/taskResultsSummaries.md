@@ -126,6 +126,49 @@ Miband3:
 ```
 TODO: it would be good to add daily statistics for hr, steps, activity etc.
 
+Jstyle:
+```json
+ "summary": {
+    "startedTS": "2022-04-26T13:02:44.968Z",
+    "completedTS": "2022-04-26T13:03:04.986Z",
+    "activitySummary":[
+         {
+            "recordCount":0,
+            "steps":4509,
+            "exerciseMinutes":2092,
+            "distance":2.7,
+            "calories":145.4,
+            "goal":45,
+            "activeMinutes":5,
+            "date":"2025-08-27T22:00:00.000Z"
+         },
+         {
+            "recordCount":1,
+            "steps":3262,
+            "exerciseMinutes":1486,
+            "distance":1.95,
+            "calories":104.74,
+            "goal":32,
+            "activeMinutes":3,
+            "date":"2025-08-26T22:00:00.000Z"
+         },
+         {
+            "recordCount":2,
+            "steps":10306,
+            "exerciseMinutes":4673,
+            "distance":6.78,
+            "calories":400.74,
+            "goal":100,
+            "activeMinutes":27,
+            "date":"2025-08-25T22:00:00.000Z"
+         }
+      ],
+      "firstTS":"2025-08-27T13:15:00.000Z",
+      "lastTS":"2025-08-28T13:13:44.000Z"
+  }
+```
+Hints for visualization: steps, activeMinutes, exerciseMinutes.
+
 
 Peakflow:
 ```json

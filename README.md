@@ -22,28 +22,28 @@ to start a Docker container with Arango. You can then access the web interface o
 
 ### Configuration
 
-For development, it is easier to create a configuration file, which must be named config.json and placed under the config folder.
-See config.template.json under the same folder as an example.
-You can remove the "cert" part if you don't have an https certificate and you can leave random data inside "outlook", "environmentAPIs" and "mSafety" if you don't have an account on those services.
-The part under "auth" configures the admin user of the server, you can specify the email address and password that you like.
-The "logs" part is for setting up the logging system. Inside "folder" you can user "logs", which is also included in this repository.
+For development, it is easier to create a configuration file, which must be named `.env` and placed under the root folder.
+See .env.template under the root folder as an example.
 
-The part under "db" is important and is linked to how you configure Arango.
+You can remove CERT_KEY and CERT_FILE if you don't have an https certificate, and you can disable SMTP with SMTP_DISABLED=true and the environment APIs (open weather and Ambee) with ENVAPIS_DISABLED=true, if you don't want to use them (especially in testing).
+
+The AUTH_ADMIN_EMAIL and AUTH_ADMIN_PASSWORD configure the admin user of the server, you can specify the email address and password that you like.
+The LOGS_ part is for setting up the logging system, use LOGS_FOLDER to set the folder where logfiles will be written, LOGS_ROTATIONSIZE for rotating files whenever they reach a certain size, LOGS_CONSOLE if you want to print also on console (recommended when testing), LOGS_LEVEL to specify a level, as a number (see [pino](https://getpino.io/#/)), use LOGHTTP=true if you want to log every HTTP call (warning: if the system runs on Docker this is pointless, plus it can leak sensitive information in the logfile).
+
+The part starting with DB_ is important and is linked to how you configure Arango.
 Your Arango instance should have a user and a database dedicated to Mobsitudy.
 Once Arango is started, open the interface at http://127.0.0.1:8529, then login using the root user. If you used used ARANGO_NO_AUTH, no password should be needed.
 
-Once inside, create a new user (you can call it “mobistudy”) and a new database (you can also call it “mobistudy”) and associate the new database to the new user. These details (database name, user name and the user password) are the same that you need to specify in the config file under “db”.
+Once inside, create a new user (you can call it “mobistudy”) and a new database (you can also call it “mobistudy”) and associate the new database to the new user. These details (database name, user name and the user password) are the same that you need to specify in .env file with the variables that DB_NAME, DB_USER and DB_PASSWORD.
 
 ## Run
 
-The code is written using ES6 module, so you need a recent version of NodeJS (recommended version is 16.17.0, use [nvm](https://github.com/nvm-sh/nvm) to automatically switch among versions).
+The code is written using ES6 module, so you need a recent version of NodeJS (recommended version is 20.14.0, use [nvm](https://github.com/nvm-sh/nvm) to automatically switch among versions).
 To start it:
 
     npm start
 
-You also need to provide either a configuration file with the name config.json
-inside the /config folder (see /config/config.template.json for an example) or
-provide the same configuration as environment variables.
+You also need to provide either a configuration file with the name `.env` or provide the same configuration as environment variables.
 
 See section about Docker for details about environmental variables.
 
@@ -63,7 +63,6 @@ The code is written mostly in ES6 and uses ES6 modules, please be consistent.
 The folder structure follows this pattern:
 ```
 project
-└───config                  // contains the runtime configuration files
 └───logs                    // used to store applications logs
 └───models                  // json schema of the data managed at the API interfaces
 │   └───examples            // example of data
@@ -73,6 +72,7 @@ project
 │   │   └───en              // English text
 │   │   └───sv              // Swedish text
 │   │   └───es              // Spanish text
+│   │   └───it              // Italian text
 │   └───controllers         // controllers of the API endpoints
 │   └───routes              // API endpoints - controllers combined
 │   └───services            // application logic
@@ -84,7 +84,7 @@ project
 
 ```
 
-Run `npm run dev` to start a self-restarting server. This needs `nodemon` package to be installed globally, do that with `npm i -g nodemon`.
+Run `npm run dev` to start a self-restarting server.
 
 By default, the server runs on http. In some cases you may need to use https on a local testing environment, in this case, follow [this tutorial](https://javascript.plainenglish.io/enable-https-for-localhost-during-local-development-in-node-js-96204453d72b). For example, if you need the app to send data to the server through the local network, identify the IP address of the server on the local network (say it's 192.168.0.190), then run:
 
