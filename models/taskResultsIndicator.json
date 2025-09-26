@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://mobistudy.org/models/tasksResultsIndicator.json",
+  "title": "Task results indicators",
+  "description": "Indicators produced from results of a task",
+  "type": "object",
+  "properties": {
+    "userKey": {
+      "description": "Database key of the user that has produced the results",
+      "type": "string"
+    },
+    "participantKey": {
+      "description": "Database key of the participant profile that has produced the results",
+      "type": "string"
+    },
+    "studyKey": {
+      "description": "Database key of the study this task belongs to",
+      "type": "string"
+    },
+    "producer": {
+      "description": "Name of the producer of the indicator",
+      "type": "string"
+    },
+    "createdTS": {
+      "description": "Timestamp of when the task was created, either on the app or on the database, as ISO date string",
+      "type": "string"
+    },
+    "updatedTS": {
+      "description": "Timestamp of when the task was last updated, either on the app or on the database, as ISO date string",
+      "type": "string"
+    },
+    "taskIds": {
+      "description": "Ids of the tasks that have produced this indicator",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "taskResultsIds": {
+      "description": "Ids of the task results that have produced this indicator",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "indicators": {
+      "description": "Object containing the indicators, each indicator is a key-value pair, the value is an array of objects containing a date and a value",
+      "type": "object",
+      "properties": {
+        "exampleIndicator": {
+          "description": "Example indicator, replace with actual indicators",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "description": "Date of the indicator value, as ISO date string",
+                "type": "string"
+              },
+              "value": {
+                "description": "Value of the indicator",
+                "type": ["number", "string", "boolean", "object", "array", "null"]
+              }
+            },
+            "required": ["date", "value"]
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "userKey",
+    "studyKey",
+    "producer",
+    "taskIds",
+    "taskResultsIds"
+  ]
+}
+
