@@ -44,26 +44,12 @@
       }
     },
     "indicators": {
-      "description": "Object containing the indicators, each indicator is a key-value pair, the value is an array of objects containing a date and a value",
+      "description": "Object containing the indicators, each indicator is a key-value pair, the value is typically a numerical value",
       "type": "object",
       "properties": {
         "exampleIndicator": {
           "description": "Example indicator, replace with actual indicators",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "date": {
-                "description": "Date of the indicator value, as ISO date string",
-                "type": "string"
-              },
-              "value": {
-                "description": "Value of the indicator",
-                "type": ["number", "string", "boolean", "object", "array", "null"]
-              }
-            },
-            "required": ["date", "value"]
-          }
+          "type": "number"
         }
       }
     }

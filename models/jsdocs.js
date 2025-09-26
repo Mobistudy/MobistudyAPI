@@ -46,10 +46,10 @@
  * @property {!string} studyKey - key of the study
  * @property {!string} producer - name of the producer of the indicator
  * @property {!string} createdTS - ISO 8601 of when the result has been created
- * @property {!string} updatedTS - ISO 8601 of when the result has been last updated
+ * @property {!string} indicatorDate - ISO 8601 of when the result refers to
  * @property {!Array<number>} taskIds - ids of the tasks that produced this indicator
  * @property {!Array<string>} taskResultsIds - ids of the task results that produced this indicator
- * @property {object} indicators - object containing the indicators
+ * @property {object} indicators - object containing indicators, typically a key-value pair where the key is the name of the indicator and the value is a numerical value
  */
 
 /**
