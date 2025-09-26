@@ -88,7 +88,7 @@ describe("Testing forms DAL,", () => {
     })
 
     it('the form can be updated', async () => {
-      let forms = await testDAL.replaceForm(f_key, {
+      let forms = await testDAL.updateForm(f_key, {
         questions: [
           {
             id: "Q1",

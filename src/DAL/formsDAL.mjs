@@ -72,7 +72,7 @@ const DAL = {
       mergeObjects: true,
       returnNew: true
     })
-    return newval
+    return newval.new
   },
 
   // deletes a form
