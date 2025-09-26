@@ -34,16 +34,11 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer1",
         createdTS: "2023-01-01T00:00:00Z",
+        indicatorDate: "2023-01-01",
         taskIds: [1, 2],
         taskResultsIds: ["tr1", "tr2"],
         indicators: {
-          indicator1: [
-            { date: "2023-01-01", value: 10 },
-            { date: "2023-01-02", value: 15 }
-          ],
-          indicator2: [
-            { date: "2023-01-01", value: 20 }
-          ]
+          indicator1: 10
         }
       })
     }, 1000)
@@ -66,16 +61,12 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer2",
         createdTS: "2023-01-01T00:00:00Z",
+        indicatorDate: "2023-01-01",
+
         taskIds: [1, 2],
         taskResultsIds: ["tr1", "tr2"],
         indicators: {
-          indicator1: [
-            { date: "2023-01-01", value: 10 },
-            { date: "2023-01-02", value: 15 }
-          ],
-          indicator2: [
-            { date: "2023-01-01", value: 20 }
-          ]
+          indicator1: 10
         }
       })
       expect(forms).not.toBeNull()
@@ -103,16 +94,11 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer1",
         createdTS: "2023-01-01T00:00:00Z",
+        indicatorDate: "2023-01-01",
         taskIds: [1, 2],
         taskResultsIds: ["tr1", "tr2"],
         indicators: {
-          indicator1: [
-            { date: "2023-01-01", value: 10 },
-            { date: "2023-01-02", value: 15 }
-          ],
-          indicator2: [
-            { date: "2023-01-01", value: 20 }
-          ]
+          indicator1: 10
         }
       })
     }, 1000)
@@ -137,16 +123,12 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer1",
         createdTS: "2023-01-01T00:00:00Z",
+        indicatorDate: "2023-01-01",
+
         taskIds: [1, 2],
         taskResultsIds: ["tr1", "tr2"],
         indicators: {
-          indicator1: [
-            { date: "2023-01-01", value: 10 },
-            { date: "2023-01-02", value: 15 }
-          ],
-          indicator2: [
-            { date: "2023-01-01", value: 20 }
-          ]
+          indicator1: 50
         }
       })
 
@@ -155,13 +137,11 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer2",
         createdTS: "2023-01-01T00:00:00Z",
+        indicatorDate: "2023-01-01",
         taskIds: [1, 3],
         taskResultsIds: ["tr1", "tr3"],
         indicators: {
-          indicator3: [
-            { date: "2023-01-01", value: 10 },
-            { date: "2023-01-02", value: 15 }
-          ]
+          indicator3: 10
         }
       })
     }, 1000)
