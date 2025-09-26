@@ -110,13 +110,61 @@ const DAL = {
     }
   },
 
+
+  async addIndicator (studyKey, userKey, producer, taskIds, newTaskResultsIds, indicators) {
+    if (!studyKey) throw new Error('studyKey is required')
+    if (!userKey) throw new Error('userKey is required')
+    if (!producer) throw new Error('producer is required')
+    if (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0) throw new Error('taskIds is required')
+    if (!newTaskResultsIds || !Array.isArray(newTaskResultsIds) || newTaskResultsIds.length === 0) throw new Error('newTaskResultsIds is required')
+    if (!indicators || typeof (indicators) !== 'object' || Object.keys(indicators).length === 0) throw new Error('indicators is required')
+
+    // Get all existing indicators for this study, user, producer and task ids
+    const existingIndicators = await this.getAllTaskIndicators(studyKey, userKey, producer, taskIds)
+    // should be only one
+    if (existingIndicators.length > 1) {
+      applogger.error(`More than one existing indicator found for study ${studyKey}, user ${userKey}, producer ${producer} and taskIds ${taskIds}. Merging all.`)
+      throw new Error('More than one existing indicator found. Cannot add new indicator.')
+    }
+    /**
+     * type {TaskResultIndicator}
+     */
+    const existingIndicator = existingIndicators[0]
+    existingIndicator.taskResultsIds = existingIndicator.taskResultsIds.concat(newTaskResultsIds)
+
+    // TODO: CBC
+
+    const now = (new Date()).toISOString()
+
+    const newIndicator = {
+      studyKey,
+      userKey,
+      producer,
+      createdTS: now,
+      updatedTS: now,
+      taskIds,
+      taskResultsIds,
+      indicators
+    }
+
+    const meta = await collection.save(newIndicator)
+    newIndicator._key = meta._key
+    return newIndicator
+  },
+
   /**
    * Creates a new task indicator.
    * @param {TaskResultIndicator} indicator - indicator to create
+   * @param {object} trx - optional transaction
    * @returns {Promise<TaskResultIndicator>} - the created indicator
    */
-  async createTaskIndicator (newindicator) {
-    const meta = await collection.save(newindicator)
+  async createTaskIndicator (newindicator, trx) {
+    let meta
+    if (trx) {
+      meta = await trx.step(() => collection.save(newindicator))
+    } else {
+      meta = await collection.save(newindicator)
+    }
     newindicator._key = meta._key
     return newindicator
   },
@@ -135,10 +183,16 @@ const DAL = {
    * Replaces a task indicator.
    * @param {string} _key - key of the task indicator
    * @param {TaskResultIndicator} indicator - the new indicator
+   * @param {object} trx - optional transaction
    * @returns {Promise<TaskResultIndicator>} - the updated indicator
    */
-  async replaceTaskIndicator (_key, indicator) {
-    const meta = await collection.replace(_key, indicator)
+  async replaceTaskIndicator (_key, indicator, trx) {
+    let meta
+    if (trx) {
+      meta = await trx.step(() => collection.replace(_key, indicator))
+    } else {
+      meta = await collection.replace(_key, indicator)
+    }
     indicator._key = meta._key
     return indicator
   },
@@ -147,14 +201,24 @@ const DAL = {
    * Updates a task indicator.
    * @param {string} _key - key of the task indicator
    * @param {TaskResultIndicator} indicator - the updated indicator
+   * @param {object} trx - optional transaction
    * @returns {Promise<TaskResultIndicator>} - the updated indicator
    */
-  async updateTaskIndicator (_key, indicator) {
-    const newval = await collection.update(_key, indicator, {
-      keepNull: false,
-      mergeObjects: true,
-      returnNew: true
-    })
+  async updateTaskIndicator (_key, indicator, trx) {
+    let newval
+    if (trx) {
+      newval = await trx.step(() => collection.update(_key, indicator, {
+        keepNull: false,
+        mergeObjects: true,
+        returnNew: true
+      }))
+    } else {
+      newval = await collection.update(_key, indicator, {
+        keepNull: false,
+        mergeObjects: true,
+        returnNew: true
+      })
+    }
     return newval.new
   },
 
@@ -163,8 +227,12 @@ const DAL = {
    * @param {string} _key - key of the task indicator
    * @returns {Promise<boolean>} - true if the task indicator was deleted
    */
-  async deleteTaskIndicator (_key) {
-    await collection.remove(_key)
+  async deleteTaskIndicator (_key, trx) {
+    if (trx) {
+      await trx.step(() => collection.remove(_key))
+    } else {
+      await collection.remove(_key)
+    }
     return true
   }
 }

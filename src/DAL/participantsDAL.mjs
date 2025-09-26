@@ -58,6 +58,7 @@ const DAL = {
    * @returns {Promise<Types.Participant>} a promise with the updated participant
    */
   async replaceParticipant (key, newParticipant, trx) {
+    newParticipant.updatedTS = new Date()
     let meta
     if (trx) {
       meta = await trx.step(() => collection.replace(key, newParticipant))

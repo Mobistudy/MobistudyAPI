@@ -59,19 +59,37 @@ const DAL = {
   },
 
   // udpates a form, we assume the _key is the correct one
-  async replaceForm (_key, form) {
-    const meta = await collection.replace(_key, form)
+  async replaceForm (_key, form, trx) {
+    form.updatedTS = new Date()
+    let meta
+    if (trx) {
+      meta = await trx.step(() => collection.replace(_key, form))
+    } else {
+      meta = await collection.replace(_key, form)
+    }
     form._key = meta._key
     return form
   },
 
   // udpates a form, we assume the _key is the correct one
-  async updateForm (_key, form) {
-    const newval = await collection.update(_key, form, {
-      keepNull: false,
-      mergeObjects: true,
-      returnNew: true
-    })
+  async updateForm (_key, form, trx) {
+    form.updatedTS = new Date()
+    let newval
+    if (trx) {
+      meta = await trx.step(async () => {
+        newval = await collection.update(_key, form, {
+          keepNull: false,
+          mergeObjects: true,
+          returnNew: true
+        })
+      })
+    } else {
+      newval = await collection.update(_key, form, {
+        keepNull: false,
+        mergeObjects: true,
+        returnNew: true
+      })
+    }
     return newval.new
   },
 
