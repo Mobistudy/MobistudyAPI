@@ -25,7 +25,7 @@ describe("Testing task indicators DAL,", () => {
     await dropDatabase(DBNAME)
   })
 
-  describe("When adding indicators,", () => {
+  describe("when adding one indicator,", () => {
     let tri_key
 
     beforeAll(async () => {
@@ -59,14 +59,6 @@ describe("Testing task indicators DAL,", () => {
       expect(tri._key).toBe(tri_key)
       expect(tri.studyKey).toBe('study1')
     })
-
-    // it('all forms can be retrieved', async () => {
-    //   let forms = await testDAL.getAllForms()
-    //   expect(forms).not.toBeNull()
-    //   expect(forms).toBeDefined()
-    //   expect(forms.length).toBeGreaterThan(0)
-    //   expect(forms[0]._key).toBe(f_key)
-    // })
 
     it('the indicator can be replaced', async () => {
       let forms = await testDAL.replaceTaskIndicator(tri_key, {
@@ -102,32 +94,102 @@ describe("Testing task indicators DAL,", () => {
     })
   })
 
-  // describe("When adding a form,", () => {
-  //   let f_key
+  describe("when adding one indicator,", () => {
+    let tri_key
 
-  //   beforeAll(async () => {
-  //     f_key = await addDataToCollection('forms', {
-  //       teamKey: "123123",
-  //       name: {
-  //         en: "Form 1"
-  //       },
-  //       questions: [
-  //         {
-  //           id: "Q1",
-  //           type: "textOnly",
-  //           text: {
-  //             en: "What do you prefer?"
-  //           }
-  //         }
-  //       ]
-  //     })
-  //   }, 1000)
+    beforeAll(async () => {
+      tri_key = await addDataToCollection('tasksResultsIndicators', {
+        userKey: "123123",
+        studyKey: "study1",
+        producer: "producer1",
+        createdTS: "2023-01-01T00:00:00Z",
+        taskIds: [1, 2],
+        taskResultsIds: ["tr1", "tr2"],
+        indicators: {
+          indicator1: [
+            { date: "2023-01-01", value: 10 },
+            { date: "2023-01-02", value: 15 }
+          ],
+          indicator2: [
+            { date: "2023-01-01", value: 20 }
+          ]
+        }
+      })
+    }, 1000)
 
-  //   it('the form can be deleted', async () => {
-  //     await testDAL.deleteForm(f_key)
-  //     let form = await testDAL.getOneForm(f_key).catch(() => null)
-  //     expect(form).toBeNull()
-  //   })
+    afterAll(async () => {
+      // await removeFromCollection('tasksResultsIndicators', tri_key)
+    })
 
-  // })
+    it('the indicator can be deleted', async () => {
+      await testDAL.deleteTaskIndicator(tri_key)
+      let indicator = await testDAL.getOneTaskIndicator(tri_key).catch(() => null)
+      expect(indicator).toBeNull()
+    })
+  })
+
+  describe("when adding some indicators,", () => {
+    let tri_key1, tri_key2
+
+    beforeAll(async () => {
+      tri_key1 = await addDataToCollection('tasksResultsIndicators', {
+        userKey: "123123",
+        studyKey: "study1",
+        producer: "producer1",
+        createdTS: "2023-01-01T00:00:00Z",
+        taskIds: [1, 2],
+        taskResultsIds: ["tr1", "tr2"],
+        indicators: {
+          indicator1: [
+            { date: "2023-01-01", value: 10 },
+            { date: "2023-01-02", value: 15 }
+          ],
+          indicator2: [
+            { date: "2023-01-01", value: 20 }
+          ]
+        }
+      })
+
+      tri_key2 = await addDataToCollection('tasksResultsIndicators', {
+        userKey: "123123",
+        studyKey: "study1",
+        producer: "producer2",
+        createdTS: "2023-01-01T00:00:00Z",
+        taskIds: [1, 3],
+        taskResultsIds: ["tr1", "tr3"],
+        indicators: {
+          indicator3: [
+            { date: "2023-01-01", value: 10 },
+            { date: "2023-01-02", value: 15 }
+          ]
+        }
+      })
+    }, 1000)
+
+    afterAll(async () => {
+      await removeFromCollection('tasksResultsIndicators', tri_key1)
+      await removeFromCollection('tasksResultsIndicators', tri_key2)
+    })
+
+    it('the indicators can be found based on producer', async () => {
+      let indicators = await testDAL.getAllTaskIndicators("study1", "123123", "producer1")
+      expect(indicators).toBeDefined()
+      expect(indicators.length).toBe(1)
+      expect(indicators[0]._key).toBe(tri_key1)
+    })
+
+    it('the indicators can be found by task ids', async () => {
+      let indicators = await testDAL.getAllTaskIndicators("study1", "123123", null, [1])
+      expect(indicators).toBeDefined()
+      expect(indicators.length).toBe(2)
+      expect(indicators[0]._key).toBe(tri_key1)
+      expect(indicators[1]._key).toBe(tri_key2)
+
+      indicators = await testDAL.getAllTaskIndicators("study1", "123123", null, [3])
+      expect(indicators).toBeDefined()
+      expect(indicators.length).toBe(1)
+      expect(indicators[0]._key).toBe(tri_key2)
+    })
+  })
+
 })
