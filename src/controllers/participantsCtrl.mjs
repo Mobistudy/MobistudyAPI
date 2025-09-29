@@ -35,24 +35,54 @@ export default {
       if (req.user.role === 'participant') {
         // impose user key to be the one of the logged in
         newparticipant.userKey = req.user._key
-        newparticipant = await DAL.createParticipant(newparticipant)
-        res.send(newparticipant)
-        applogger.info(
-          {
-            userKey: newparticipant.userKey,
-            participantKey: newparticipant._key
-          },
-          'New participant profile created'
-        )
-        auditLogger.log(
-          'participantCreated',
-          req.user._key,
-          undefined,
-          undefined,
-          'New participant created',
-          'participants',
-          newparticipant._key
-        )
+        //make sure studies is present
+        if (!newparticipant.studies) newparticipant.studies = []
+
+        // check if the participant already exists
+        let existing = await DAL.getParticipantByUserKey(newparticipant.userKey)
+        if (existing) {
+          applogger.warn(
+            { userKey: newparticipant.userKey },
+            'Participant profile already exists'
+          )
+          newparticipant = await DAL.updateParticipant(
+            existing._key,
+            newparticipant
+          )
+          applogger.info(
+            { participantKey: participant._key },
+            'Participant profile updated'
+          )
+          auditLogger.log(
+            'participantUpdated',
+            req.user._key,
+            undefined,
+            undefined,
+            'Participant updated',
+            'participants',
+            participant._key
+          )
+          res.send(newparticipant)
+        } else {
+          newparticipant = await DAL.createParticipant(newparticipant)
+          res.send(newparticipant)
+          applogger.info(
+            {
+              userKey: newparticipant.userKey,
+              participantKey: newparticipant._key
+            },
+            'New participant profile created'
+          )
+          auditLogger.log(
+            'participantCreated',
+            req.user._key,
+            undefined,
+            undefined,
+            'New participant created',
+            'participants',
+            newparticipant._key
+          )
+        }
       } else res.sendStatus(403)
     } catch (err) {
       applogger.error({ error: err }, 'Cannot store new participant')
@@ -301,7 +331,7 @@ export default {
       let partKey = req.params.participantKey
       if (partKey) {
         participant = await DAL.getOneParticipant(partKey)
-        // participant can remove only himself
+        // participant can update only himself
         if (req.user.role === 'participant' && participant && participant.userKey !== req.user._key) {
           return res.sendStatus(403)
         }
@@ -309,7 +339,7 @@ export default {
 
       let partUserKey = req.params.participantUserKey
       if (partUserKey) {
-        // participant can remove only himself
+        // participant can update only himself
         if (req.user.role === 'participant' && partUserKey !== req.user._key) {
           return res.sendStatus(403)
         }
@@ -325,6 +355,8 @@ export default {
         // get also the participant key
         partUserKey = participant.userKey
       }
+      // copy back the studies property
+      newparticipant.studies = participant.studies
 
       newparticipant = await DAL.updateParticipant(
         participant._key,

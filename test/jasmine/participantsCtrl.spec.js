@@ -17,6 +17,7 @@ describe('Testing participants controller,', () => {
   }, 100)
 
   it('participant creates participant and key is the one of the creator', async () => {
+    spyOn(DAL, 'getParticipantByUserKey').and.returnValue(null)
     spyOn(DAL, 'createParticipant').and.returnValue({
       _key: 'partKey',
       userKey: 'partUserKey',
