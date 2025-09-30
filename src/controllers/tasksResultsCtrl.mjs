@@ -5,6 +5,7 @@ import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getAttachmentWriter } from '../services/attachments.mjs'
+import jstyeDailyIndicators from '../taskResultsIndicators/jstyleDailyStats.mjs'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
 
@@ -318,6 +319,19 @@ export default {
       })
       applogger.info({ userKey: req.user._key, taskId: newTasksResults.taskId, studyKey: newTasksResults.studyKey }, 'Participant has sent tasks results for task ' + newTasksResults.type)
       auditLogger.log('tasksResultsCreated', req.user._key, newTasksResults.studyKey, newTasksResults.taskId, 'Results received for ' + newTasksResults.type + ' task, task id ' + newTasksResults.taskId + ', by participant ' + participant._key + ' for study ' + newTasksResults.studyKey, 'tasksResults', newTasksResults._key)
+
+      // process task results indicators
+      if (newTasksResults.taskType === jstyeDailyIndicators.taskType) {
+        try {
+          await jstyeDailyIndicators.processJStyleDailyStats(
+            newTasksResults.studyKey,
+            newTasksResults.userKey,
+            [newTasksResults.taskId]
+          )
+        } catch (err) {
+          applogger.error({ error: err, taskResultKey: newTasksResults._key }, 'Error processing jstyle daily stats indicators')
+        }
+      }
     } catch (err) {
       console.error(err)
       applogger.error({ error: err }, 'Cannot store new tasks results')

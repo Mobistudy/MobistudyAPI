@@ -1,7 +1,6 @@
-import { type } from 'os'
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-import { processJStyleDailyStats } from '../../src/taskResultsIndicators/jstyleDailyStats.mjs'
+import JStyleDailyStats from '../../src/taskResultsIndicators/jstyleDailyStats.mjs'
 
 function dateDiffInMinutes (a, b) {
   const _MS_PER_MINUTE = 1000 * 60;
@@ -27,8 +26,8 @@ describe("Testing jStyle Daily Stats indicator,", () => {
 
     spyOn(DAL, 'findUnprocessedTaskResults').and.returnValue([])
 
-    processJStyleDailyStats(studyKey, userKey, taskIds)
-    await processJStyleDailyStats(studyKey, userKey, taskIds)
+    JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, taskIds)
+    await JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, taskIds)
 
     expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(1)
   })
@@ -39,8 +38,8 @@ describe("Testing jStyle Daily Stats indicator,", () => {
 
     spyOn(DAL, 'findUnprocessedTaskResults').and.returnValue([])
 
-    processJStyleDailyStats(studyKey, userKey, [1])
-    await processJStyleDailyStats(studyKey, userKey, [2])
+    JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, [1])
+    await JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, [2])
 
     expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(2)
   })
@@ -102,7 +101,7 @@ describe("Testing jStyle Daily Stats indicator,", () => {
       return indicator
     })
 
-    await processJStyleDailyStats(studyKey, userKey, taskIds)
+    await JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, taskIds)
 
     expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(1)
     expect(DAL.getOneTaskResult).toHaveBeenCalledTimes(1)
@@ -209,7 +208,7 @@ describe("Testing jStyle Daily Stats indicator,", () => {
       return indicator
     })
 
-    await processJStyleDailyStats(studyKey, userKey, taskIds)
+    await JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, taskIds)
 
     expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(1)
     expect(DAL.getOneTaskResult).toHaveBeenCalledTimes(1)
