@@ -6,7 +6,7 @@ import { applogger } from '../services/logger.mjs'
 
 /**
  * Import types from the datamodels.
- * @typedef {import("../../models/jsdocs.js").TaskResultIndicator} TaskResultIndicator
+ * @typedef {import("../../models/jsdocs.js").TaskResultIndicators} TaskResultIndicators
  */
 
 
@@ -43,12 +43,13 @@ const DAL = {
    * @param {!string} userKey - key of the user
    * @param {string} producer - name of the producer of the indicator
    * @param {Array<string>} taskIds - ids of the tasks
+   * @param {string} date - date of the indicator
    * @param {number} offset - offset for paging
    * @param {number} count - count for paging
    * @param {function(TaskIndicator):void} dataCallback - callback to be called for each result
-   * @returns {Promise<Array<TaskResultIndicator>|{totalCount: number, subset: Array<TaskResultIndicator>}|void>} - array of task indicators, or paged result, or void if dataCallback is provided
+   * @returns {Promise<Array<TaskResultIndicators>|{totalCount: number, subset: Array<TaskResultIndicators>}|void>} - array of task indicators, or paged result, or void if dataCallback is provided
    */
-  async getAllTaskIndicators (studyKey, userKey, producer, taskIds, offset, count, dataCallback) {
+  async getAllTaskIndicators (studyKey, userKey, producer, taskIds, date, offset, count, dataCallback) {
     if (!studyKey) throw new Error('studyKey is required')
     if (!userKey) throw new Error('userKey is required')
 
@@ -79,6 +80,15 @@ const DAL = {
       FILTER COUNT(INTERSECTION( data.taskIds, @taskIds)) > 0
       `
     }
+
+    if (date) {
+      bindings.date = date
+      // compare up to the minute, ignore seconds and milliseconds
+      query += `
+      FILTER DATE_COMPARE(data.indicatorsDate, @date, "years", "minutes")
+      `
+    }
+
     if (hasPaging) {
       query += `
       LIMIT @offset, @count
@@ -110,53 +120,58 @@ const DAL = {
     }
   },
 
-
-  async addIndicator (studyKey, userKey, producer, taskIds, newTaskResultsIds, indicators) {
+  /**
+   * Gets task keys of unprocessed task results for a study, user, producer and task ids.
+   * @param {string} studyKey - key of the study
+   * @param {string} userKey - key of the user
+   * @param {string} producer - name of the producer of the indicator
+   * @param {Array<string>} taskIds - ids of the tasks
+   * @returns {Promise<Array<string>} - array of task result keys
+   */
+  async findUnprocessedTaskResults (studyKey, userKey, producer, taskIds) {
     if (!studyKey) throw new Error('studyKey is required')
     if (!userKey) throw new Error('userKey is required')
     if (!producer) throw new Error('producer is required')
     if (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0) throw new Error('taskIds is required')
-    if (!newTaskResultsIds || !Array.isArray(newTaskResultsIds) || newTaskResultsIds.length === 0) throw new Error('newTaskResultsIds is required')
-    if (!indicators || typeof (indicators) !== 'object' || Object.keys(indicators).length === 0) throw new Error('indicators is required')
 
-    // Get all existing indicators for this study, user, producer and task ids
-    const existingIndicators = await this.getAllTaskIndicators(studyKey, userKey, producer, taskIds)
-    // should be only one
-    if (existingIndicators.length > 1) {
-      applogger.error(`More than one existing indicator found for study ${studyKey}, user ${userKey}, producer ${producer} and taskIds ${taskIds}. Merging all.`)
-      throw new Error('More than one existing indicator found. Cannot add new indicator.')
-    }
-    /**
-     * type {TaskResultIndicator}
-     */
-    const existingIndicator = existingIndicators[0]
-    existingIndicator.taskResultsIds = existingIndicator.taskResultsIds.concat(newTaskResultsIds)
+    let bindings = {}
 
-    // TODO: CBC
+    let query = `LET processedKeys = ( FOR key IN FLATTEN( FOR data IN ${COLLECTION_NAME}
+      FILTER data.studyKey == @studyKey
+      FILTER data.userKey == @userKey
+      FILTER data.producer == @producer
+      FILTER COUNT(INTERSECTION( data.taskIds, @taskIds)) > 0
+      RETURN data.taskResultsKeys)
+      RETURN DISTINCT key
+      )
+      `
+    bindings.studyKey = studyKey
+    bindings.userKey = userKey
+    bindings.producer = producer
+    bindings.taskIds = taskIds
 
-    const now = (new Date()).toISOString()
+    query += `
+      FOR tr IN tasksResults
+      FILTER tr.studyKey == @studyKey AND tr.userKey == @userKey AND tr.taskId IN @taskIds
+      FILTER tr._key NOT IN processedKeys
+      SORT tr.createdTS DESC
+      `
+    query += `
+      COLLECT taskResultKey = tr._key
+      RETURN {
+        "taskResultKey": taskResultKey
+      }`
 
-    const newIndicator = {
-      studyKey,
-      userKey,
-      producer,
-      createdTS: now,
-      updatedTS: now,
-      taskIds,
-      taskResultsIds,
-      indicators
-    }
-
-    const meta = await collection.save(newIndicator)
-    newIndicator._key = meta._key
-    return newIndicator
+    applogger.trace('Querying "' + query + '"')
+    const cursor = await db.query(query, bindings)
+    return cursor.all()
   },
 
   /**
    * Creates a new task indicator.
-   * @param {TaskResultIndicator} indicator - indicator to create
+   * @param {TaskResultIndicators} indicator - indicator to create
    * @param {object} trx - optional transaction
-   * @returns {Promise<TaskResultIndicator>} - the created indicator
+   * @returns {Promise<TaskResultIndicators>} - the created indicator
    */
   async createTaskIndicator (newindicator, trx) {
     let meta
@@ -172,7 +187,7 @@ const DAL = {
   /**
    * Gets a task indicator by key.
    * @param {string} _key - key of the task indicator
-   * @returns {Promise<TaskResultIndicator>} - the task indicator
+   * @returns {Promise<TaskResultIndicators>} - the task indicator
    */
   async getOneTaskIndicator (_key) {
     const indicator = await collection.document(_key)
@@ -182,9 +197,9 @@ const DAL = {
   /**
    * Replaces a task indicator.
    * @param {string} _key - key of the task indicator
-   * @param {TaskResultIndicator} indicator - the new indicator
+   * @param {TaskResultIndicators} indicator - the new indicator
    * @param {object} trx - optional transaction
-   * @returns {Promise<TaskResultIndicator>} - the updated indicator
+   * @returns {Promise<TaskResultIndicators>} - the updated indicator
    */
   async replaceTaskIndicator (_key, indicator, trx) {
     let meta
@@ -200,9 +215,9 @@ const DAL = {
   /**
    * Updates a task indicator.
    * @param {string} _key - key of the task indicator
-   * @param {TaskResultIndicator} indicator - the updated indicator
+   * @param {TaskResultIndicators} indicator - the updated indicator
    * @param {object} trx - optional transaction
-   * @returns {Promise<TaskResultIndicator>} - the updated indicator
+   * @returns {Promise<TaskResultIndicators>} - the updated indicator
    */
   async updateTaskIndicator (_key, indicator, trx) {
     let newval

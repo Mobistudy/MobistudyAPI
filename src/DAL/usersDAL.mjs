@@ -96,15 +96,15 @@ const DAL = {
       if (roleType === 'participant') {
         queryString += ' FILTER user.role == "participant" '
         if (studyKeys) {
-          queryString += ' FOR participant in participants '
-          queryString += ' FILTER participant.userKey == user._key AND LENGTH( INTERSECTION (participant.studies[*].studyKey, @studyKeys) ) > 0   '
+          queryString += ` FOR participant in participants
+          FILTER participant.userKey == user._key AND participant.studies != null AND IS_ARRAY(participant.studies)  AND LENGTH( INTERSECTION (participant.studies[*].studyKey, @studyKeys) ) > 0 `
           bindings.studyKeys = studyKeys
         }
       } else if (role === 'researcher') {
         queryString += ' FILTER user.role == "participant" '
         if (studyKeys) {
-          queryString += ' FOR team in teams FOR study in studies '
-          queryString += ' FILTER user._key IN team.researchersKeys AND  study.teamKey == team._key AND study._key IN @studyKeys '
+          queryString += ` FOR team in teams FOR study in studies
+          FILTER user._key IN team.researchersKeys AND study.teamKey == team._key AND study._key IN @studyKeys `
           bindings.studyKeys = studyKeys
         }
       }

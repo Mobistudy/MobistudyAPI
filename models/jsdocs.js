@@ -40,15 +40,16 @@
 
 /**
  * Indicators produced by a task.
- * @typedef {Object} TaskResultIndicator
+ * @typedef {Object} TaskResultIndicators
  * @property {!string} userKey - key of the user
  * @property {string} participantKey - key of the participant
  * @property {!string} studyKey - key of the study
  * @property {!string} producer - name of the producer of the indicator
  * @property {!string} createdTS - ISO 8601 of when the result has been created
- * @property {!string} indicatorDate - ISO 8601 of when the result refers to
+ * @property {string} updatedTS - ISO 8601 of when the result has been updated
+ * @property {!string} indicatorsDate - ISO 8601 of when the result refers to
  * @property {!Array<number>} taskIds - ids of the tasks that produced this indicator
- * @property {!Array<string>} taskResultsIds - ids of the task results that produced this indicator
+ * @property {!Array<string>} taskResultsKeys - keys of the task results that produced this indicator
  * @property {object} indicators - object containing indicators, typically a key-value pair where the key is the name of the indicator and the value is a numerical value
  */
 

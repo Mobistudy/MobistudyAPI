@@ -12,7 +12,7 @@ import * as participants from './participantsDAL.mjs'
 import * as forms from './formsDAL.mjs'
 import * as tasksResults from './tasksResultsDAL.mjs'
 import * as studystats from './studyStatsDAL.mjs'
-
+import * as taskResultsIndicators from './taskResultsIndicatorsDAL.mjs'
 
 import { applogger } from '../services/logger.mjs'
 
@@ -42,6 +42,7 @@ export let DAL = {
     Object.assign(this, forms.DAL)
     Object.assign(this, tasksResults.DAL)
     Object.assign(this, studystats.DAL)
+    Object.assign(this, taskResultsIndicators.DAL)
   },
 
   async init () {
@@ -75,6 +76,7 @@ export let DAL = {
     await forms.init(this.db)
     await tasksResults.init(this.db)
     await studystats.init(this.db)
+    await taskResultsIndicators.init(this.db)
 
     // add all functions
     return this.extendDAL()

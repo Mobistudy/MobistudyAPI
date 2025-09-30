@@ -34,9 +34,9 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer1",
         createdTS: "2023-01-01T00:00:00Z",
-        indicatorDate: "2023-01-01",
+        indicatorsDate: "2023-01-01",
         taskIds: [1, 2],
-        taskResultsIds: ["tr1", "tr2"],
+        taskResultsKeys: ["tr1", "tr2"],
         indicators: {
           indicator1: 10
         }
@@ -61,10 +61,10 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer2",
         createdTS: "2023-01-01T00:00:00Z",
-        indicatorDate: "2023-01-01",
+        indicatorsDate: "2023-01-01",
 
         taskIds: [1, 2],
-        taskResultsIds: ["tr1", "tr2"],
+        taskResultsKeys: ["tr1", "tr2"],
         indicators: {
           indicator1: 10
         }
@@ -94,9 +94,9 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer1",
         createdTS: "2023-01-01T00:00:00Z",
-        indicatorDate: "2023-01-01",
+        indicatorsDate: "2023-01-01",
         taskIds: [1, 2],
-        taskResultsIds: ["tr1", "tr2"],
+        taskResultsKeys: ["tr1", "tr2"],
         indicators: {
           indicator1: 10
         }
@@ -123,10 +123,10 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer1",
         createdTS: "2023-01-01T00:00:00Z",
-        indicatorDate: "2023-01-01",
+        indicatorsDate: "2023-01-01",
 
         taskIds: [1, 2],
-        taskResultsIds: ["tr1", "tr2"],
+        taskResultsKeys: ["tr1", "tr2"],
         indicators: {
           indicator1: 50
         }
@@ -137,9 +137,9 @@ describe("Testing task indicators DAL,", () => {
         studyKey: "study1",
         producer: "producer2",
         createdTS: "2023-01-01T00:00:00Z",
-        indicatorDate: "2023-01-01",
+        indicatorsDate: "2023-01-01",
         taskIds: [1, 3],
-        taskResultsIds: ["tr1", "tr3"],
+        taskResultsKeys: ["tr1", "tr3"],
         indicators: {
           indicator3: 10
         }
@@ -169,6 +169,132 @@ describe("Testing task indicators DAL,", () => {
       expect(indicators).toBeDefined()
       expect(indicators.length).toBe(1)
       expect(indicators[0]._key).toBe(tri_key2)
+    })
+  })
+
+  describe("when adding indicators, pne per task result,", () => {
+    let tr_key1, tr_key2, tr_key3, tri_key1, tri_key2
+
+    beforeAll(async () => {
+      tr_key1 = await addDataToCollection('tasksResults', {
+        userKey: "123123",
+        studyKey: "study1",
+        taskId: 1,
+      })
+      tr_key2 = await addDataToCollection('tasksResults', {
+        userKey: "123123",
+        studyKey: "study1",
+        taskId: 1,
+      })
+      tr_key3 = await addDataToCollection('tasksResults', {
+        userKey: "123123",
+        studyKey: "study1",
+        taskId: 1,
+      })
+
+      tri_key1 = await addDataToCollection('tasksResultsIndicators', {
+        userKey: "123123",
+        studyKey: "study1",
+        producer: "producer1",
+        createdTS: "2023-01-01T00:00:00Z",
+        indicatorsDate: "2023-01-01",
+        taskIds: [1],
+        taskResultsKeys: [tr_key1],
+        indicators: {
+          indicator1: 10
+        }
+      })
+      tri_key2 = await addDataToCollection('tasksResultsIndicators', {
+        userKey: "123123",
+        studyKey: "study1",
+        producer: "producer1",
+        createdTS: "2023-01-01T00:00:00Z",
+        indicatorsDate: "2023-01-01",
+        taskIds: [1],
+        taskResultsKeys: [tr_key2],
+        indicators: {
+          indicator1: 10
+        }
+      })
+    }, 1000)
+
+    afterAll(async () => {
+      await removeFromCollection('tasksResultsIndicators', tri_key1)
+      await removeFromCollection('tasksResultsIndicators', tri_key2)
+      await removeFromCollection('tasksResults', tr_key1)
+      await removeFromCollection('tasksResults', tr_key2)
+      await removeFromCollection('tasksResults', tr_key3)
+    })
+
+    it('unprocessed task results can be found', async () => {
+      let trKeys = await testDAL.findUnprocessedTaskResults("study1", "123123", "producer1", [1])
+      expect(trKeys).not.toBeNull()
+      expect(trKeys).toBeDefined()
+      expect(trKeys.length).toBe(1)
+      expect(trKeys[0].taskResultKey).toBe(tr_key3)
+    })
+  })
+
+  describe("when adding indicators, for multiple task results,", () => {
+    let tr_key1, tr_key2, tr_key3, tri_key1, tri_key2
+
+    beforeAll(async () => {
+      tr_key1 = await addDataToCollection('tasksResults', {
+        userKey: "123123",
+        studyKey: "study1",
+        taskId: 1,
+      })
+      tr_key2 = await addDataToCollection('tasksResults', {
+        userKey: "123123",
+        studyKey: "study1",
+        taskId: 1,
+      })
+      tr_key3 = await addDataToCollection('tasksResults', {
+        userKey: "123123",
+        studyKey: "study1",
+        taskId: 1,
+      })
+
+      tri_key1 = await addDataToCollection('tasksResultsIndicators', {
+        userKey: "123123",
+        studyKey: "study1",
+        producer: "producer1",
+        createdTS: "2023-01-01T00:00:00Z",
+        indicatorsDate: "2023-01-01",
+        taskIds: [1],
+        taskResultsKeys: [tr_key1, tr_key2],
+        indicators: {
+          indicator1: 10
+        }
+      })
+      tri_key2 = await addDataToCollection('tasksResultsIndicators', {
+        userKey: "123123",
+        studyKey: "study1",
+        producer: "producer1",
+        createdTS: "2023-01-01T00:00:00Z",
+        indicatorsDate: "2023-01-01",
+        taskIds: [1],
+        taskResultsKeys: [tr_key2],
+        indicators: {
+          indicator1: 10
+        }
+      })
+    }, 1000)
+
+    afterAll(async () => {
+      await removeFromCollection('tasksResultsIndicators', tri_key1)
+      await removeFromCollection('tasksResultsIndicators', tri_key2)
+      await removeFromCollection('tasksResults', tr_key1)
+      await removeFromCollection('tasksResults', tr_key2)
+      await removeFromCollection('tasksResults', tr_key3)
+    })
+
+    it('unprocessed task results can be found', async () => {
+      let trKeys = await testDAL.findUnprocessedTaskResults("study1", "123123", "producer1", [1])
+      expect(trKeys).not.toBeNull()
+      expect(trKeys).toBeDefined()
+      expect(trKeys.length).toBe(1)
+      expect(trKeys[0].taskResultKey).toBe(tr_key3)
     })
   })
 
