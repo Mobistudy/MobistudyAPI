@@ -1,6 +1,6 @@
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
-import JStyleDailyStats from '../../src/taskResultsIndicators/jstyleDailyStats.mjs'
+import JStyleDailyStats from '../../src/taskResultsIndicators/jstyleActivityDailyStats.mjs'
 
 function dateDiffInMinutes (a, b) {
   const _MS_PER_MINUTE = 1000 * 60;
@@ -44,7 +44,7 @@ describe("Testing jStyle Daily Stats indicator,", () => {
     expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(2)
   })
 
-  it('if no indicator exists a new indicator is created for each day', async () => {
+  it('if no indicator exists, a new indicator is created for each day', async () => {
     let studyKey = 'studyKey'
     let userKey = 'userKey'
     let taskIds = [1]
@@ -116,7 +116,7 @@ describe("Testing jStyle Daily Stats indicator,", () => {
       studyKey,
       taskIds,
       participantKey: "participant1",
-      producer: 'jstyle-daily-stats',
+      producer: 'jstyle-activity-daily-stats',
       indicators: jasmine.objectContaining({
         steps: 4509,
         exerciseMinutes: 2092,
@@ -131,7 +131,7 @@ describe("Testing jStyle Daily Stats indicator,", () => {
       studyKey,
       taskIds,
       participantKey: "participant1",
-      producer: 'jstyle-daily-stats',
+      producer: 'jstyle-activity-daily-stats',
       indicators: jasmine.objectContaining({
         steps: 3262,
         exerciseMinutes: 1486,
@@ -142,8 +142,7 @@ describe("Testing jStyle Daily Stats indicator,", () => {
     }))
   })
 
-
-  it('if a past indicator exists it is updated', async () => {
+  it('if a past indicator exists, it is updated', async () => {
     let studyKey = 'studyKey'
     let userKey = 'userKey'
     let participantKey = 'participant1'

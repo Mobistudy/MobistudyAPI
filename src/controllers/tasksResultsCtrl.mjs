@@ -5,7 +5,7 @@ import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getAttachmentWriter } from '../services/attachments.mjs'
-import jstyeDailyIndicators from '../taskResultsIndicators/jstyleDailyStats.mjs'
+import jstyeDailyIndicators from '../taskResultsIndicators/jstyleActivityDailyStats.mjs'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
 

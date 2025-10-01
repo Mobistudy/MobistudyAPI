@@ -14,7 +14,7 @@ function convertTZ (date, tzString) {
 }
 
 export default {
-  producerName: 'jstyle-daily-stats',
+  producerName: 'jstyle-activity-daily-stats',
 
   taskType: 'jstyle',
 
