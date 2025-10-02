@@ -4,6 +4,7 @@ import { applogger } from '../services/logger.mjs'
 
 const UPLOADSDIR = 'tasksuploads'
 
+
 export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) {
   // create the study folder
   const studyDir = UPLOADSDIR + '/' + studyKey
@@ -166,4 +167,13 @@ export async function deleteAttachmentsByUserKey (userKey) {
       }
     }
   }
+}
+
+
+export default {
+  getAttachmentWriter,
+  getAttachmentReader,
+  getAttachments,
+  deleteAttachmentsByStudy,
+  deleteAttachmentsByUserKey
 }

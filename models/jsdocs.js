@@ -141,4 +141,24 @@
 
 
 
+/**
+ * jStyle Sleep data.
+ * @typedef {Object} JStyleSleep
+ * @property {!string} date - start date of the sleep data, as ISO 8601 string
+ * @property {number} sleepQualityDurationMins - sleep quality duration in minutes
+ * @property {Array<number>} sleepQuality - sleep quality data, array of numbers
+ */
+
+/**
+ * jStyle data.
+ * @typedef {Object} JStyleData
+ * @property {object} device - device information
+ * @property {Array<object>} activity - physical activity data
+ * @property {Array<object>} hr - heart rate data
+ * @property {Array<object>} hrv - heart rate variability data
+ * @property {Array<object>} temperature - temperature data
+ * @property {Array<object>} spo2 - blood oxygen saturation data
+ * @property {Array<JStyleSleep>} sleep - sleep data
+ */
+
 export const Types = {}

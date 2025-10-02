@@ -7,8 +7,6 @@ import { DAL } from '../DAL/DAL.mjs'
  * @typedef {import("../../models/jsdocs.js").TaskResultIndicators} TaskResultIndicators
  */
 
-let runningProcesses = {}
-
 function convertTZ (date, tzString) {
   return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", { timeZone: tzString }));
 }
@@ -22,11 +20,6 @@ export default {
     if (!studyKey) throw new Error('studyKey is required')
     if (!userKey) throw new Error('userKey is required')
     if (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0) throw new Error('taskIds is required and should be a non-empty array')
-    if (runningProcesses[`${studyKey}-${userKey}-${taskIds.join(',')}`]) {
-      applogger.warn('processJStyleDailyStats is already running, skipping this call')
-      return
-    }
-    runningProcesses[`${studyKey}-${userKey}-${taskIds.join(',')}`] = true
 
     // get the task results that have not been processed yet
     const unprocessedTaskResultsKeys = await DAL.findUnprocessedTaskResults(
@@ -49,7 +42,7 @@ export default {
           applogger.warn(`Task result ${trk} not found, skipping`)
           continue
         }
-        if (tr.type !== 'jstyle') {
+        if (tr.taskType !== 'jstyle') {
           applogger.warn(`Task result ${trk} is not of type jstyle, skipping`)
           continue
         }
@@ -128,7 +121,6 @@ export default {
         }
       }
     }
-    runningProcesses[`${studyKey}-${userKey}-${taskIds.join(',')}`] = false
   }
 }
 

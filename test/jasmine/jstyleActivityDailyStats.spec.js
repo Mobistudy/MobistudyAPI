@@ -19,31 +19,6 @@ describe("Testing jStyle Daily Stats indicator,", () => {
     spyOnAllFunctions(applogger)
   }, 100)
 
-  it('calling the processJStyleDailyStats function twice leads to one processing', async () => {
-    let studyKey = 'studyKey'
-    let userKey = 'userKey'
-    let taskIds = [1]
-
-    spyOn(DAL, 'findUnprocessedTaskResults').and.returnValue([])
-
-    JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, taskIds)
-    await JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, taskIds)
-
-    expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(1)
-  })
-
-  it('calling the processJStyleDailyStats function with different taskIds leads to separate processing', async () => {
-    let studyKey = 'studyKey'
-    let userKey = 'userKey'
-
-    spyOn(DAL, 'findUnprocessedTaskResults').and.returnValue([])
-
-    JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, [1])
-    await JStyleDailyStats.processJStyleDailyStats(studyKey, userKey, [2])
-
-    expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(2)
-  })
-
   it('if no indicator exists, a new indicator is created for each day', async () => {
     let studyKey = 'studyKey'
     let userKey = 'userKey'
@@ -57,7 +32,6 @@ describe("Testing jStyle Daily Stats indicator,", () => {
       participantKey: "participant1",
       studyKey,
       taskId: 1,
-      type: "jstyle",
       createdTS: "2025-08-28T13:13:42.529Z",
       taskType: "jstyle",
       phone: {
@@ -156,7 +130,6 @@ describe("Testing jStyle Daily Stats indicator,", () => {
       participantKey,
       studyKey,
       taskId: 1,
-      type: "jstyle",
       createdTS: "2025-08-28T13:13:42.529Z",
       taskType: "jstyle",
       phone: {
