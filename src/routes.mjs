@@ -11,6 +11,7 @@ import studyStatsCtrl from './controllers/studyStatsCtrl.mjs'
 import vocabularyCtrl from './controllers/vocabularyCtrl.mjs'
 import techadminCtrl from './controllers/techadminCtrl.mjs'
 import environmentCtrl from './controllers/environmentCtrl.mjs'
+import taskResultsIndicatorsCtrl from './controllers/taskResultsIndicatorsCtrl.mjs'
 import express from 'express'
 
 // sets up the routes
@@ -77,6 +78,9 @@ router.post('/tasksResults', mustBeLoggedIn, tasksResultsCtrl.createNew.bind(tas
 
 await attachmentsCtrl.init()
 router.get('/tasksResults/attachments/:studyKey/:userKey/:taskId/:fileName', mustBeLoggedIn, attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
+
+await taskResultsIndicatorsCtrl.init()
+router.get('/taskResultsIndicators/:studyKey/:userKey', mustBeLoggedIn, taskResultsIndicatorsCtrl.getTaskResultsIndicators.bind(taskResultsIndicatorsCtrl))
 
 await studyStatsCtrl.init()
 router.get('/studyStats/:studyKey/participantsStatusStats', mustBeLoggedIn, studyStatsCtrl.getParticipantsStatusCounts.bind(studyStatsCtrl))
