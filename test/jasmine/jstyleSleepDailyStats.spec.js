@@ -15,7 +15,7 @@ function dateDiffInMinutes (a, b) {
 function createSleepQualityArray (length, quality) {
   let arr = []
   for (let i = 0; i < length; i++) {
-    arr.push({ quality })
+    arr.push(quality)
   }
   return arr
 }
@@ -29,12 +29,12 @@ describe("Testing jStyle Sleep Stats indicator,", () => {
     spyOnAllFunctions(applogger)
   }, 100)
 
-  it('if no indicator exists, a new indicator is created for each day', async () => {
+  it('if no indicator exists, a new indicator is created for a single day', async () => {
     let studyKey = 'studyKey'
     let userKey = 'userKey'
     let taskIds = [1]
 
-    spyOn(DAL, 'findUnprocessedTaskResults').and.returnValue(['trkey1'])
+    spyOn(DAL, 'findUnprocessedTaskResults').and.returnValue([{ taskResultKey: 'trkey1' }])
 
     spyOn(DAL, 'getOneTaskResult').and.returnValue({
       _key: "trkey1",
@@ -58,6 +58,7 @@ describe("Testing jStyle Sleep Stats indicator,", () => {
       attachments: ["jstyledata.json"]
     })
     spyOn(DAL, 'getAllTaskIndicators').and.returnValues([])
+
     let createdIndicators = []
     spyOn(DAL, 'createTaskIndicator').and.callFake(async (indicator) => {
       createdIndicators.push(indicator)
@@ -67,8 +68,8 @@ describe("Testing jStyle Sleep Stats indicator,", () => {
     let sleepData = {
       sleep: [{
         sleepQualityDurationMins: 1,
-        sleepQuality: createSleepQualityArray(10, 5),
-        date: "2025-08-28T04:41:03.000Z"
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-28T00:41:01.000Z"
       }, {
         sleepQualityDurationMins: 1,
         sleepQuality: createSleepQualityArray(120, 5),
@@ -76,15 +77,7 @@ describe("Testing jStyle Sleep Stats indicator,", () => {
       }, {
         sleepQualityDurationMins: 1,
         sleepQuality: createSleepQualityArray(120, 5),
-        date: "2025-08-28T00:41:01.000Z"
-      }, {
-        sleepQualityDurationMins: 1,
-        sleepQuality: createSleepQualityArray(120, 5),
-        date: "2025-08-27T22:41:01.000Z"
-      }, {
-        sleepQualityDurationMins: 1,
-        sleepQuality: createSleepQualityArray(120, 5),
-        date: "2025-08-27T20:42:01.000Z"
+        date: "2025-08-28T04:55:01.000Z"
       }]
     }
     const mockedStream = new PassThrough()
@@ -105,8 +98,9 @@ describe("Testing jStyle Sleep Stats indicator,", () => {
     expect(DAL.createTaskIndicator).toHaveBeenCalledTimes(1)
     expect(createdIndicators).toBeDefined()
     expect(createdIndicators.length).toBe(1)
-    // "2025-08-26T22:00:00.000Z" corresponds to 2025-08-27 in Europe/Stockholm time zone
-    expect(dateDiffInMinutes(createdIndicators[0].indicatorsDate, new Date("2025-08-26T22:00:00.000Z"))).toBe(0)
+
+    // "2025-08-27T22:00:00.000Z" corresponds to 2025-08-28 in Europe/Stockholm time zone
+    expect(dateDiffInMinutes(createdIndicators[0].indicatorsDate, new Date("2025-08-27T22:00:00.000Z"))).toBe(0)
     expect(createdIndicators[0]).toEqual(jasmine.objectContaining({
       userKey,
       studyKey,
@@ -114,17 +108,131 @@ describe("Testing jStyle Sleep Stats indicator,", () => {
       participantKey: "participant1",
       producer: 'jstyle-sleep-daily-stats',
       indicators: jasmine.objectContaining({
-        averageSleepQuality: 5,
-        sleepQualityRecords: 490,
-        sleepDurationMins: 479
+        sleepQualityRecords: 360,
+        sleepDurationMins: 360
       })
     }))
-    expect(createdIndicators[0].indicators.sleepOnset).toBeDefined()
-    expect(createdIndicators[0].indicators.sleepOffset).toBeDefined()
-    expect(createdIndicators[0].indicators.sleepOnset instanceof Date).toBeTrue()
-    expect(createdIndicators[0].indicators.sleepOffset instanceof Date).toBeTrue()
-    expect(dateDiffInMinutes(createdIndicators[0].indicators.sleepOnset, new Date("2025-08-27T20:42:01.000Z"))).toBe(0)
-    expect(dateDiffInMinutes(createdIndicators[0].indicators.sleepOffset, new Date("2025-08-28T04:41:03.000Z"))).toBe(0)
+    expect(createdIndicators[0].indicators.meanSleepQuality).toBeCloseTo(5.0)
+    expect(createdIndicators[0].indicators.stdSleepQuality).toBeCloseTo(0)
+  })
+
+
+  it('if no indicator exists, mulitple indicators are created from data from multiple days', async () => {
+    let studyKey = 'studyKey'
+    let userKey = 'userKey'
+    let taskIds = [1]
+
+    spyOn(DAL, 'findUnprocessedTaskResults').and.returnValue([{ taskResultKey: 'trkey1' }])
+
+    spyOn(DAL, 'getOneTaskResult').and.returnValue({
+      _key: "trkey1",
+      userKey,
+      participantKey: "participant1",
+      studyKey,
+      taskId: 1,
+      createdTS: "2025-08-28T13:13:42.529Z",
+      taskType: "jstyle",
+      phone: {
+        manufacturer: "OnePlus",
+        model: "ONEPLUS A5010",
+        OSversion: "10",
+        appVersion: "0.4.4",
+        timeZone: "Europe/Stockholm"
+      },
+      summary: {
+        startedTS: "2025-08-28T13:13:42.529Z",
+        completedTS: "2025-08-28T13:13:46.056Z",
+      },
+      attachments: ["jstyledata.json"]
+    })
+    spyOn(DAL, 'getAllTaskIndicators').and.returnValues([], []) // no existing indicators when processing
+
+    let createdIndicators = []
+    spyOn(DAL, 'createTaskIndicator').and.callFake(async (indicator) => {
+      createdIndicators.push(indicator)
+      return indicator
+    })
+
+    let sleepData = {
+      sleep: [{
+        sleepQualityDurationMins: 1,
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-28T00:41:01.000Z"
+      }, {
+        sleepQualityDurationMins: 1,
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-28T02:41:01.000Z"
+      }, {
+        sleepQualityDurationMins: 1,
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-28T04:55:01.000Z"
+      }, {
+        sleepQualityDurationMins: 1,
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-28T23:30:01.000Z" // this belongs to 29
+      }, {
+        sleepQualityDurationMins: 1,
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-29T01:40:01.000Z"
+      }, {
+        sleepQualityDurationMins: 1,
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-29T02:55:01.000Z"
+      }, {
+        sleepQualityDurationMins: 1,
+        sleepQuality: createSleepQualityArray(120, 5),
+        date: "2025-08-29T05:00:01.000Z"
+      }]
+    }
+    const mockedStream = new PassThrough()
+    spyOn(attachments, 'getAttachmentReader').and.callFake(() => {
+      setImmediate(() => {
+        mockedStream.emit('data', JSON.stringify(sleepData))
+        mockedStream.emit('end')
+      })
+      return mockedStream
+    })
+
+
+    await JStyleSleepStats.processJStyleSleepStats(studyKey, userKey, taskIds)
+
+    expect(DAL.findUnprocessedTaskResults).toHaveBeenCalledTimes(1)
+    expect(DAL.getOneTaskResult).toHaveBeenCalledTimes(1)
+    expect(DAL.getAllTaskIndicators).toHaveBeenCalledTimes(2)
+    expect(DAL.createTaskIndicator).toHaveBeenCalledTimes(2)
+    expect(createdIndicators).toBeDefined()
+    expect(createdIndicators.length).toBe(2)
+
+    // "2025-08-27T22:00:00.000Z" corresponds to 2025-08-28 in Europe/Stockholm time zone
+    expect(dateDiffInMinutes(createdIndicators[0].indicatorsDate, new Date("2025-08-27T22:00:00.000Z"))).toBe(0)
+    expect(createdIndicators[0]).toEqual(jasmine.objectContaining({
+      userKey,
+      studyKey,
+      taskIds,
+      participantKey: "participant1",
+      producer: 'jstyle-sleep-daily-stats',
+      indicators: jasmine.objectContaining({
+        sleepQualityRecords: 360,
+        sleepDurationMins: 360
+      })
+    }))
+    expect(createdIndicators[0].indicators.meanSleepQuality).toBeCloseTo(5.0)
+    expect(createdIndicators[0].indicators.stdSleepQuality).toBeCloseTo(0)
+
+    expect(dateDiffInMinutes(createdIndicators[1].indicatorsDate, new Date("2025-08-28T22:00:00.000Z"))).toBe(0)
+    expect(createdIndicators[1]).toEqual(jasmine.objectContaining({
+      userKey,
+      studyKey,
+      taskIds,
+      participantKey: "participant1",
+      producer: 'jstyle-sleep-daily-stats',
+      indicators: jasmine.objectContaining({
+        sleepQualityRecords: 4 * 120,
+        sleepDurationMins: 4 * 120
+      })
+    }))
+    expect(createdIndicators[1].indicators.meanSleepQuality).toBeCloseTo(5.0)
+    expect(createdIndicators[1].indicators.stdSleepQuality).toBeCloseTo(0)
   })
 
 })

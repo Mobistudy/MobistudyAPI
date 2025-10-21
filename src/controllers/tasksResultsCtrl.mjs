@@ -5,7 +5,8 @@ import { DAL } from '../DAL/DAL.mjs'
 import { applogger } from '../services/logger.mjs'
 import auditLogger from '../services/auditLogger.mjs'
 import { getAttachmentWriter } from '../services/attachments.mjs'
-import jstyeDailyIndicators from '../taskResultsIndicators/jstyleActivityDailyStats.mjs'
+import jstyeActivityDailyIndicators from '../taskResultsIndicators/jstyleActivityDailyStats.mjs'
+import jstyeSleepDailyIndicators from '../taskResultsIndicators/jstyleSleepDailyStats.mjs'
 import { readFile } from 'fs/promises'
 import Ajv from 'ajv'
 
@@ -20,6 +21,14 @@ export default {
    * Initialises the controller.
    */
   async init () {
+
+    // ONLY FOR TESTING
+    // await jstyeSleepDailyIndicators.processJStyleSleepStats(
+    //   '188051',
+    //   '925',
+    //   [3]
+    // )
+
     if (process.env.VALIDATE_SCHEMA === 'true') {
 
       const accelerationSampleSchema = JSON.parse(
@@ -321,15 +330,26 @@ export default {
       auditLogger.log('tasksResultsCreated', req.user._key, newTasksResults.studyKey, newTasksResults.taskId, 'Results received for ' + newTasksResults.type + ' task, task id ' + newTasksResults.taskId + ', by participant ' + participant._key + ' for study ' + newTasksResults.studyKey, 'tasksResults', newTasksResults._key)
 
       // process task results indicators
-      if (newTasksResults.taskType === jstyeDailyIndicators.taskType) {
+      if (newTasksResults.taskType === jstyeActivityDailyIndicators.taskType) {
         try {
-          await jstyeDailyIndicators.processJStyleDailyStats(
+          await jstyeActivityDailyIndicators.processJStyleDailyStats(
             newTasksResults.studyKey,
             newTasksResults.userKey,
             [newTasksResults.taskId]
           )
         } catch (err) {
-          applogger.error({ error: err, taskResultKey: newTasksResults._key }, 'Error processing jstyle daily stats indicators')
+          applogger.error({ error: err, taskResultKey: newTasksResults._key }, 'Error processing jstyle daily activity indicators')
+        }
+      }
+      if (newTasksResults.taskType === jstyeSleepDailyIndicators.taskType) {
+        try {
+          await jstyeSleepDailyIndicators.processJStyleSleepStats(
+            newTasksResults.studyKey,
+            newTasksResults.userKey,
+            [newTasksResults.taskId]
+          )
+        } catch (err) {
+          applogger.error({ error: err, taskResultKey: newTasksResults._key }, 'Error processing jstyle daily sleep indicators')
         }
       }
     } catch (err) {

@@ -1,7 +1,7 @@
 import { applogger } from '../services/logger.mjs'
 import { DAL } from '../DAL/DAL.mjs'
 import attachments from '../services/attachments.mjs'
-
+import * as stats from '../services/stats.mjs'
 
 /**
  * Import types from the datamodels.
@@ -47,26 +47,26 @@ export default {
     } else {
       applogger.info(`Processing ${unprocessedTaskResultsKeys.length} unprocessed task results for study ${studyKey}, user ${userKey}, producer ${this.producerName}, taskIds ${taskIds}`)
 
-      // key value store where key is the date (YYYY-MM-DD) and value is the sleep summary for that date
-      let sleepSummary = {}
-
       // get the task results
       for (const trk of unprocessedTaskResultsKeys) {
+        // key value store where key is the date (YYYY-MM-DD) and value is the sleep summary for that date
+        let sleepSummary = {}
+
         /** @type {TaskResults} */
-        const tr = await DAL.getOneTaskResult(trk)
+        const tr = await DAL.getOneTaskResult(trk.taskResultKey)
 
         if (!tr) {
-          applogger.warn(`Task result ${trk} not found, skipping`)
+          applogger.warn(`Task result ${trk.taskResultKey} not found, skipping`)
           continue
         }
         if (tr.taskType !== 'jstyle') {
-          applogger.warn(`Task result ${trk} is not of type jstyle, skipping`)
+          applogger.warn(`Task result ${trk.taskResultKey} is not of type jstyle, skipping`)
           continue
         }
 
         const fileName = tr.attachments[0]
         if (!fileName) {
-          applogger.warn(`Task result ${trk} has no attachments, skipping`)
+          applogger.warn(`Task result ${trk.taskResultKey} has no attachments, skipping`)
           continue
         }
 
@@ -75,68 +75,74 @@ export default {
         const fileContent = await streamToString(readStream)
         /** @type {JStyleData} */
         const jstyleData = JSON.parse(fileContent)
-        applogger.debug(`Read attachment ${fileName} for task result ${trk}, content length ${fileContent.length}`)
+        applogger.debug(`Read attachment ${fileName} for task result ${trk.taskResultKey}, content length ${fileContent.length}`)
 
         // sort the data by date, ascending
         jstyleData.sleep.sort((a, b) => new Date(a.date) - new Date(b.date))
 
+        applogger.trace('Processing sleep data ' + jstyleData.sleep.length + ' records')
+
         // parse the sleep data
-        let dateKey // holder of the date key for the current record
-        let previousRecordEndDate = null
         for (let i = 0; i < jstyleData.sleep.length; i++) {
           const sleepRecord = jstyleData.sleep[i]
           // read the date and convert to local time
           let TZ = tr.phone?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Stockholm'
-          let recordDate = convertTZ(sleepRecord.date, TZ)
+          let recordStartDate = convertTZ(sleepRecord.date, TZ)
+          let recordEndDate = new Date(new Date(sleepRecord.date).getTime() + (sleepRecord.sleepQuality.length * sleepRecord.sleepQualityDurationMins * 60 * 1000))
 
-          // compare with previous record, if it's close in time, we associate this to the same day, even if it is past midnight
-          let updateDateKey = true
-          if (previousRecordEndDate) {
-            const timeDiff = recordDate.getTime() - previousRecordEndDate.getTime()
-            if (Math.abs(timeDiff) < 15 * 60 * 1000) { // less than 15 minutes difference
-              // use the previous date key
-              updateDateKey = false
-            }
-          }
-          if (updateDateKey) {
-            dateKey = recordDate.getFullYear() + '-' + String(recordDate.getMonth() + 1).padStart(2, '0') + '-' + String(recordDate.getDate()).padStart(2, '0')
-          }
+          applogger.trace({ start: recordStartDate, end: recordEndDate, qualitySamples: sleepRecord.sleepQuality.length, qualityDuration: sleepRecord.sleepQualityDurationMins }, 'Processing sleep record')
 
+          let dateKey = recordStartDate.getFullYear() + '-' + String(recordStartDate.getMonth() + 1).padStart(2, '0') + '-' + String(recordStartDate.getDate()).padStart(2, '0')
 
           if (!sleepSummary[dateKey]) {
             sleepSummary[dateKey] = {
               sleepDurationMins: 0,
-              sleepOnset: new Date('2100-01-01T00:00:00Z'), // far future date
-              sleepOffset: new Date('1900-01-01T00:00:00Z'), // far past date
-              averageSleepQuality: 0,
+              meanSleepQuality: 0,
+              stdSleepQuality: 0,
               sleepQualityRecords: 0
             }
           }
-          if (recordDate < sleepSummary[dateKey].sleepOnset) {
-            sleepSummary[dateKey].sleepOnset = recordDate
-          }
-          if (recordDate > sleepSummary[dateKey].sleepOffset) {
-            sleepSummary[dateKey].sleepOffset = recordDate
-          }
+          sleepSummary[dateKey].startDate = recordStartDate
           sleepSummary[dateKey].sleepQualityRecords += sleepRecord.sleepQuality.length
-          for (const sq of sleepRecord.sleepQuality) {
-            sleepSummary[dateKey].averageSleepQuality += sq.quality
+          sleepSummary[dateKey].sleepDurationMins += sleepRecord.sleepQuality.length * sleepRecord.sleepQualityDurationMins
+          // accumulate sleep quality to compute the mean
+          let meanSQ = stats.mean(sleepRecord.sleepQuality)
+
+          // compute standard deviation of sleep quality
+          let variance = stats.variance(sleepRecord.sleepQuality, true)
+          let stdDev = Math.sqrt(variance)
+
+          if (sleepSummary[dateKey].sleepQualityRecords === 0) {
+            sleepSummary[dateKey].meanSleepQuality = meanSQ
+            sleepSummary[dateKey].stdSleepQuality = stdDev
+          } else {
+            // combine old mean with new mean
+            let oldMean = sleepSummary[dateKey].meanSleepQuality
+            let oldCount = sleepSummary[dateKey].sleepQualityRecords - sleepRecord.sleepQuality.length
+            let newCount = sleepRecord.sleepQuality.length
+            sleepSummary[dateKey].meanSleepQuality = stats.combineMeans(oldMean, oldCount, meanSQ, newCount)
+
+            // combine old std dev with new std dev using Welford's method
+            let oldStd = sleepSummary[dateKey].stdSleepQuality
+            let newStd = stdDev
+            let combinedVariance = stats.combineVariances(oldMean, oldStd ** 2, oldCount, meanSQ, newStd ** 2, newCount)
+            sleepSummary[dateKey].stdSleepQuality = Math.sqrt(combinedVariance)
           }
-          previousRecordEndDate = new Date(new Date(sleepRecord.date).getTime() + (sleepRecord.sleepQuality.length * sleepRecord.sleepQualityDurationMins * 60 * 1000))
         }
 
         // now save the data as indicators, one per day
         for (const dateKey of Object.keys(sleepSummary)) {
-          applogger.debug(sleepSummary[dateKey], `Sleep summary for ${dateKey}`)
-
           // complete indicators
-          sleepSummary[dateKey].averageSleepQuality /= sleepSummary[dateKey].sleepQualityRecords || 1
-          sleepSummary[dateKey].sleepDurationMins = Math.round((sleepSummary[dateKey].sleepOffset.getTime() - sleepSummary[dateKey].sleepOnset.getTime()) / (1000 * 60))
+          sleepSummary[dateKey].averageSleepQuality /= (sleepSummary[dateKey].sleepQualityRecords || 1)
+
+          applogger.trace(sleepSummary[dateKey], `Going to save sleep summary for ${dateKey}`)
+
           // get indicators for this date, if any
 
           // get the sleep onset as date only
-          let indicatorsDate = new Date(sleepSummary[dateKey].sleepOnset)
+          let indicatorsDate = new Date(sleepSummary[dateKey].startDate)
           indicatorsDate.setHours(0, 0, 0, 0)
+          delete sleepSummary[dateKey].startDate
 
           // studyKey, userKey, producer, taskIds, date
           const existingIndicators = await DAL.getAllTaskIndicators(
@@ -162,16 +168,25 @@ export default {
               // set indicators
 
               if (!tri.indicators) tri.indicators = {}
-              if (tri.indicators.sleepDurationMins) {
-                // TODO: there is the unlikely case that two sleep records on the same day are processed based on different task results, in that case the indicators need to be accumulated, not overwritten
-                applogger.warn(`Indicator ${tri._key} already has sleep indicators set, overwriting with new value`)
-              }
+              if (tri.indicators.sleepQualityRecords) {
+                applogger.warn(`Indicator ${tri._key} already has sleep indicators set, combining with new value`)
 
-              tri.indicators.sleepDurationMins = sleepSummary[dateKey].sleepDurationMins
-              tri.indicators.sleepOnset = sleepSummary[dateKey].sleepOnset
-              tri.indicators.sleepOffset = sleepSummary[dateKey].sleepOffset
-              tri.indicators.averageSleepQuality = sleepSummary[dateKey].averageSleepQuality
-              tri.indicators.sleepQualityRecords = sleepSummary[dateKey].sleepQualityRecords
+                tri.indicators.sleepDurationMins += sleepSummary[dateKey].sleepDurationMins
+
+                // combine old mean with new mean
+                let oldMean = tri.indicators.meanSleepQuality || 0
+                let oldCount = tri.indicators.sleepQualityRecords || 0
+                let newCount = sleepSummary[dateKey].sleepQualityRecords || 0
+                let newMean = sleepSummary[dateKey].meanSleepQuality
+                sleepSummary[dateKey].meanSleepQuality = stats.combineMeans(oldMean, oldCount, newMean, newCount)
+                let combinedVariance = stats.combineVariances(oldMean, oldStd ** 2, oldCount, newMean, newStd ** 2, newCount)
+                sleepSummary[dateKey].stdSleepQuality = Math.sqrt(combinedVariance)
+              } else {
+                tri.indicators.sleepDurationMins = sleepSummary[dateKey].sleepDurationMins
+                tri.indicators.meanSleepQuality = sleepSummary[dateKey].meanSleepQuality
+                tri.indicators.stdSleepQuality = sleepSummary[dateKey].stdSleepQuality
+                tri.indicators.sleepQualityRecords = sleepSummary[dateKey].sleepQualityRecords
+              }
               tri.updatedTS = new Date()
 
               await DAL.updateTaskIndicator(tri._key, tri)
@@ -190,9 +205,8 @@ export default {
               indicatorsDate, // store only the date part
               indicators: {
                 sleepDurationMins: sleepSummary[dateKey].sleepDurationMins,
-                sleepOnset: sleepSummary[dateKey].sleepOnset,
-                sleepOffset: sleepSummary[dateKey].sleepOffset,
-                averageSleepQuality: sleepSummary[dateKey].averageSleepQuality,
+                meanSleepQuality: sleepSummary[dateKey].meanSleepQuality,
+                stdSleepQuality: sleepSummary[dateKey].stdSleepQuality,
                 sleepQualityRecords: sleepSummary[dateKey].sleepQualityRecords
               },
               taskResultsKeys: [tr._key]

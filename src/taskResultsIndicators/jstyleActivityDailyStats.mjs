@@ -37,13 +37,13 @@ export default {
       // get the task results
       for (const trk of unprocessedTaskResultsKeys) {
         /** @type {TaskResults} */
-        const tr = await DAL.getOneTaskResult(trk)
+        const tr = await DAL.getOneTaskResult(trk.taskResultKey)
         if (!tr) {
-          applogger.warn(`Task result ${trk} not found, skipping`)
+          applogger.warn(`Task result ${trk.taskResultKey} not found, skipping`)
           continue
         }
         if (tr.taskType !== 'jstyle') {
-          applogger.warn(`Task result ${trk} is not of type jstyle, skipping`)
+          applogger.warn(`Task result ${trk.taskResultKey} is not of type jstyle, skipping`)
           continue
         }
         // accumulate daily physical activity stats
