@@ -101,7 +101,7 @@ const DAL = {
     query += ` SORT data.createdTS ASC
     RETURN data`
 
-    applogger.trace('Querying "' + query + '"')
+    applogger.trace(bindings, 'Querying "' + query + '"')
     const cursor = await db.query(query, bindings, queryOptions)
     if (dataCallback) {
       while (cursor.hasNext) {
