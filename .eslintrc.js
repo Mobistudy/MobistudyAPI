@@ -11,7 +11,7 @@ module.exports = {
   },
 
   env: {
-    browser: true
+    browser: false
   },
 
   // Rules order is important, please avoid shuffling them

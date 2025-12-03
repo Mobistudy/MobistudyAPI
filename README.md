@@ -22,8 +22,7 @@ to start a Docker container with Arango. You can then access the web interface o
 
 ### Configuration
 
-For development, it is easier to create a configuration file, which must be named `.env` and placed under the root folder.
-See .env.template under the root folder as an example.
+For development, it is easier to create a configuration file, which must be named `.env` and placed under the root folder. See .env.template under the root folder as an example.
 
 You can remove CERT_KEY and CERT_FILE if you don't have an https certificate, and you can disable SMTP with SMTP_DISABLED=true and the environment APIs (open weather and Ambee) with ENVAPIS_DISABLED=true, if you don't want to use them (especially in testing).
 
@@ -117,7 +116,9 @@ Development:
 - [Daniel Abella](https://github.com/assimilate)
 - [Kevin Tsang](https://github.com/kevinchtsang)
 - [Gent Ymeri](https://github.com/gentymeri)
-
+- [Lukas Jönsson](https://github.com/LukasJnsson)
+- [Marcus Lennartsson](https://github.com/mackele)
+- [David Álvarez](https://github.com/DavisuaCoder)
 
 ## License
 
