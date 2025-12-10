@@ -1,4 +1,4 @@
-FROM node:20.14.0 as build
+FROM node:24.11.1 as build
 
 # RUN apk --no-cache add --virtual native-deps \
 #   g++ gcc libgcc libstdc++ linux-headers autoconf automake make nasm python git && \
@@ -14,7 +14,7 @@ RUN npm install --production
 COPY . /usr/src/app
 
 # https://snyk.io/blog/choosing-the-best-node-js-docker-image/
-FROM node:20.19.5-bullseye-slim
+FROM node:24.11.1-bullseye-slim
 
 COPY --from=build /usr/src/app /usr/src/app
 
