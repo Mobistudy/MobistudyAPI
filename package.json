@@ -8,6 +8,7 @@
   "scripts": {
     "lint": "eslint --ext .js,.mjs src",
     "start": "node --env-file=.env ./src/www.mjs",
+    "start-prod": "node ./src/www.mjs",
     "dev": "node --watch --trace-warnings --env-file=.env ./src/www.mjs",
     "test": "jasmine test/jasmine/**/*.spec.js",
     "test:watch": "node --watch --exec 'jasmine \"test/jasmine/**/*.spec.js\"'"

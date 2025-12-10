@@ -26,10 +26,10 @@ For development, it is easier to create a configuration file, which must be name
 
 You can remove CERT_KEY and CERT_FILE if you don't have an https certificate, and you can disable SMTP with SMTP_DISABLED=true and the environment APIs (open weather and Ambee) with ENVAPIS_DISABLED=true, if you don't want to use them (especially in testing).
 
-The AUTH_ADMIN_EMAIL and AUTH_ADMIN_PASSWORD configure the admin user of the server, you can specify the email address and password that you like.
-The LOGS_ part is for setting up the logging system, use LOGS_FOLDER to set the folder where logfiles will be written, LOGS_ROTATIONSIZE for rotating files whenever they reach a certain size, LOGS_CONSOLE if you want to print also on console (recommended when testing), LOGS_LEVEL to specify a level, as a number (see [pino](https://getpino.io/#/)), use LOGHTTP=true if you want to log every HTTP call (warning: if the system runs on Docker this is pointless, plus it can leak sensitive information in the logfile).
+The AUTH*ADMIN_EMAIL and AUTH_ADMIN_PASSWORD configure the admin user of the server, you can specify the email address and password that you like.
+The LOGS* part is for setting up the logging system, use LOGS_FOLDER to set the folder where logfiles will be written, LOGS_ROTATIONSIZE for rotating files whenever they reach a certain size, LOGS_CONSOLE if you want to print also on console (recommended when testing), LOGS_LEVEL to specify a level, as a number (see [pino](https://getpino.io/#/)), use LOGHTTP=true if you want to log every HTTP call (warning: if the system runs on Docker this is pointless, plus it can leak sensitive information in the logfile).
 
-The part starting with DB_ is important and is linked to how you configure Arango.
+The part starting with DB\_ is important and is linked to how you configure Arango.
 Your Arango instance should have a user and a database dedicated to Mobsitudy.
 Once Arango is started, open the interface at http://127.0.0.1:8529, then login using the root user. If you used used ARANGO_NO_AUTH, no password should be needed.
 
@@ -44,7 +44,7 @@ To start it:
 
 You also need to provide either a configuration file with the name `.env` or provide the same configuration as environment variables.
 
-See section about Docker for details about environmental variables.
+See the example .env.template or the Wiki section about Docker for details about environmental variables.
 
 ## Test
 
@@ -60,6 +60,7 @@ change the code), run `npm run test:watch`.
 The code is written mostly in ES6 and uses ES6 modules, please be consistent.
 
 The folder structure follows this pattern:
+
 ```
 project
 └───logs                    // used to store applications logs
@@ -100,7 +101,6 @@ See the current roadmap of the whole project on the [wiki](https://github.com/Mo
 
 If you want to add a new task, a preliminary guide is [here](https://github.com/Mobistudy/MobistudyAPI/wiki/NewTask).
 
-
 ## Credits
 
 Original idea: [Dario Salvi](https://github.com/dariosalvi78) and [Carmelo Velardo](https://github.com/2dvisio).
@@ -108,6 +108,7 @@ Original idea: [Dario Salvi](https://github.com/dariosalvi78) and [Carmelo Velar
 Coordination: [Dario Salvi](https://github.com/dariosalvi78) and [Carl Magnus Olsson](https://github.com/Trasselkalle).
 
 Development:
+
 - [Dario Salvi](https://github.com/dariosalvi78)
 - [Arvind Goburdhun](https://github.com/arvgo)
 - [Elin Forsnor](https://github.com/elinforsnor)

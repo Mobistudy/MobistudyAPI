@@ -21,6 +21,6 @@ COPY --from=build /usr/src/app /usr/src/app
 WORKDIR /usr/src/app
 ENV WEB_PORT=8080
 ENV NODE_ENV=production
-CMD ["npm", "start"]
+CMD ["npm", "start-prod"]
 
 EXPOSE 8080
