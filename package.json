@@ -7,9 +7,8 @@
   "type": "module",
   "scripts": {
     "lint": "eslint --ext .js,.mjs src",
-    "start": "node --env-file=.env ./src/www.mjs",
-    "start-prod": "node ./src/www.mjs",
-    "dev": "node --watch --trace-warnings --env-file=.env ./src/www.mjs",
+    "start": "node --env-file-if-exists=.env ./src/www.mjs",
+    "dev": "node --watch --trace-warnings --env-file-if-exists=.env ./src/www.mjs",
     "test": "jasmine test/jasmine/**/*.spec.js",
     "test:watch": "node --watch --exec 'jasmine \"test/jasmine/**/*.spec.js\"'"
   },
