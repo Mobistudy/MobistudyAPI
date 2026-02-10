@@ -2,7 +2,7 @@
 import { open as fsOpen, lstat as fsStat, mkdir as fsMkdir, readdir as fsReaddir, rm as fsRm } from 'fs/promises'
 import { applogger } from '../services/logger.mjs'
 
-const UPLOADSDIR = 'tasksuploads'
+const UPLOADSDIR = process.env.TASKS_UPLOADS_FOLDER || 'tasksuploads'
 
 
 export async function getAttachmentWriter (userKey, studyKey, taskId, fileName) {
