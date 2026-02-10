@@ -388,7 +388,7 @@ export default {
    * Send emails on change of status: active, completed, withdrawn
    * @param {Object} req - express request. Must contain params: participantUserKey and studyKey
    * body must contain the current status related to the study (currentStatus) and the timestamp (like acceptedTS)
-   * example: { currentStatus: 'withdrawn', withdrawnTS: 'ISO string', withdrawalReason: 'quit' }
+   * example: { currentStatus: 'withdrawn', withdrawalTS: 'ISO string', withdrawalReason: 'quit' }
    * withdrawalReason must be added in the case of a withdrawal
    * criteriaAnswers must be added in case of acceptance of not eligible
    * taskItemsConsent and extraItemsConsent can be added, but are not mandatory

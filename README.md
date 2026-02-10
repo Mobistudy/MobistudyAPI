@@ -50,7 +50,7 @@ See the example .env.template or the Wiki section about Docker for details about
 
 You need to have a testing database running either as local install or as docker container, exposed at the port number 5555.
 For example, using docker:
-`docker run -e ARANGO_NO_AUTH=1 -d -p 127.0.0.1:5555:8529 --name mobiTestsDB arangodb/arangodb:3.10.3`
+`docker run -e ARANGO_NO_AUTH=1 -d -p 127.0.0.1:5555:8529 --name mobiTestsDB arangodb/arangodb:3.10.7`
 
 Run `npm run test`. If you want to have the tests run continuously (as you
 change the code), run `npm run test:watch`.
