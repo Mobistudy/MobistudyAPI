@@ -113,6 +113,7 @@ const DAL = {
       surname: p.surname,
       DOB: p.dateOfBirth,
       userEmail: user.email,
+      acceptedTS: s.acceptedTS,
       status: FIRST(p.studies[* FILTER CURRENT.studyKey == @studyKey].currentStatus),
       taskResultCount: taskResultCount,
       lastTaskDate: lastTask.createdTS,
