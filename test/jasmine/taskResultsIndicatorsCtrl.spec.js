@@ -1,6 +1,7 @@
 import taskResultsIndicatorsCtrl from '../../src/controllers/taskResultsIndicatorsCtrl.mjs'
 import { DAL } from '../../src/DAL/DAL.mjs'
 import { applogger } from '../../src/services/logger.mjs'
+import jstyleActivityDailyStats from "../../src/taskResultsIndicators/jstyleActivityDailyStats.mjs"
 import { MockResponse } from '../mocks/MockResponse.mjs'
 
 describe('Testing task results indicators controller,', () => {
@@ -90,5 +91,58 @@ describe('Testing task results indicators controller,', () => {
     expect(res.code).toBe(200)
     expect(res.data.length).toBe(2)
     expect(DAL.getAllTaskIndicators).toHaveBeenCalledWith('1978', '3344', undefined, null, null, undefined, undefined, null)
+  })
+
+  it('admin can get producers names', async () => {
+
+    let res = new MockResponse()
+    await taskResultsIndicatorsCtrl.getTaskResultsIndicatorsProducers({
+      user: {
+        role: 'researcher',
+        _key: '998877'
+      }
+    }, res)
+
+    expect(res.code).toBe(200)
+    expect(res.data.length).toBe(2)
+    expect(res.data).toContain('jstyle-activity-daily-stats')
+    expect(res.data).toContain('jstyle-sleep-daily-stats')
+  })
+
+    it('non admin cannot run producers', async () => {
+    let res = new MockResponse()
+    await taskResultsIndicatorsCtrl.runTaskResultsIndicatorsProducer({
+      user: {
+        role: 'researcher',
+        _key: '998877'
+      }
+    }, res)
+
+    expect(res.code).toBe(403)
+  })
+
+  it('admin can run producers', async () => {
+    spyOn(DAL, 'getAllParticipants').and.returnValue([
+      {
+        _key: 'participant1'
+      }
+    ])
+    spyOn(jstyleActivityDailyStats, 'processJStyleDailyStats').and.returnValue(null)
+
+    let res = new MockResponse()
+    await taskResultsIndicatorsCtrl.runTaskResultsIndicatorsProducer({
+      user: {
+        role: 'admin',
+        _key: '998877'
+      },
+      params: {
+        producer: 'jstyle-activity-daily-stats',
+        studyKey: '1978',
+        taskId: '1'
+      },
+    }, res)
+
+    expect(res.code).toBe(200)
+    expect(jstyleActivityDailyStats.processJStyleDailyStats).toHaveBeenCalledWith('1978', 'participant1', [1])
   })
 })
