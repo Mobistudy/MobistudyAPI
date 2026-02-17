@@ -93,7 +93,7 @@ describe('Testing task results indicators controller,', () => {
     expect(DAL.getAllTaskIndicators).toHaveBeenCalledWith('1978', '3344', undefined, null, null, undefined, undefined, null)
   })
 
-  it('admin can get producers names', async () => {
+  it('any can get producers names', async () => {
 
     let res = new MockResponse()
     await taskResultsIndicatorsCtrl.getTaskResultsIndicatorsProducers({
@@ -105,11 +105,17 @@ describe('Testing task results indicators controller,', () => {
 
     expect(res.code).toBe(200)
     expect(res.data.length).toBe(2)
-    expect(res.data).toContain('jstyle-activity-daily-stats')
-    expect(res.data).toContain('jstyle-sleep-daily-stats')
+    expect(res.data).toContain({
+      name: 'jstyle-activity-daily-stats',
+      taskType: 'jstyle'
+    })
+    expect(res.data).toContain({
+      name: 'jstyle-sleep-daily-stats',
+      taskType: 'jstyle'
+    })
   })
 
-    it('non admin cannot run producers', async () => {
+  it('non admin cannot run producers', async () => {
     let res = new MockResponse()
     await taskResultsIndicatorsCtrl.runTaskResultsIndicatorsProducer({
       user: {
@@ -144,5 +150,43 @@ describe('Testing task results indicators controller,', () => {
 
     expect(res.code).toBe(200)
     expect(jstyleActivityDailyStats.processJStyleDailyStats).toHaveBeenCalledWith('1978', 'participant1', [1])
+  })
+
+  it('non admin cannot get study by producer name', async () => {
+    let res = new MockResponse()
+    await taskResultsIndicatorsCtrl.getStudiesWithTaskResultsIndicatorsProducer({
+      user: {
+        role: 'researcher',
+        _key: '998877'
+      },
+      params: {
+        producer: 'jstyle-activity-daily-stats'
+      }
+    }, res)
+
+    expect(res.code).toBe(403)
+  })
+
+  it('admin can get study by producer name', async () => {
+    spyOn(DAL, 'getStudiesWithTaskTypes').and.returnValue([
+      {
+        _key: 'study1',
+        title: 'Study 1'
+      }
+    ])
+    let res = new MockResponse()
+    await taskResultsIndicatorsCtrl.getStudiesWithTaskResultsIndicatorsProducer({
+      user: {
+        role: 'admin',
+        _key: '998877'
+      },
+      params: {
+        producer: 'jstyle-activity-daily-stats'
+      }
+    }, res)
+
+    expect(res.code).toBe(200)
+    expect(res.data.length).toBe(1)
+    expect(DAL.getStudiesWithTaskTypes).toHaveBeenCalledWith(['jstyle'])
   })
 })

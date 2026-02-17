@@ -84,9 +84,44 @@ export default {
    */
   getTaskResultsIndicatorsProducers(req, res) {
     res.status(200).json([
-      jstyleActivityDailyStats.producerName,
-      jstyleSleepDailyStats.producerName
+      {
+        name: jstyleActivityDailyStats.producerName,
+        taskType: jstyleActivityDailyStats.taskType
+      },
+      {
+        name: jstyleSleepDailyStats.producerName,
+        taskType: jstyleSleepDailyStats.taskType
+      }
     ])
+  },
+
+  /**
+   * Gets the list of studies that have task results indicators producer.
+   * Can only be called by admins.
+   * @param {Object} req - the request object, must include param: producer (name of the producer).
+   * @param {Object} res - the response object
+   * @returns {Promise<void>}
+   */
+  async getStudiesWithTaskResultsIndicatorsProducer(req, res) {
+     // check if the user is an admin
+    if (req.user.role !== "admin") {
+      return res.status(403).send("Only admins can run producers")
+    }
+    // check parameters in request
+    const { producer } = req.params
+    if (!producer) {
+      return res.status(400).send("Missing required parameter: producer")
+    }
+
+    let studies = []
+    if (producer === jstyleActivityDailyStats.producerName) {
+      studies = await DAL.getStudiesWithTaskTypes(['jstyle'])
+    } else if (producer === jstyleSleepDailyStats.producerName) {
+      studies = await DAL.getStudiesWithTaskTypes(['jstyle'])
+    } else {
+      return res.status(400).send("Unknown producer")
+    }
+    return res.status(200).json(studies)
   },
 
   /**

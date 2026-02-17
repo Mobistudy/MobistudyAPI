@@ -35,6 +35,76 @@ describe("when arangodb is running,", () => {
     await dropDatabase(DBNAME)
   })
 
+  describe("when a study exists,", () => {
+    let study1key, study2key
+    beforeAll(async () => {
+    study1key = await addDataToCollection("studies", {
+          publishedTS: "2020-02-27T12:46:07.294Z",
+          teamKey: "team1",
+          generalities: {
+            title: {
+              en: "study2",
+            },
+            languages: ["en"],
+            startDate: "2020-02-01",
+            endDate: new Date().addDays(60).toISODateString(),
+          },
+          inclusionCriteria: {
+            countries: ["gb"],
+            minAge: 18,
+            maxAge: 100,
+            sex: ["male", "female", "other"],
+            numberOfParticipants: 5,
+            diseases: [],
+            medications: [],
+            minBMI: 18,
+            maxBMI: 30,
+          },
+          tasks: [{
+            taskId: 1,
+            type: "jstyle"
+          }]
+        })
+        study2key = await addDataToCollection("studies", {
+          publishedTS: "2020-02-27T12:46:07.294Z",
+          teamKey: "team1",
+          generalities: {
+            title: {
+              en: "study2",
+            },
+            languages: ["en"],
+            startDate: "2020-02-01",
+            endDate: new Date().addDays(60).toISODateString(),
+          },
+          inclusionCriteria: {
+            countries: ["gb"],
+            minAge: 18,
+            maxAge: 100,
+            sex: ["male", "female", "other"],
+            numberOfParticipants: 5,
+            diseases: [],
+            medications: [],
+            minBMI: 18,
+            maxBMI: 30,
+          },
+          tasks: [{
+            taskId: 1,
+            type: "tugt"
+          }]
+        })
+      })
+      afterAll(async () => {
+        await removeFromCollection('studies', study1key)
+        await removeFromCollection('studies', study2key)
+      }, 5000)
+
+    it("study with task type can be found", async () => {
+      let study = await testDAL.getStudiesWithTaskTypes(['jstyle'])
+      expect(study.length).toBe(1)
+      expect(study[0]._key).toBe(study1key)
+    })
+  })
+
   describe("when a bunch of users and teams are set,", () => {
     let researcher1Key, team1Key;
     beforeAll(async () => {

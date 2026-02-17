@@ -59,7 +59,7 @@ const DAL = {
    * @param {*} sortDirection - optional, sort direction referring to the creation time
    * @param {*} offset - optional, starting from result N, used for paging
    * @param {*} count - optional, number of results to be returned, used for paging
-   * @param {*} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
+   * @param {function} dataCallback - optional, callback used when receiving data one by one (except when using pagination)
    * @returns {Promise<Array<Types.StudyDescription> | Types.PagedQueryResult<Types.StudyDescription> | null>}  a promise that passes the data as an array (or empty if dataCallback is specified)
    */
   async getStudies (after, before, studyTitle, teamsKeys, participantKey, summary, sortDirection, offset, count, dataCallback) {
@@ -136,6 +136,33 @@ const DAL = {
       } else {
         return cursor.all()
       }
+    }
+  },
+
+  /**
+   * Gets the study descriptions that have at least one of the specified task types
+   * @param {Array<String>} taskTypes
+   * @param {function} dataCallback
+   * @returns {Promise<Array<Types.StudyDescription> | null>}  a promise that passes the data as an array (or empty if dataCallback is specified)
+   */
+  async getStudiesWithTaskTypes (taskTypes, dataCallback) {
+    const bindings = { taskTypes }
+    let queryString = `FOR study IN studies
+      FILTER LENGTH(
+        FOR taskType IN @taskTypes
+        FILTER taskType IN study.tasks[*].type
+        RETURN 1
+      ) > 0
+      RETURN study`
+    applogger.trace(bindings, 'Querying "' + queryString + '"')
+    const cursor = await db.query(queryString, bindings)
+    if (dataCallback) {
+      while (cursor.hasNext) {
+        const a = await cursor.next()
+        dataCallback(a)
+      }
+    } else {
+      return cursor.all()
     }
   },
 
