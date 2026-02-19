@@ -81,7 +81,10 @@ export default async function () {
   router.get('/tasksResults/attachments/:studyKey/:userKey/:taskId/:fileName', mustBeLoggedIn, attachmentsCtrl.getAttachment.bind(attachmentsCtrl))
 
   await taskResultsIndicatorsCtrl.init()
+  router.get('/taskResultsIndicators/producers', mustBeLoggedIn, taskResultsIndicatorsCtrl.getTaskResultsIndicatorsProducers.bind(taskResultsIndicatorsCtrl))
+  router.get('/taskResultsIndicators/studiesWithProducer/:producer', mustBeLoggedIn, taskResultsIndicatorsCtrl.getStudiesWithTaskResultsIndicatorsProducer.bind(taskResultsIndicatorsCtrl))
   router.get('/taskResultsIndicators/:studyKey/:userKey', mustBeLoggedIn, taskResultsIndicatorsCtrl.getTaskResultsIndicators.bind(taskResultsIndicatorsCtrl))
+  router.post('/taskResultsIndicators/runProducer/:producer/:studyKey/:taskId/', mustBeLoggedIn, taskResultsIndicatorsCtrl.runTaskResultsIndicatorsProducer.bind(taskResultsIndicatorsCtrl))
 
   await studyStatsCtrl.init()
   router.get('/studyStats/:studyKey/participantsStatusStats', mustBeLoggedIn, studyStatsCtrl.getParticipantsStatusCounts.bind(studyStatsCtrl))

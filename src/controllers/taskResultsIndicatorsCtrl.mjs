@@ -103,25 +103,33 @@ export default {
    * @returns {Promise<void>}
    */
   async getStudiesWithTaskResultsIndicatorsProducer(req, res) {
-     // check if the user is an admin
-    if (req.user.role !== "admin") {
-      return res.status(403).send("Only admins can run producers")
-    }
-    // check parameters in request
-    const { producer } = req.params
-    if (!producer) {
-      return res.status(400).send("Missing required parameter: producer")
-    }
+    try {
+      // check if the user is an admin
+      if (!req.user || req.user.role !== "admin") {
+        return res.status(403).send("Only admins can run producers")
+      }
+      // check parameters in request
+      const { producer } = req.params
+      if (!producer) {
+        return res.status(400).send("Missing required parameter: producer")
+      }
 
-    let studies = []
-    if (producer === jstyleActivityDailyStats.producerName) {
-      studies = await DAL.getStudiesWithTaskTypes(['jstyle'])
-    } else if (producer === jstyleSleepDailyStats.producerName) {
-      studies = await DAL.getStudiesWithTaskTypes(['jstyle'])
-    } else {
-      return res.status(400).send("Unknown producer")
+      let studies = []
+      if (producer === jstyleActivityDailyStats.producerName) {
+        studies = await DAL.getStudiesWithTaskTypes([jstyleActivityDailyStats.taskType])
+        studies = studies.map(s => ({ _key: s._key, title: s.generalities.title, tasks: s.tasks.filter(t => t.type === jstyleActivityDailyStats.taskType) }))
+      } else if (producer === jstyleSleepDailyStats.producerName) {
+        studies = await DAL.getStudiesWithTaskTypes([jstyleSleepDailyStats.taskType])
+        studies = studies.map(s => ({ _key: s._key, title: s.generalities.title, tasks: s.tasks.filter(t => t.type === jstyleSleepDailyStats.taskType) }))
+      } else {
+        return res.status(400).send("Unknown producer")
+      }
+      return res.status(200).json(studies)
+    } catch (err) {
+      console.error(err)
+      applogger.error({ error: err }, "Cannot retrieve studies with producer")
+      return res.sendStatus(500)
     }
-    return res.status(200).json(studies)
   },
 
   /**
@@ -130,27 +138,36 @@ export default {
    * @param {Object} res - the response object
    */
   async runTaskResultsIndicatorsProducer(req, res) {
-    // check if the user is an admin
-    if (req.user.role !== "admin") {
-      return res.status(403).send("Only admins can run producers")
-    }
-    // check parameters in request
-    const { producer, studyKey, taskId } = req.params
-    if (!producer || !studyKey || !taskId) {
-      return res.status(400).send("Missing required parameters: producer, studyKey, taskId")
-    }
-
-    // producers work for each participant, so we need to get all participants in a given study and run the producer for each of them
-    const participants = await DAL.getAllParticipants(null, studyKey)
-    for (const participant of participants) {
-      if (producer === jstyleActivityDailyStats.producerName) {
-        await jstyleActivityDailyStats.processJStyleDailyStats(studyKey, participant._key, [parseInt(taskId)])
-      } else if (producer === jstyleSleepDailyStats.producerName) {
-        await jstyleSleepDailyStats.processJStyleSleepDailyStats(studyKey, participant._key, [parseInt(taskId)])
-      } else {
-        return res.status(400).send("Unknown producer")
+    try {
+       // check if the user is an admin
+      if (req.user.role !== "admin") {
+        return res.status(403).send("Only admins can run producers")
       }
+      // check parameters in request
+      const { producer, studyKey, taskId } = req.params
+        if (!producer || !studyKey || !taskId) {
+        return res.status(400).send("Missing required parameters: producer, studyKey, taskId")
+      }
+
+      console.log('Running producer ' + producer + ' for study ' + studyKey + ' and task ', taskId)
+
+      // producers work for each participant, so we need to get all participants in a given study and run the producer for each of them
+      const participants = await DAL.getAllParticipants(null, studyKey)
+      for (const participant of participants) {
+        if (producer === jstyleActivityDailyStats.producerName) {
+          await jstyleActivityDailyStats.processJStyleDailyStats(studyKey, participant.userKey, [parseInt(taskId)])
+        } else if (producer === jstyleSleepDailyStats.producerName) {
+          await jstyleSleepDailyStats.processJStyleSleepStats(studyKey, participant.userKey, [parseInt(taskId)])
+        } else {
+          return res.status(400).send("Unknown producer")
+        }
+      }
+      return res.status(200).send('Producer run successfully')
+    } catch (err) {
+      console.error(err)
+      applogger.error({ error: err }, 'Cannot run producer')
+      return res.sendStatus(500)
     }
-    return res.status(200).send("Producer run successfully")
   }
-};
+}
+

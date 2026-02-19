@@ -142,7 +142,7 @@ const DAL = {
       queryString += `
       FILTER HAS(participant, "studies")
       FOR study in participant.studies
-      FILTER @studyKey == study.studyKey
+      FILTER @studykey == study.studyKey
       `
     }
 

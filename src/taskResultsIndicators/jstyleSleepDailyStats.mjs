@@ -176,8 +176,10 @@ export default {
                 // combine old mean with new mean
                 let oldMean = tri.indicators.meanSleepQuality || 0
                 let oldCount = tri.indicators.sleepQualityRecords || 0
+                let oldStd = tri.indicators.stdSleepQuality || 0
                 let newCount = sleepSummary[dateKey].sleepQualityRecords || 0
                 let newMean = sleepSummary[dateKey].meanSleepQuality
+                let newStd = sleepSummary[dateKey].stdSleepQuality || 0
                 sleepSummary[dateKey].meanSleepQuality = stats.combineMeans(oldMean, oldCount, newMean, newCount)
                 let combinedVariance = stats.combineVariances(oldMean, oldStd ** 2, oldCount, newMean, newStd ** 2, newCount)
                 sleepSummary[dateKey].stdSleepQuality = Math.sqrt(combinedVariance)

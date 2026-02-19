@@ -154,7 +154,7 @@ const DAL = {
       FOR tr IN tasksResults
       FILTER tr.studyKey == @studyKey AND tr.userKey == @userKey AND tr.taskId IN @taskIds
       FILTER tr._key NOT IN processedKeys
-      SORT tr.createdTS DESC
+      SORT tr.createdTS ASC
       `
     query += `
       COLLECT taskResultKey = tr._key
