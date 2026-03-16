@@ -250,16 +250,18 @@ const DAL = {
     let queryOptions = {}
     const bindings = { researcherKey: researcherUserKey }
 
+    // get all teams the researcher is in
     let query = `FOR team IN teams
       FILTER @researcherKey IN team.researchers[*].userKey
       `
+    // limit to one team if specified
     if (teamKey) {
       bindings.teamKey = teamKey
       query += `
       FILTER team._key == @teamKey
       `
     }
-
+    // get all studies the teams owns
     query += `
     LET studiesKeys = (
         FOR study IN studies
@@ -268,23 +270,26 @@ const DAL = {
       )
     `
 
-
+    // if specified, take get preferred participants for studies owned by team(s)
     if (filterPreferred) {
       query += `
       LET preferredParts = FLATTEN(team.researchers[* FILTER CURRENT.userKey == @researcherKey].studiesOptions[** FILTER CURRENT.studyKey IN studiesKeys].preferredParticipantsKeys)
       `
     }
 
+    // get all participants that are participating in the studies
     query += `
       FOR participant IN participants
+      FILTER HAS(participant, "studies")
       FILTER studiesKeys ANY IN participant.studies[*].studyKey
       `
+    // if specified, limit to those among preferred for researcher
     if (filterPreferred) {
       query += `
       FILTER participant.userKey IN preferredParts
       `
     }
-
+    // if status filter is set, limit to patients with that status in studies
     if (currentStatus) {
       bindings.currentStatus = currentStatus
       query += ' FILTER @currentStatus IN participant.studies[* FILTER CURRENT.studyKey IN studiesKeys].currentStatus \n'
@@ -297,12 +302,14 @@ const DAL = {
       queryOptions.fullCount = true
     }
 
+    // get the studies of that patient that belong the team(s)
     if (currentStatus) {
       query += ' LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey IN studiesKeys AND CURRENT.currentStatus == @currentStatus] \n'
     } else {
       query += ` LET filteredStudies = participant.studies[* FILTER CURRENT.studyKey IN studiesKeys] \n`
     }
 
+    // now remove from the answer studies of the participant that do not belong to the team(s)
     query += `
       LET cleanedPart = UNSET(participant, 'studies')
       RETURN MERGE_RECURSIVE(cleanedPart, { studies: filteredStudies }) `
