@@ -244,7 +244,7 @@ const DAL = {
       // generate a random 6 digits number
       invitationCode = ('' + Math.round(Math.random() * 999999)).padStart(6, '0')
       // check if the number is already used
-      const query = 'FOR study IN studies FILTER study.invitationCode == @invitationCode RETURN study'
+      const query = 'FOR study IN studies FILTER HAS (study, "invitationCode") && study.invitationCode == @invitationCode RETURN study'
       const bindings = { invitationCode: invitationCode }
       applogger.trace(bindings, 'Querying "' + query + '"')
       const cursor = await db.query(query, bindings)
@@ -262,7 +262,7 @@ const DAL = {
    * @returns {Promise<Types.StudyDescription>} a Promise passing the study description
    */
   async getInvitationalStudy (invitationCode) {
-    const query = 'FOR study IN studies FILTER study.invitationCode == @invitationCode RETURN study'
+    const query = 'FOR study IN studies FILTER HAS (study, "invitationCode") && study.invitationCode == @invitationCode RETURN study'
     const bindings = { invitationCode: invitationCode }
     applogger.trace(bindings, 'Querying "' + query + '"')
     const cursor = await db.query(query, bindings)
