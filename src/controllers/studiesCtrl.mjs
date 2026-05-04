@@ -320,11 +320,14 @@ export default {
     try {
       const invitationalCode = req.params.invitationalCode
       const study = await DAL.getInvitationalStudy(invitationalCode)
-      if (!study) throw new Error('Cannot find study based on code.')
+      if (!study) {
+        res.status(404).send('No study exists with code ' + invitationalCode)
+        return
+      }
       res.send(study)
     } catch (err) {
       applogger.error({ error: err }, err.message)
-      res.status(404).send('No study exists with code ' + invitationalCode)
+      res.sendStatus(500)
     }
   },
 
