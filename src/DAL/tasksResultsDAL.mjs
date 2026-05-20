@@ -68,10 +68,12 @@ const DAL = {
       `
     }
 
+    query += `
+    SORT data.createdTS DESC`
+
     if (hasPaging) {
       query += `
-      LIMIT @offset, @count
-      `
+      LIMIT @offset, @count`
       bindings.offset = parseInt(offset)
       bindings.count = parseInt(count)
       queryOptions.fullCount = true
