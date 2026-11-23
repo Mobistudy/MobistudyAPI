@@ -1,4 +1,4 @@
-FROM node:26.13.0 as build
+FROM node:26.13 AS build
 
 # RUN apk --no-cache add --virtual native-deps \
 #   g++ gcc libgcc libstdc++ linux-headers autoconf automake make nasm python git && \
@@ -14,7 +14,8 @@ RUN npm install --production
 COPY . /usr/src/app
 
 # https://snyk.io/blog/choosing-the-best-node-js-docker-image/
-FROM node:26.13.0-bullseye-slim
+# bookworm corresponds to the current stable Debian release
+FROM node:26.13-bookworm-slim
 
 COPY --from=build /usr/src/app /usr/src/app
 
